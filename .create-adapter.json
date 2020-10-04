@@ -1,0 +1,41 @@
+{
+    "cli": true,
+    "adapterName": "eufy-security",
+    "title": "Eufy Security",
+    "description": "Eufy security description",
+    "keywords": [
+        "eufy",
+        "eufycam",
+        "eufysecurity"
+    ],
+    "expert": "no",
+    "features": [
+        "adapter"
+    ],
+    "adminFeatures": [],
+    "type": "alarm",
+    "startMode": "daemon",
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "connectionIndicator": "no",
+    "language": "TypeScript",
+    "adminReact": "no",
+    "tools": [
+        "ESLint",
+        "devcontainer"
+    ],
+    "indentation": "Space (4)",
+    "quotes": "double",
+    "es6class": "yes",
+    "authorName": "bropat",
+    "authorGithub": "bropat",
+    "authorEmail": "patrick.broetto@gmail.com",
+    "gitRemoteProtocol": "HTTPS",
+    "gitCommit": "no",
+    "license": "MIT License",
+    "ci": [
+        1
+    ],
+    "dependabot": "no",
+    "creatorVersion": "1.28.0"
+}

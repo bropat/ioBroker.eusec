@@ -1,0 +1,158 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.hasHeader = exports.sendMessage = exports.buildIntStringCommandPayload = exports.buildIntCommandPayload = exports.buildCheckCamPayload = exports.buildLookupWithKeyPayload = exports.intToBufferLE = exports.intToBufferBE = exports.promiseAny = exports.isPrivateIp = void 0;
+exports.isPrivateIp = (ip) => /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
+    /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
+    /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
+    /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
+    /^(::f{4}:)?169\.254\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
+    /^f[cd][0-9a-f]{2}:/i.test(ip) ||
+    /^fe80:/i.test(ip) ||
+    /^::1$/.test(ip) ||
+    /^::$/.test(ip);
+const reverse = (promise) => {
+    return new Promise((resolve, reject) => Promise.resolve(promise).then(reject, resolve));
+};
+exports.promiseAny = (iterable) => {
+    return reverse(Promise.all([...iterable].map(reverse)));
+};
+const applyLength = (inp, bufferLength = null) => {
+    if (!bufferLength) {
+        return inp;
+    }
+    if (bufferLength < inp.length) {
+        return inp.slice(0, bufferLength);
+    }
+    else if (bufferLength > inp.length) {
+        for (let i = 0; i <= bufferLength - inp.length; i++) {
+            inp.push(0);
+        }
+        return inp;
+    }
+    return inp;
+};
+const intToArray = (inp) => {
+    const digit = parseInt(inp.toString(), 10);
+    let str = digit.toString(16);
+    switch (str.length) {
+        case 1:
+            str = "00000" + str;
+            break;
+        case 2:
+            str = "0000" + str;
+            break;
+        case 3:
+            str = "000" + str;
+            break;
+        case 4:
+            str = "00" + str;
+            break;
+        case 5:
+            str = "0" + str;
+            break;
+    }
+    const first = parseInt(str.substr(0, 2), 16);
+    const second = parseInt(str.substr(2, 2), 16);
+    const third = parseInt(str.substr(4, 2), 16);
+    return [first, second, third];
+};
+exports.intToBufferBE = (inp, bufferLength = null) => {
+    const array = intToArray(inp);
+    return Buffer.from(applyLength(array, bufferLength));
+};
+exports.intToBufferLE = (inp, bufferLength = null) => {
+    const array = intToArray(inp);
+    array.reverse();
+    return Buffer.from(applyLength(array, bufferLength));
+};
+const p2pDidToBuffer = (p2pDid) => {
+    const p2pArray = p2pDid.split("-");
+    const buf1 = Buffer.from(p2pArray[0]);
+    const fst = exports.intToBufferBE(p2pArray[1]);
+    const numeric = Buffer.concat([Buffer.from([0x00, 0x00]), fst]);
+    const buf2 = Buffer.from(numeric);
+    const buf3 = Buffer.from(p2pArray[2]);
+    const buf4 = Buffer.from([0x00, 0x00, 0x00]);
+    return Buffer.concat([buf1, buf2, buf3, buf4], 20);
+};
+exports.buildLookupWithKeyPayload = (socket, p2pDid, dskKey) => {
+    const p2pDidBuffer = p2pDidToBuffer(p2pDid);
+    const port = socket.address().port;
+    const portAsBuffer = exports.intToBufferBE(port);
+    const portLittleEndianBuffer = Buffer.from([portAsBuffer[2], portAsBuffer[1]]);
+    const ip = socket.address().address;
+    const ipAsBuffer = Buffer.from(ip.split("."));
+    const splitter = Buffer.from([0x00, 0x00]);
+    const magic = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x04, 0x00, 0x00]);
+    const dskKeyAsBuffer = Buffer.from(dskKey);
+    const fourEmpty = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+    return Buffer.concat([p2pDidBuffer, splitter, portLittleEndianBuffer, ipAsBuffer, magic, dskKeyAsBuffer, fourEmpty]);
+};
+exports.buildCheckCamPayload = (p2pDid) => {
+    const p2pDidBuffer = p2pDidToBuffer(p2pDid);
+    const magic = Buffer.from([0x00, 0x00, 0x00]);
+    return Buffer.concat([p2pDidBuffer, magic]);
+};
+exports.buildIntCommandPayload = (value, actor) => {
+    const headerBuffer = Buffer.from([0x84, 0x00]);
+    const magicBuffer = Buffer.from([0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00]);
+    const valueBuffer = Buffer.from([value]);
+    const magicBuffer2 = Buffer.from([0x00, 0x00, 0x00]);
+    const actorBuffer = Buffer.from(actor);
+    const rest = Buffer.alloc(88);
+    return Buffer.concat([
+        headerBuffer,
+        magicBuffer,
+        valueBuffer,
+        magicBuffer2,
+        actorBuffer,
+        rest
+    ]);
+};
+exports.buildIntStringCommandPayload = (value, actor, channel = 0) => {
+    const headerBuffer = Buffer.from([0x88, 0x00]);
+    const emptyBuffer = Buffer.from([0x00, 0x00]);
+    const magicBuffer = Buffer.from([0x1, 0x00]);
+    const channelBuffer = Buffer.from([channel, 0x00]);
+    const valueBuffer = Buffer.from([value, 0x00]);
+    const actorBuffer = Buffer.from(actor);
+    const rest = Buffer.alloc(88);
+    return Buffer.concat([
+        headerBuffer,
+        emptyBuffer,
+        magicBuffer,
+        channelBuffer,
+        emptyBuffer,
+        channelBuffer,
+        emptyBuffer,
+        valueBuffer,
+        emptyBuffer,
+        actorBuffer,
+        rest,
+    ]);
+};
+exports.sendMessage = (socket, address, msgID, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!payload)
+        payload = Buffer.from([]);
+    const payloadLen = Buffer.from([Math.floor(payload.length / 256), payload.length % 256]);
+    const message = Buffer.concat([msgID, payloadLen, payload], 4 + payload.length);
+    return new Promise((resolve, reject) => {
+        socket.send(message, address.port, address.host, (err, bytes) => {
+            return err ? reject(err) : resolve(bytes);
+        });
+    });
+});
+exports.hasHeader = (msg, searchedType) => {
+    const header = Buffer.allocUnsafe(2);
+    msg.copy(header, 0, 0, 2);
+    return Buffer.compare(header, searchedType) === 0;
+};

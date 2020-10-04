@@ -1,0 +1,87 @@
+{
+    "common": {
+        "name": "eufy-security",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "Eufy Security",
+        "titleLang": {
+            "en": "Eufy Security",
+            "de": "Eufy Sicherheit",
+            "ru": "Eufy Security",
+            "pt": "Segurança Eufy",
+            "nl": "Eufy-beveiliging",
+            "fr": "Sécurité Eufy",
+            "it": "Eufy Security",
+            "es": "Seguridad Eufy",
+            "pl": "Eufy Security",
+            "zh-cn": "Eufy安全"
+        },
+        "desc": {
+            "en": "Support for Eufy-Security cameras with stations",
+            "de": "Unterstützung für Eufy-Security-Kameras mit Stationen",
+            "ru": "Поддержка камер Eufy-Security со станциями",
+            "pt": "Suporte para câmeras de segurança Eufy com estações",
+            "nl": "Ondersteuning voor Eufy-Security-camera's met stations",
+            "fr": "Prise en charge des caméras Eufy-Security avec stations",
+            "it": "Supporto per telecamere Eufy-Security con stazioni",
+            "es": "Soporte para cámaras Eufy-Security con estaciones",
+            "pl": "Wsparcie dla kamer Eufy-Security ze stacjami",
+            "zh-cn": "支持带站的Eufy-Security摄像机"
+        },
+        "authors": [
+            "bropat <patrick.broetto@gmail.com>"
+        ],
+        "keywords": [
+            "eufy",
+            "eufycam",
+            "cam",
+            "cameras"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "build/main.js",
+        "icon": "eufy-security.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/bropat/ioBroker.eufy-security/master/admin/eufy-security.png",
+        "readme": "https://github.com/bropat/ioBroker.eufy-security/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "alarm",
+        "compact": true,
+        "connectionType": "cloud",
+        "dataSource": "poll",
+        "materialize": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ]
+    },
+    "encryptedNative": [
+        "password"
+    ],
+    "protectedNative": [
+        "password"
+    ],
+    "native": {
+        "username": "",
+        "password": "",
+        "pollingInterval": 10,
+        "maxLivestreamDuration": 30
+    },
+    "objects": [],
+    "instanceObjects": []
+}
