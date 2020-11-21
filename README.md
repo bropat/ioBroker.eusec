@@ -56,6 +56,9 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.0.3
+* (bropat) Fixed issue with push notification credentials initialization
+
 ### 0.0.2
 * (bropat) Added push notification support for event notification (raw notifications!)
 * (bropat) Added 2FA (token renewal needs manual intervention)

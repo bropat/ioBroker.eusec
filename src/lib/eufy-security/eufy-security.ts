@@ -270,20 +270,20 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
     }
 
     public async registerPushNotifications(persistentIds?: string[]): Promise<Credentials | undefined> {
-        let credentials: Credentials | undefined = this.adapter.getPersistentData().push_credentials != {} ? this.adapter.getPersistentData().push_credentials as Credentials : undefined;
+        let credentials: Credentials | undefined = this.adapter.getPersistentData().push_credentials;
 
-        if (!credentials) {
+        if (!credentials || Object.keys(credentials).length === 0) {
             this.log.debug("EufySecurity.registerPushNotifications(): create new push credentials...");
             credentials = await this.pushService.createPushCredentials();
             if (credentials)
                 this.adapter.setPushCredentials(credentials);
-        } else if ((new Date().getTime() >= credentials.fidResponse.authToken.expiresAt)) {
+        } else if (new Date().getTime() >= credentials.fidResponse.authToken.expiresAt) {
             this.log.debug("EufySecurity.registerPushNotifications(): Renew push credentials...");
             credentials = await this.pushService.renewPushCredentials(credentials);
             if (credentials)
                 this.adapter.setPushCredentials(credentials);
         } else {
-            this.log.debug("EufySecurity.registerPushNotifications(): Login with previous push credentials...");
+            this.log.debug(`EufySecurity.registerPushNotifications(): Login with previous push credentials... (${JSON.stringify(credentials)})`);
             credentials = await this.pushService.loginPushCredentials(credentials);
             if (credentials)
                 this.adapter.setPushCredentials(credentials);

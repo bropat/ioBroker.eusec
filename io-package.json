@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "news": {
+            "0.0.3": {
+                "en": "Fixed issue with push notification credentials initialization",
+                "de": "Problem bei der Initialisierung der Anmeldeinformationen für Push-Benachrichtigungen behoben",
+                "ru": "Исправлена проблема с инициализацией учетных данных push-уведомлений.",
+                "pt": "Corrigido problema com a inicialização de credenciais de notificação push",
+                "nl": "Probleem opgelost met initialisatie van aanmeldingsgegevens voor pushmeldingen",
+                "fr": "Correction d'un problème avec l'initialisation des informations d'identification de notification push",
+                "it": "Risolto il problema con l'inizializzazione delle credenziali di notifica push",
+                "es": "Problema solucionado con la inicialización de las credenciales de notificación push",
+                "pl": "Naprawiono problem z inicjalizacją poświadczeń powiadomień push",
+                "zh-cn": "推送通知凭证初始化的已修复问题"
+            },
             "0.0.2": {
                 "en": "Added push notification support for event notification",
                 "de": "Unterstützung für Push-Benachrichtigungen für Ereignisbenachrichtigungen hinzugefügt",

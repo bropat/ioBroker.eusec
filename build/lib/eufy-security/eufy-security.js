@@ -242,21 +242,21 @@ class EufySecurity extends events_1.EventEmitter {
     }
     registerPushNotifications(persistentIds) {
         return __awaiter(this, void 0, void 0, function* () {
-            let credentials = this.adapter.getPersistentData().push_credentials != {} ? this.adapter.getPersistentData().push_credentials : undefined;
-            if (!credentials) {
+            let credentials = this.adapter.getPersistentData().push_credentials;
+            if (!credentials || Object.keys(credentials).length === 0) {
                 this.log.debug("EufySecurity.registerPushNotifications(): create new push credentials...");
                 credentials = yield this.pushService.createPushCredentials();
                 if (credentials)
                     this.adapter.setPushCredentials(credentials);
             }
-            else if ((new Date().getTime() >= credentials.fidResponse.authToken.expiresAt)) {
+            else if (new Date().getTime() >= credentials.fidResponse.authToken.expiresAt) {
                 this.log.debug("EufySecurity.registerPushNotifications(): Renew push credentials...");
                 credentials = yield this.pushService.renewPushCredentials(credentials);
                 if (credentials)
                     this.adapter.setPushCredentials(credentials);
             }
             else {
-                this.log.debug("EufySecurity.registerPushNotifications(): Login with previous push credentials...");
+                this.log.debug(`EufySecurity.registerPushNotifications(): Login with previous push credentials... (${JSON.stringify(credentials)})`);
                 credentials = yield this.pushService.loginPushCredentials(credentials);
                 if (credentials)
                     this.adapter.setPushCredentials(credentials);

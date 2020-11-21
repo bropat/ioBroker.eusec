@@ -1,6 +1,6 @@
 {
   "name": "iobroker.eufy-security",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "ioBroker adapter that integrates Eufy-Security cameras with stations",
   "author": {
     "name": "bropat",

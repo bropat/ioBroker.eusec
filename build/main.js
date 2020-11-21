@@ -49,7 +49,7 @@ class EufySecurity extends utils.Adapter {
             cloud_token_expiration: 0,
             openudid: "",
             serial_number: "",
-            push_credentials: {},
+            push_credentials: undefined,
             push_persistentIds: [],
             login_hash: ""
         };

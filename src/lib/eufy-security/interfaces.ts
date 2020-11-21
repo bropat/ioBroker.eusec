@@ -40,6 +40,6 @@ export interface PersistentData {
     api_base: string;
     cloud_token: string;
     cloud_token_expiration: number;
-    push_credentials: Credentials | unknown;
+    push_credentials: Credentials | undefined;
     push_persistentIds: string[];
 }
