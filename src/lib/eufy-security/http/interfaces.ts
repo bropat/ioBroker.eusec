@@ -1,5 +1,4 @@
-import { EufySecurity } from "../eufy-security";
-import { Camera } from "./device";
+import { Camera, Device } from "./device";
 import { FullDeviceResponse, HubResponse } from "./models";
 import { Station } from "./station";
 
@@ -10,6 +9,10 @@ export interface IParameter {
 
 export interface ParameterArray {
     [index: number]: string;
+}
+
+export interface Devices {
+    [index: string]: Device;
 }
 
 export interface Cameras {
@@ -29,18 +32,51 @@ export interface FullDevices {
 }
 
 interface ApiInterfaceEvents {
-    "devices": (devices: FullDevices, eufy: EufySecurity) => void;
-    "hubs": (hubs: Hubs, eufy: EufySecurity) => void;
+    "devices": (devices: FullDevices) => void;
+    "hubs": (hubs: Hubs) => void;
+    "not_connected": () => void;
 }
 
 export declare interface ApiInterface {
 
     on<U extends keyof ApiInterfaceEvents>(
-        event: U, listener: ApiInterfaceEvents[U], eufy: EufySecurity
+        event: U, listener: ApiInterfaceEvents[U]
     ): this;
 
     emit<U extends keyof ApiInterfaceEvents>(
         event: U, ...args: Parameters<ApiInterfaceEvents[U]>
+    ): boolean;
+
+}
+
+interface StationInterfaceEvents {
+    "parameter": (station: Station, type: number, value: string) => void;
+}
+
+export declare interface StationInterface {
+
+    on<U extends keyof StationInterfaceEvents>(
+        event: U, listener: StationInterfaceEvents[U]
+    ): this;
+
+    emit<U extends keyof StationInterfaceEvents>(
+        event: U, ...args: Parameters<StationInterfaceEvents[U]>
+    ): boolean;
+
+}
+
+interface DeviceInterfaceEvents {
+    "parameter": (device: Device, type: number, value: string) => void;
+}
+
+export declare interface DeviceInterface {
+
+    on<U extends keyof DeviceInterfaceEvents>(
+        event: U, listener: DeviceInterfaceEvents[U]
+    ): this;
+
+    emit<U extends keyof DeviceInterfaceEvents>(
+        event: U, ...args: Parameters<DeviceInterfaceEvents[U]>
     ): boolean;
 
 }

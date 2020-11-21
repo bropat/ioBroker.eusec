@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "news": {
+            "0.0.2": {
+                "en": "Added push notification support for event notification",
+                "de": "Unterstützung für Push-Benachrichtigungen für Ereignisbenachrichtigungen hinzugefügt",
+                "ru": "Добавлена поддержка push-уведомлений для уведомлений о событиях",
+                "pt": "Adicionado suporte de notificação push para notificação de eventos",
+                "nl": "Ondersteuning voor pushmeldingen toegevoegd voor melding van gebeurtenissen",
+                "fr": "Ajout de la prise en charge des notifications push pour la notification d'événements",
+                "it": "Aggiunto supporto per le notifiche push per la notifica degli eventi",
+                "es": "Se agregó soporte de notificación push para notificación de eventos",
+                "pl": "Dodano obsługę powiadomień push dla powiadomień o wydarzeniach",
+                "zh-cn": "增加了对事件通知的推送通知支持"
+            },
             "0.0.1": {
                 "en": "initial release",
                 "de": "Erstveröffentlichung",
@@ -48,7 +60,8 @@
             "eufy",
             "eufycam",
             "cam",
-            "cameras"
+            "cameras",
+            "security"
         ],
         "license": "MIT",
         "platform": "Javascript/Node.js",
@@ -68,7 +81,8 @@
             {
                 "js-controller": ">=1.4.2"
             }
-        ]
+        ],
+        "dataFolder": "eufy-security.%INSTANCE%"
     },
     "encryptedNative": [
         "password"
@@ -80,7 +94,8 @@
         "username": "",
         "password": "",
         "pollingInterval": 10,
-        "maxLivestreamDuration": 30
+        "maxLivestreamDuration": 30,
+        "verificationMethod": 2
     },
     "objects": [],
     "instanceObjects": []

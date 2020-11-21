@@ -1,0 +1,37 @@
+export enum PushEvent {
+    PUSH_SECURITY_EVT = 1,
+    PUSH_TFCARD_EVT = 2,
+    PUSH_DOOR_SENSOR_EVT = 3,
+    PUSH_CAM_STATE_EVT = 4,
+    PUSH_GSENSOR_EVT = 5,
+    PUSH_BATTERY_LOW_EVT = 6,
+    PUSH_BATTERY_HOT_EVT = 7,
+    PUSH_LIGHT_STATE_EVT = 8,
+    PUSH_MODE_SWITCH = 9,
+    PUSH_ALARM_EVT = 10,
+    PUSH_BATTERY_FULL_EVT = 11,
+    PUSH_REPEATER_RSSI_WEAK_EVT = 12,
+    PUSH_UPGRADE_STATUS = 13,
+    PUSH_MOTION_SENSOR_PIR = 14,
+    PUSH_ALARM_DELAY_EVT = 16,
+    PUSH_HUB_BATT_POWERED_EVT = 17,
+    PUSH_SENSOR_NO_OPEN = 18
+}
+
+export enum ServerPushEvent {
+    PUSH_INVITE_DEVICE = 10300,
+    PUSH_REMOVE_DEVICE = 10200,
+    PUSH_REMOVE_HOMEBASE = 10100,
+    PUSH_VERIFICATION = 10500
+}
+
+export const PushNotificationStateID = {
+    CONTENT: "content",
+    DEVICE_SERIALNUMBER: "device_sn",
+    EVENT_TIME: "event_time",
+    PAYLOAD: "payload",
+    PUSH_TIME: "push_time",
+    STATION_SERIALNUMBER: "station_sn",
+    TITLE: "title",
+    TYPE: "type"
+}

@@ -1,14 +1,22 @@
-import { Cameras, Stations } from "./http/interfaces";
+import { Device } from "./http/device";
+import { Devices, Stations } from "./http/interfaces";
+import { Station } from "./http/station";
+import { Credentials, PushMessage } from "./push/models";
 
 interface EufySecurityInterfaceEvents {
-    "cameras": (cameras: Cameras, adapter: ioBroker.Adapter) => void;
-    "stations": (stations: Stations, adapter: ioBroker.Adapter) => void;
+    "devices": (devices: Devices) => void;
+    "stations": (stations: Stations) => void;
+    "push_notifications": (push_msg: PushMessage) => void;
+    "connected": () => void;
+    "not_connected": () => void;
+    "device_parameter": (device: Device, param_type: number, param_value: string) => void;
+    "station_parameter": (station: Station, param_type: number, param_value: string) => void;
 }
 
 export declare interface EufySecurityInterface {
 
     on<U extends keyof EufySecurityInterfaceEvents>(
-        event: U, listener: EufySecurityInterfaceEvents[U], adapter: ioBroker.Adapter
+        event: U, listener: EufySecurityInterfaceEvents[U]
     ): this;
 
     emit<U extends keyof EufySecurityInterfaceEvents>(
@@ -22,4 +30,16 @@ export interface AdapterConfig {
     password: string;
     pollingInterval: number;
     maxLivestreamDuration: number;
+    verificationMethod: number;
+}
+
+export interface PersistentData {
+    login_hash: string;
+    openudid: string;
+    serial_number: string;
+    api_base: string;
+    cloud_token: string;
+    cloud_token_expiration: number;
+    push_credentials: Credentials | unknown;
+    push_persistentIds: string[];
 }

@@ -61,5 +61,17 @@ systemDictionary = {
         "es": "Duración máxima de la transmisión en vivo de la cámara (segundos)",
         "pl": "Maksymalny czas trwania transmisji na żywo z kamery (s)",
         "zh-cn": "相机直播的最大持续时间（秒）"
+    },
+    "Two factor authentication verification method": {
+        "en": "Two factor authentication verification method",
+        "de": "Überprüfungsmethode für die Zwei-Faktor-Authentifizierung",
+        "ru": "Метод проверки двухфакторной аутентификации",
+        "pt": "Método de verificação de autenticação de dois fatores",
+        "nl": "Verificatiemethode met twee factoren",
+        "fr": "Méthode de vérification de l'authentification à deux facteurs",
+        "it": "Metodo di verifica dell'autenticazione a due fattori",
+        "es": "Método de verificación de autenticación de dos factores",
+        "pl": "Metoda weryfikacji uwierzytelniania dwuskładnikowego",
+        "zh-cn": "两因素认证验证方法"
     }
 };

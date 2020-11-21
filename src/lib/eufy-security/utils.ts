@@ -1,5 +1,4 @@
-import { Camera } from "./http/device";
-import { Station } from "./http/station";
+import * as crypto from "crypto";
 
 export const decrypt = (key: string, value: string): string => {
     let result = "";
@@ -9,34 +8,22 @@ export const decrypt = (key: string, value: string): string => {
     return result;
 }
 
-export const getCameraStateID = (camera: Camera, level = 1, state?: string): string => {
-    if (camera) {
-        switch(level) {
-            case 0:
-                return `${camera.getStationSerial()}.cameras`
-            case 1:
-                return `${camera.getStationSerial()}.cameras.${camera.getSerial()}`
-            default:
-                if (state)
-                    return `${camera.getStationSerial()}.cameras.${camera.getSerial()}.${state}`
-                throw new Error("No state value passed.");
-        }
-    }
-    throw new Error("No Camera object passed to generate state id.");
+export const generateUDID = function(): string {
+    return crypto.randomBytes(8).readBigUInt64BE().toString(16);
+};
+
+export const generateSerialnumber = function(length: number): string {
+    return crypto.randomBytes(length/2).toString("hex");
+};
+
+export const md5 = (contents: string): string => crypto.createHash("md5").update(contents).digest("hex");
+
+export const getPushNotificationStateID = (state: string): string => {
+    return `push_notification.${state}`;
 }
 
-export const getStationStateID = (station: Station, level = 1, state?: string): string => {
-    if (station) {
-        switch(level) {
-            case 0:
-                return `${station.getSerial()}`;
-            case 1:
-                return `${station.getSerial()}.station`;
-            default:
-                if (state)
-                    return `${station.getSerial()}.station.${state}`;
-                throw new Error("No state value passed.");
-        }
-    }
-    throw new Error("No Station object passed to generate state id.");
-}
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const setStateChangedAsync = async function(adapter: ioBroker.Adapter, id: string, value: any): ioBroker.SetStateChangedPromise {
+    return await adapter.setStateChangedAsync(id, value === undefined || value === null ? null : { val: value, ack: true }).catch();
+    //return await adapter.setStateChangedAsync(id, { val: value, ack: true });
+};

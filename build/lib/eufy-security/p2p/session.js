@@ -13,18 +13,42 @@ exports.EufyP2PClientProtocol = void 0;
 const dgram_1 = require("dgram");
 const utils_1 = require("./utils");
 const types_1 = require("./types");
-class EufyP2PClientProtocol {
+const types_2 = require("../http/types");
+const events_1 = require("events");
+class EufyP2PClientProtocol extends events_1.EventEmitter {
     constructor(address, p2pDid, actor, log) {
+        super();
         this.addressTimeoutInMs = 3 * 1000;
         this.connected = false;
         this.seqNumber = 0;
         this.seenSeqNo = {};
+        this.currentControlMessageBuilder = {
+            bytesToRead: 0,
+            bytesRead: 0,
+            commandId: 0,
+            messages: {},
+        };
         this.address = address;
         this.p2pDid = p2pDid;
         this.actor = actor;
         this.log = log;
         this.socket = dgram_1.createSocket("udp4");
         this.socket.bind(0);
+    }
+    initialize() {
+        this.currentControlMessageBuilder = {
+            bytesToRead: 0,
+            bytesRead: 0,
+            commandId: 0,
+            messages: {},
+        };
+        this.connected = false;
+        this.seqNumber = 0;
+        this.seenSeqNo = {};
+        if (this.socket) {
+            this.socket.removeAllListeners();
+        }
+        //TODO: Implement reconnect strategy?
     }
     isConnected() {
         return this.connected;
@@ -42,6 +66,7 @@ class EufyP2PClientProtocol {
                             }
                             this.socket.on("message", (msg) => this.handleMsg(msg));
                             this.connected = true;
+                            this.emit("connected");
                             resolve(true);
                         }
                     });
@@ -61,22 +86,25 @@ class EufyP2PClientProtocol {
     sendPing() {
         utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.PING);
     }
-    sendCommandWithIntString(commandType, value, channel) {
+    sendCommandWithIntString(commandType, value, channel = 0) {
+        // SET_COMMAND_WITH_INT_STRING_TYPE = msgTypeID == 10
         const payload = utils_1.buildIntStringCommandPayload(value, this.actor, channel);
         this.sendCommand(commandType, payload);
     }
     sendCommandWithInt(commandType, value) {
+        // SET_COMMAND_WITH_INT_TYPE = msgTypeID == 4
         const payload = utils_1.buildIntCommandPayload(value, this.actor);
+        this.sendCommand(commandType, payload);
+    }
+    sendCommandWithString(commandType, value) {
+        // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
+        const payload = utils_1.buildStringTypeCommandPayload(value, this.actor);
         this.sendCommand(commandType, payload);
     }
     sendCommand(commandType, payload) {
         // Command header
         const msgSeqNumber = this.seqNumber++;
-        const dataTypeBuffer = Buffer.from([0xd1, 0x00]);
-        const seqAsBuffer = utils_1.intToBufferBE(msgSeqNumber, 2);
-        const magicString = Buffer.from("XZYH");
-        const commandTypeBuffer = utils_1.intToBufferLE(commandType, 2);
-        const commandHeader = Buffer.concat([dataTypeBuffer, seqAsBuffer, magicString, commandTypeBuffer]);
+        const commandHeader = utils_1.buildCommandHeader(msgSeqNumber, commandType);
         const data = Buffer.concat([commandHeader, payload]);
         this.log.debug(`EufyP2PClientProtocol.connect(): Sending commandType: ${commandType} with seqNum: ${msgSeqNumber}...`);
         utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.DATA, data);
@@ -94,7 +122,7 @@ class EufyP2PClientProtocol {
         }
         else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.PING)) {
             // Response with PONG to keep alive
-            this.log.debug("EufyP2PClientProtocol.handleMsg(): received PING, respond with PONG");
+            //this.log.debug("EufyP2PClientProtocol.handleMsg(): received PING, respond with PONG");
             utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.PONG);
             return;
         }
@@ -103,6 +131,7 @@ class EufyP2PClientProtocol {
             this.log.debug("EufyP2PClientProtocol.handleMsg(): received END");
             this.connected = false;
             this.socket.close();
+            this.emit("disconnected");
             return;
         }
         else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.CAM_ID)) {
@@ -139,16 +168,75 @@ class EufyP2PClientProtocol {
             this.handleData(seqNo, dataType, msg);
         }
         else {
-            this.log.debug(`EufyP2PClientProtocol.handleMsg(): received unknown message - msg.length: ${msg.length} msg: ${msg}`);
+            this.log.debug(`EufyP2PClientProtocol.handleMsg(): received unknown message - msg.length: ${msg.length} msg: ${msg.toString("hex")}`);
         }
     }
     handleData(seqNo, dataType, msg) {
-        this.log.debug(`EufyP2PClientProtocol.handleData(): Data to handle: seqNo: ${seqNo} - dataType: ${dataType} - msg: ${msg.toString("hex")}`);
-        const commandId = msg.slice(12, 14).readUIntLE(0, 2); // could also be the parameter type on DATA events (1224 = GUARD)
-        const data = msg.slice(24, 26).readUIntLE(0, 2); // 0 = Away, 1 = Home, 63 = Deactivated
-        // Note: data === 65420 when e.g. data mode is already set (guardMode=0, setting guardMode=0 => 65420)
-        this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandId} - data: ${data}`);
-        //TODO: Implement responses - for example Eufy protocol keepalive
+        if (dataType === "CONTROL") {
+            this.parseDataControlMessage(seqNo, msg);
+        }
+        else if (dataType === "DATA") {
+            const commandId = msg.slice(12, 14).readUIntLE(0, 2); // could also be the parameter type on DATA events (1224 = GUARD)
+            const data = msg.slice(24, 26).readUIntLE(0, 2); // 0 = Away, 1 = Home, 63 = Deactivated
+            // Note: data === 65420 when e.g. data mode is already set (guardMode=0, setting guardMode=0 => 65420)
+            // Note: data === 65430 when there is an error (sending data to a channel which do not exist)
+            const commandStr = types_1.CommandType[commandId];
+            this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandStr} (${commandId}) - data: ${data}`);
+        }
+        else if (dataType === "BINARY") {
+            //this.parseBinaryMessage(seqNo, msg);
+            this.log.debug(`EufyP2PClientProtocol.handleData(): Binary data: seqNo: ${seqNo} - dataType: ${dataType} - msg: ${msg.toString("hex")}`);
+        }
+        else {
+            this.log.debug(`EufyP2PClientProtocol.handleData(): Data to handle: seqNo: ${seqNo} - dataType: ${dataType} - msg: ${msg.toString("hex")}`);
+        }
+    }
+    parseDataControlMessage(seqNo, msg) {
+        // is this the first message?
+        const firstPartMessage = msg.slice(8, 12).toString() === utils_1.MAGIC_WORD;
+        if (firstPartMessage) {
+            const commandId = msg.slice(12, 14).readUIntLE(0, 2);
+            this.currentControlMessageBuilder.commandId = commandId;
+            const bytesToRead = msg.slice(14, 16).readUIntLE(0, 2);
+            this.currentControlMessageBuilder.bytesToRead = bytesToRead;
+            const payload = msg.slice(24);
+            this.currentControlMessageBuilder.messages[seqNo] = payload;
+            this.currentControlMessageBuilder.bytesRead += payload.byteLength;
+        }
+        else {
+            // finish message and print
+            const payload = msg.slice(8);
+            this.currentControlMessageBuilder.messages[seqNo] = payload;
+            this.currentControlMessageBuilder.bytesRead += payload.byteLength;
+        }
+        if (this.currentControlMessageBuilder.bytesRead >= this.currentControlMessageBuilder.bytesToRead) {
+            const commandId = this.currentControlMessageBuilder.commandId;
+            const messages = this.currentControlMessageBuilder.messages;
+            // sort by keys
+            let completeMessage = Buffer.from([]);
+            Object.keys(messages)
+                .sort() // assure the seqNumbers are in correct order
+                .forEach((key) => {
+                completeMessage = Buffer.concat([completeMessage, messages[parseInt(key)]]);
+            });
+            this.currentControlMessageBuilder = { bytesRead: 0, bytesToRead: 0, commandId: 0, messages: {} };
+            this.handleDataControl(commandId, completeMessage);
+        }
+    }
+    handleDataControl(commandId, message) {
+        this.log.debug(`EufyP2PClientProtocol.handleDataControl(): DATA - CONTROL message with commandId: ${types_1.CommandType[commandId]} (${commandId}) - message: ${message.toString("hex")}`);
+        switch (commandId) {
+            case types_1.CommandType.CMD_GET_ALARM_MODE:
+                this.log.debug(`EufyP2PClientProtocol.handleDataControl(): Alarm mode changed to: ${types_2.AlarmMode[message.readUIntBE(0, 1)]}`);
+                this.emit("alarm_mode", message.readUIntBE(0, 1));
+                //this.emit("data", commandId, message.readUIntBE(0, 1) as AlarmMode);
+                break;
+            case types_1.CommandType.CMD_CAMERA_INFO:
+                this.log.debug(`EufyP2PClientProtocol.handleDataControl(): Camera info: ${message.toString()}`);
+                this.emit("camera_info", JSON.parse(message.toString()));
+                //this.emit("data", commandId, JSON.parse(message.toString()) as CmdCameraInfoResponse);
+                break;
+        }
     }
     sendAck(dataType, seqNo) {
         const num_pending_acks = 1;
@@ -166,6 +254,9 @@ class EufyP2PClientProtocol {
         }
         else if (input.compare(types_1.EufyP2PDataType.CONTROL) === 0) {
             return "CONTROL";
+        }
+        else if (input.compare(types_1.EufyP2PDataType.BINARY) === 0) {
+            return "BINARY";
         }
         return "unknown";
     }

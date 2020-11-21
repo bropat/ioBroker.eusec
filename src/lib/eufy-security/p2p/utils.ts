@@ -1,4 +1,7 @@
 import { Socket } from "dgram";
+import { CommandType } from "./types";
+
+export const MAGIC_WORD = "XZYH";
 
 export const isPrivateIp = (ip: string): boolean =>
     /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
@@ -34,6 +37,12 @@ const applyLength = (inp: Array<number>, bufferLength: number | null = null): Ar
     }
 
     return inp;
+};
+
+const stringWithLength = (input: string, targetByteLength = 128): Buffer => {
+    const stringAsBuffer = Buffer.from(input);
+    const postZeros = Buffer.alloc(targetByteLength - stringAsBuffer.byteLength);
+    return Buffer.concat([stringAsBuffer, postZeros]);
 };
 
 const intToArray = (inp: string | number): Array<number> => {
@@ -125,10 +134,17 @@ export const buildIntCommandPayload = (value: number, actor: string): Buffer => 
     ]);
 };
 
+export const buildStringTypeCommandPayload = (strValue: string, actor: string): Buffer => {
+    const magic = Buffer.from([0x05, 0x01, 0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    const strValueBuffer = stringWithLength(strValue, 128);
+    const valueStrSubBuffer = stringWithLength(actor, 128);
+    return Buffer.concat([magic, strValueBuffer, valueStrSubBuffer]);
+};
+
 export const buildIntStringCommandPayload = (value: number, actor: string, channel = 0): Buffer => {
     const headerBuffer = Buffer.from([0x88, 0x00]);
     const emptyBuffer = Buffer.from([0x00, 0x00]);
-    const magicBuffer = Buffer.from([0x1, 0x00]);
+    const magicBuffer = Buffer.from([0x01, 0x00]);
     const channelBuffer = Buffer.from([channel, 0x00]);
     const valueBuffer = Buffer.from([value, 0x00]);
     const actorBuffer = Buffer.from(actor);
@@ -166,4 +182,12 @@ export const hasHeader = (msg: Buffer, searchedType: Buffer): boolean => {
     const header = Buffer.allocUnsafe(2);
     msg.copy(header, 0, 0, 2);
     return Buffer.compare(header, searchedType) === 0;
+};
+
+export const buildCommandHeader = (seqNumber: number, commandType: CommandType): Buffer => {
+    const dataTypeBuffer = Buffer.from([0xd1, 0x00]);
+    const seqAsBuffer = intToBufferBE(seqNumber, 2);
+    const magicString = Buffer.from(MAGIC_WORD);
+    const commandTypeBuffer = intToBufferLE(commandType, 2);
+    return Buffer.concat([dataTypeBuffer, seqAsBuffer, magicString, commandTypeBuffer]);
 };

@@ -1,24 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.GuardMode = exports.ParamType = exports.DeviceType = void 0;
+exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.VerfyCodeTypes = exports.ResponseErrorCode = exports.GuardMode = exports.AlarmMode = exports.ParamType = exports.DeviceType = void 0;
 var DeviceType;
 (function (DeviceType) {
     //List retrieved from com.oceanwing.battery.cam.binder.model.QueryDeviceData
     DeviceType[DeviceType["BATTERY_DOORBELL"] = 7] = "BATTERY_DOORBELL";
+    DeviceType[DeviceType["BATTERY_DOORBELL_2"] = 16] = "BATTERY_DOORBELL_2";
     DeviceType[DeviceType["CAMERA"] = 1] = "CAMERA";
     DeviceType[DeviceType["CAMERA2"] = 9] = "CAMERA2";
     DeviceType[DeviceType["CAMERA2C"] = 8] = "CAMERA2C";
+    DeviceType[DeviceType["CAMERA2C_PRO"] = 15] = "CAMERA2C_PRO";
+    DeviceType[DeviceType["CAMERA2_PRO"] = 14] = "CAMERA2_PRO";
     DeviceType[DeviceType["CAMERA_E"] = 4] = "CAMERA_E";
     DeviceType[DeviceType["DOORBELL"] = 5] = "DOORBELL";
     DeviceType[DeviceType["FLOODLIGHT"] = 3] = "FLOODLIGHT";
     DeviceType[DeviceType["INDOOR_CAMERA"] = 30] = "INDOOR_CAMERA";
+    DeviceType[DeviceType["INDOOR_CAMERA_1080"] = 34] = "INDOOR_CAMERA_1080";
     DeviceType[DeviceType["INDOOR_PT_CAMERA"] = 31] = "INDOOR_PT_CAMERA";
+    DeviceType[DeviceType["INDOOR_PT_CAMERA_1080"] = 35] = "INDOOR_PT_CAMERA_1080";
     DeviceType[DeviceType["KEYPAD"] = 11] = "KEYPAD";
     DeviceType[DeviceType["LOCK_ADVANCED"] = 51] = "LOCK_ADVANCED";
+    DeviceType[DeviceType["LOCK_ADVANCED_NO_FINGER"] = 53] = "LOCK_ADVANCED_NO_FINGER";
     DeviceType[DeviceType["LOCK_BASIC"] = 50] = "LOCK_BASIC";
-    DeviceType[DeviceType["LOCK_SIMPLE"] = 52] = "LOCK_SIMPLE";
+    DeviceType[DeviceType["LOCK_BASIC_NO_FINGER"] = 52] = "LOCK_BASIC_NO_FINGER";
     DeviceType[DeviceType["MOTION_SENSOR"] = 10] = "MOTION_SENSOR";
     DeviceType[DeviceType["SENSOR"] = 2] = "SENSOR";
+    DeviceType[DeviceType["SOLO_CAMERA"] = 32] = "SOLO_CAMERA";
+    DeviceType[DeviceType["SOLO_CAMERA_PRO"] = 33] = "SOLO_CAMERA_PRO";
     DeviceType[DeviceType["STATION"] = 0] = "STATION";
 })(DeviceType = exports.DeviceType || (exports.DeviceType = {}));
 var ParamType;
@@ -74,13 +82,45 @@ var ParamType;
     // Set only params?
     ParamType[ParamType["PUSH_MSG_MODE"] = 1252] = "PUSH_MSG_MODE";
 })(ParamType = exports.ParamType || (exports.ParamType = {}));
+var AlarmMode;
+(function (AlarmMode) {
+    AlarmMode[AlarmMode["AWAY"] = 0] = "AWAY";
+    AlarmMode[AlarmMode["HOME"] = 1] = "HOME";
+    AlarmMode[AlarmMode["DISARMED"] = 63] = "DISARMED";
+})(AlarmMode = exports.AlarmMode || (exports.AlarmMode = {}));
 var GuardMode;
 (function (GuardMode) {
     GuardMode[GuardMode["AWAY"] = 0] = "AWAY";
     GuardMode[GuardMode["HOME"] = 1] = "HOME";
     GuardMode[GuardMode["DISARMED"] = 63] = "DISARMED";
     GuardMode[GuardMode["SCHEDULE"] = 2] = "SCHEDULE";
+    GuardMode[GuardMode["GEO"] = 47] = "GEO";
+    GuardMode[GuardMode["CUSTOM1"] = 3] = "CUSTOM1";
+    GuardMode[GuardMode["CUSTOM2"] = 4] = "CUSTOM2";
+    GuardMode[GuardMode["CUSTOM3"] = 5] = "CUSTOM3";
+    GuardMode[GuardMode["OFF"] = 6] = "OFF";
 })(GuardMode = exports.GuardMode || (exports.GuardMode = {}));
+var ResponseErrorCode;
+(function (ResponseErrorCode) {
+    ResponseErrorCode[ResponseErrorCode["CODE_CONNECT_ERROR"] = 997] = "CODE_CONNECT_ERROR";
+    ResponseErrorCode[ResponseErrorCode["CODE_NEED_VERIFY_CODE"] = 26052] = "CODE_NEED_VERIFY_CODE";
+    ResponseErrorCode[ResponseErrorCode["CODE_NETWORK_ERROR"] = 998] = "CODE_NETWORK_ERROR";
+    ResponseErrorCode[ResponseErrorCode["CODE_PHONE_NONE_SUPPORT"] = 26058] = "CODE_PHONE_NONE_SUPPORT";
+    ResponseErrorCode[ResponseErrorCode["CODE_SERVER_ERROR"] = 999] = "CODE_SERVER_ERROR";
+    ResponseErrorCode[ResponseErrorCode["CODE_VERIFY_CODE_ERROR"] = 26050] = "CODE_VERIFY_CODE_ERROR";
+    ResponseErrorCode[ResponseErrorCode["CODE_VERIFY_CODE_EXPIRED"] = 26051] = "CODE_VERIFY_CODE_EXPIRED";
+    ResponseErrorCode[ResponseErrorCode["CODE_VERIFY_CODE_MAX"] = 26053] = "CODE_VERIFY_CODE_MAX";
+    ResponseErrorCode[ResponseErrorCode["CODE_VERIFY_CODE_NONE_MATCH"] = 26054] = "CODE_VERIFY_CODE_NONE_MATCH";
+    ResponseErrorCode[ResponseErrorCode["CODE_VERIFY_PASSWORD_ERROR"] = 26055] = "CODE_VERIFY_PASSWORD_ERROR";
+    ResponseErrorCode[ResponseErrorCode["CODE_WHATEVER_ERROR"] = 0] = "CODE_WHATEVER_ERROR";
+    ResponseErrorCode[ResponseErrorCode["RESP_ERROR_CODE_SESSION_TIMEOUT"] = 401] = "RESP_ERROR_CODE_SESSION_TIMEOUT";
+})(ResponseErrorCode = exports.ResponseErrorCode || (exports.ResponseErrorCode = {}));
+var VerfyCodeTypes;
+(function (VerfyCodeTypes) {
+    VerfyCodeTypes[VerfyCodeTypes["TYPE_SMS"] = 0] = "TYPE_SMS";
+    VerfyCodeTypes[VerfyCodeTypes["TYPE_PUSH"] = 1] = "TYPE_PUSH";
+    VerfyCodeTypes[VerfyCodeTypes["TYPE_EMAIL"] = 2] = "TYPE_EMAIL";
+})(VerfyCodeTypes = exports.VerfyCodeTypes || (exports.VerfyCodeTypes = {}));
 exports.DeviceStateID = {
     NAME: "name",
     MODEL: "model",
@@ -88,5 +128,5 @@ exports.DeviceStateID = {
     HARDWARE_VERSION: "hardware_version",
     SOFTWARE_VERSION: "software_version",
 };
-exports.CameraStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { MAC_ADDRESS: "mac_address", LAST_CAMERA_URL: "last_camera_url", LIVESTREAM: "livestream", START_STREAM: "start_stream", STOP_STREAM: "stop_stream" });
-exports.StationStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { GUARD_MODE: "guard_mode", IP_ADDRESS: "ip_address", MAC_ADDRESS: "mac_address" });
+exports.CameraStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { MAC_ADDRESS: "mac_address", LAST_CAMERA_URL: "last_camera_url", LIVESTREAM: "livestream", START_STREAM: "start_stream", STOP_STREAM: "stop_stream", BATTERY: "battery" });
+exports.StationStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { GUARD_MODE: "guard_mode", CURRENT_MODE: "current_mode", IP_ADDRESS: "ip_address", LAN_IP_ADDRESS: "lan_ip_address", MAC_ADDRESS: "mac_address" });

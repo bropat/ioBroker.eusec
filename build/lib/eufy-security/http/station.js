@@ -16,9 +16,10 @@ const protocol_1 = require("../p2p/protocol");
 const session_1 = require("../p2p/session");
 const types_2 = require("../p2p/types");
 const utils_1 = require("../p2p/utils");
-const utils_2 = require("../utils");
-class Station {
+const events_1 = require("events");
+class Station extends events_1.EventEmitter {
     constructor(api, hub) {
+        super();
         this.dsk_key = "";
         this.dsk_expiration = null;
         this.p2p_session = null;
@@ -26,14 +27,37 @@ class Station {
         this.api = api;
         this.hub = hub;
         this.log = api.getLog();
-        this.update(hub);
+        this.loadParameters();
     }
-    getStateID(state) {
-        return utils_2.getStationStateID(this, 2, state);
+    getStateID(state, level = 2) {
+        switch (level) {
+            case 0:
+                return `${this.getSerial()}`;
+            case 1:
+                return `${this.getSerial()}.${this.getStateChannel()}`;
+            default:
+                if (state)
+                    return `${this.getSerial()}.${this.getStateChannel()}.${state}`;
+                throw new Error("No state value passed.");
+        }
+    }
+    getStateChannel() {
+        return "station";
     }
     update(hub) {
         this.hub = hub;
-        this.loadParameters();
+        this.hub.params.forEach(param => {
+            if (this.parameters[param.param_type] != param.param_value) {
+                this.parameters[param.param_type] = parameter_1.Parameter.readValue(param.param_type, param.param_value);
+                this.emit("parameter", this, param.param_type, param.param_value);
+            }
+        });
+    }
+    isStation() {
+        return this.hub.device_type == types_1.DeviceType.STATION;
+    }
+    isDeviceStation() {
+        return this.hub.device_type != types_1.DeviceType.STATION;
     }
     getDeviceType() {
         return this.hub.device_type;
@@ -60,28 +84,21 @@ class Station {
         return this.hub.ip_addr;
     }
     loadParameters() {
-        this.log.silly("Station.loadParameters():");
         this.hub.params.forEach(param => {
-            //const param_type: string = ParamType[param.param_type];
             this.parameters[param.param_type] = parameter_1.Parameter.readValue(param.param_type, param.param_value);
         });
-        this.log.debug(`Station.loadParameters(): station_sn: ${this.getSerial()} paramters: ${JSON.stringify(this.parameters)}`);
+        this.log.debug(`Station.loadParameters(): station_sn: ${this.getSerial()} parameters: ${JSON.stringify(this.parameters)}`);
     }
     getParameter(param_type) {
-        if (Object.values(types_1.ParamType).includes(param_type))
-            return this.parameters[param_type];
-        throw new Error(`Station Parameter doesn't exists: ${param_type}`);
+        return this.parameters[param_type];
     }
     getDSKKeys() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log.silly("Station.getDSKKeys():");
-            // Start the camera stream and return the RTSP URL.
             try {
                 const response = yield this.api.request("post", "app/equipment/get_dsk_keys", {
                     station_sns: [this.getSerial()]
                 });
-                //TODO: obfuscate keys in log
-                this.log.debug(`Station.getDSKKeys(): Response: ${JSON.stringify(response.data)}`);
+                this.log.debug(`Station.getDSKKeys(): station: ${this.getSerial()} Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;
                     if (result.code == 0) {
@@ -90,20 +107,19 @@ class Station {
                             if (key.station_sn == this.getSerial()) {
                                 this.dsk_key = key.dsk_key;
                                 this.dsk_expiration = new Date(key.expiration * 1000);
-                                //TODO: obfuscate keys in log
                                 this.log.debug(`Station.getDSKKeys(): dsk_key: ${this.dsk_key} dsk_expiration: ${this.dsk_expiration}`);
                             }
                         });
                     }
                     else
-                        this.log.error(`Station.getDSKKeys(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
+                        this.log.error(`Station.getDSKKeys(): station: ${this.getSerial()} Response code not ok (code: ${result.code} msg: ${result.msg})`);
                 }
                 else {
-                    this.log.error(`Station.getDSKKeys(): Status return code not 200 (status: ${response.status} text: ${response.statusText}`);
+                    this.log.error(`Station.getDSKKeys(): station: ${this.getSerial()} Status return code not 200 (status: ${response.status} text: ${response.statusText}`);
                 }
             }
             catch (error) {
-                this.log.error(`Station.getDSKKeys(): error: ${error}`);
+                this.log.error(`Station.getDSKKeys(): station: ${this.getSerial()} error: ${error}`);
             }
         });
     }
@@ -121,9 +137,8 @@ class Station {
     }
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log.silly("Station.connect():");
             if (this.dsk_key == "" || (this.dsk_expiration && (new Date()).getTime() >= this.dsk_expiration.getTime())) {
-                this.log.debug(`Station.connect(): DSK keys not present or expired, get/renew it. (dsk_expiration: ${this.dsk_expiration})`);
+                this.log.debug(`Station.connect(): station: ${this.getSerial()} DSK keys not present or expired, get/renew it. (dsk_expiration: ${this.dsk_expiration})`);
                 yield this.getDSKKeys();
             }
             const proto = new protocol_1.DiscoveryP2PClientProtocol(this.log);
@@ -141,6 +156,8 @@ class Station {
                 }
                 if (local_addr) {
                     this.p2p_session = new session_1.EufyP2PClientProtocol(local_addr, this.hub.p2p_did, this.hub.member.action_user_id, this.log);
+                    this.p2p_session.on("alarm_mode", (mode) => this.onAlarmMode(mode));
+                    this.p2p_session.on("camera_info", (camera_info) => this.onCameraInfo(camera_info));
                     this.log.info(`Connect to station ${this.getSerial()} on host ${local_addr.host} and port ${local_addr.port}.`);
                     return yield this.p2p_session.connect();
                 }
@@ -163,17 +180,38 @@ class Station {
             }
             if (this.p2p_session) {
                 if (this.p2p_session.isConnected()) {
-                    try {
-                        this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
-                        yield this.p2p_session.sendCommandWithInt(types_2.CommandType.CMD_SET_ARMING, mode);
-                    }
-                    finally {
-                        // Close connection
-                        this.close();
-                    }
+                    this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
+                    yield this.p2p_session.sendCommandWithInt(types_2.CommandType.CMD_SET_ARMING, mode);
                 }
             }
         });
+    }
+    getCameraInfo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log.silly("Station.getCameraInfo(): ");
+            if (!this.p2p_session || !this.p2p_session.isConnected) {
+                this.log.debug(`Station.getCameraInfo(): P2P connection to station ${this.getSerial()} not present, establish it.`);
+                yield this.connect();
+            }
+            if (this.p2p_session) {
+                if (this.p2p_session.isConnected()) {
+                    this.log.debug(`Station.getCameraInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
+                    yield this.p2p_session.sendCommandWithInt(types_2.CommandType.CMD_CAMERA_INFO, 255);
+                }
+            }
+        });
+    }
+    onAlarmMode(mode) {
+        this.log.info(`Alarm mode for station ${this.getSerial()} changed to: ${types_1.AlarmMode[mode]}`);
+        this.parameters[types_1.ParamType.SCHEDULE_MODE] = mode.toString();
+        this.emit("parameter", this, types_1.ParamType.SCHEDULE_MODE, mode.toString());
+    }
+    onCameraInfo(camera_info) {
+        //TODO: Finish implementation
+        this.log.debug(`Station.onCameraInfo(): station: ${this.getSerial()} camera_info: ${JSON.stringify(camera_info)}`);
+    }
+    getParameters() {
+        return this.parameters;
     }
 }
 exports.Station = Station;

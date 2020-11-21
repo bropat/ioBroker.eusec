@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CommandType = exports.EufyP2PDataType = exports.ResponseMessageType = exports.RequestMessageType = void 0;
+exports.ControlResponse = exports.ErrorCode = exports.MessageType = exports.CommandType = exports.EufyP2PDataType = exports.ResponseMessageType = exports.RequestMessageType = void 0;
 exports.RequestMessageType = {
     STUN: Buffer.from([0xF1, 0x00]),
     LOOKUP: Buffer.from([0xF1, 0x20]),
@@ -28,10 +28,12 @@ exports.ResponseMessageType = {
 exports.EufyP2PDataType = {
     DATA: Buffer.from([0xD1, 0x00]),
     VIDEO: Buffer.from([0xD1, 0x01]),
-    CONTROL: Buffer.from([0xD1, 0x02])
+    CONTROL: Buffer.from([0xD1, 0x02]),
+    BINARY: Buffer.from([0xd1, 0x03])
 };
 var CommandType;
 (function (CommandType) {
+    //com.oceanwing.battery.cam.zmedia.model.CommandType
     CommandType[CommandType["ARM_DELAY_AWAY"] = 1158] = "ARM_DELAY_AWAY";
     CommandType[CommandType["ARM_DELAY_CUS1"] = 1159] = "ARM_DELAY_CUS1";
     CommandType[CommandType["ARM_DELAY_CUS2"] = 1160] = "ARM_DELAY_CUS2";
@@ -313,3 +315,127 @@ var CommandType;
     CommandType[CommandType["CMD_VIDEO_FRAME"] = 1300] = "CMD_VIDEO_FRAME";
     CommandType[CommandType["CMD_WIFI_CONFIG"] = 1032] = "CMD_WIFI_CONFIG";
 })(CommandType = exports.CommandType || (exports.CommandType = {}));
+var MessageType;
+(function (MessageType) {
+    //com.oceanwing.battery.cam.zmedia.model.FunctionType
+    MessageType[MessageType["INIT_P2P_CLIENT_TYPE"] = 1] = "INIT_P2P_CLIENT_TYPE";
+    MessageType[MessageType["CONNECT_P2P_TYPE"] = 2] = "CONNECT_P2P_TYPE";
+    MessageType[MessageType["DEINIT_P2P_CLIENT_TYPE"] = 3] = "DEINIT_P2P_CLIENT_TYPE";
+    MessageType[MessageType["SET_COMMAND_WITH_INT_TYPE"] = 4] = "SET_COMMAND_WITH_INT_TYPE";
+    MessageType[MessageType["GET_COMMAND_WITH_INT_TYPE"] = 5] = "GET_COMMAND_WITH_INT_TYPE";
+    MessageType[MessageType["SET_COMMAND_WITH_STRING_TYPE"] = 6] = "SET_COMMAND_WITH_STRING_TYPE";
+    MessageType[MessageType["GET_COMMAND_WITH_STRING_TYPE"] = 7] = "GET_COMMAND_WITH_STRING_TYPE";
+    MessageType[MessageType["SET_REC_BROADCAT_STATE_TYPE"] = 8] = "SET_REC_BROADCAT_STATE_TYPE";
+    MessageType[MessageType["SET_COMMAND_WITH_M_STRING"] = 9] = "SET_COMMAND_WITH_M_STRING";
+    MessageType[MessageType["SET_COMMAND_WITH_INT_STRING_TYPE"] = 10] = "SET_COMMAND_WITH_INT_STRING_TYPE";
+    MessageType[MessageType["SET_SCHEDULE_TYPE"] = 11] = "SET_SCHEDULE_TYPE";
+    MessageType[MessageType["BATCH_DEL_EVENT_TYPE"] = 12] = "BATCH_DEL_EVENT_TYPE";
+    MessageType[MessageType["ADD_AI_FACE_INFO_TYPE"] = 13] = "ADD_AI_FACE_INFO_TYPE";
+    MessageType[MessageType["SET_COMMAND_WITH_2INT_MSTRING"] = 14] = "SET_COMMAND_WITH_2INT_MSTRING";
+    MessageType[MessageType["CHECK_HUB_STATE"] = 15] = "CHECK_HUB_STATE";
+    MessageType[MessageType["SET_COMMAND_WITH_2STR_INT"] = 16] = "SET_COMMAND_WITH_2STR_INT";
+    MessageType[MessageType["BIND_HUB_TYPE"] = 17] = "BIND_HUB_TYPE";
+    MessageType[MessageType["P2P_BIND_HUB_TYPE"] = 18] = "P2P_BIND_HUB_TYPE";
+})(MessageType = exports.MessageType || (exports.MessageType = {}));
+var ErrorCode;
+(function (ErrorCode) {
+    //com.oceanwing.battery.cam.zmedia.model.MediaErrorCode
+    ErrorCode[ErrorCode["ERROR_BIND_CLIENT_SOCKET_CREATE_FAIL"] = -304] = "ERROR_BIND_CLIENT_SOCKET_CREATE_FAIL";
+    ErrorCode[ErrorCode["ERROR_BIND_CLIENT_SOCKET_RECEIVE_LEN_ERROR"] = -307] = "ERROR_BIND_CLIENT_SOCKET_RECEIVE_LEN_ERROR";
+    ErrorCode[ErrorCode["ERROR_BIND_CLIENT_SOCKET_RECEIVE_TIMEOUT"] = -306] = "ERROR_BIND_CLIENT_SOCKET_RECEIVE_TIMEOUT";
+    ErrorCode[ErrorCode["ERROR_BIND_CLIENT_SOCKET_SEND_FAIL"] = -305] = "ERROR_BIND_CLIENT_SOCKET_SEND_FAIL";
+    ErrorCode[ErrorCode["ERROR_BIND_COMMAND_ERROR"] = -309] = "ERROR_BIND_COMMAND_ERROR";
+    ErrorCode[ErrorCode["ERROR_BIND_PARAM_NULL"] = -308] = "ERROR_BIND_PARAM_NULL";
+    ErrorCode[ErrorCode["ERROR_BROADCAST_RECEIVE_SN_NULL"] = -303] = "ERROR_BROADCAST_RECEIVE_SN_NULL";
+    ErrorCode[ErrorCode["ERROR_BROADCAST_RECEIVE_TIME_OUT"] = -302] = "ERROR_BROADCAST_RECEIVE_TIME_OUT";
+    ErrorCode[ErrorCode["ERROR_BROADCAST_START_ALREADY_RUNNING"] = -300] = "ERROR_BROADCAST_START_ALREADY_RUNNING";
+    ErrorCode[ErrorCode["ERROR_BROADCAST_STOP_SOCKET_FD_ERROR"] = -301] = "ERROR_BROADCAST_STOP_SOCKET_FD_ERROR";
+    ErrorCode[ErrorCode["ERROR_CLOSE_HOMEKIT"] = -143] = "ERROR_CLOSE_HOMEKIT";
+    ErrorCode[ErrorCode["ERROR_COMMAND_TIMEOUT"] = -133] = "ERROR_COMMAND_TIMEOUT";
+    ErrorCode[ErrorCode["ERROR_CONNECT_TIMEOUT"] = -134] = "ERROR_CONNECT_TIMEOUT";
+    ErrorCode[ErrorCode["ERROR_DEV_BUSY"] = -114] = "ERROR_DEV_BUSY";
+    ErrorCode[ErrorCode["ERROR_DEV_CLOSE"] = -128] = "ERROR_DEV_CLOSE";
+    ErrorCode[ErrorCode["ERROR_DEV_OFFLINE"] = -109] = "ERROR_DEV_OFFLINE";
+    ErrorCode[ErrorCode["ERROR_DEV_UPDATEING"] = -113] = "ERROR_DEV_UPDATEING";
+    ErrorCode[ErrorCode["ERROR_GET_EXEC_RESULT"] = -120] = "ERROR_GET_EXEC_RESULT";
+    ErrorCode[ErrorCode["ERROR_HAVE_CONNECT"] = -101] = "ERROR_HAVE_CONNECT";
+    ErrorCode[ErrorCode["ERROR_HIGHT_TEMPERATURE"] = -121] = "ERROR_HIGHT_TEMPERATURE";
+    ErrorCode[ErrorCode["ERROR_HUB_NON_ADMIN"] = -125] = "ERROR_HUB_NON_ADMIN";
+    ErrorCode[ErrorCode["ERROR_HUB_UPDATEING"] = -112] = "ERROR_HUB_UPDATEING";
+    ErrorCode[ErrorCode["ERROR_INVALID_ACCOUNT"] = -104] = "ERROR_INVALID_ACCOUNT";
+    ErrorCode[ErrorCode["ERROR_INVALID_COMMAND"] = -103] = "ERROR_INVALID_COMMAND";
+    ErrorCode[ErrorCode["ERROR_INVALID_PARAM"] = -110] = "ERROR_INVALID_PARAM";
+    ErrorCode[ErrorCode["ERROR_INVALID_PARAM_LEN"] = -107] = "ERROR_INVALID_PARAM_LEN";
+    ErrorCode[ErrorCode["ERROR_MAX_DEV_CONNECT_NUM"] = -123] = "ERROR_MAX_DEV_CONNECT_NUM";
+    ErrorCode[ErrorCode["ERROR_MAX_HUB_CONNECT_NUM"] = -102] = "ERROR_MAX_HUB_CONNECT_NUM";
+    ErrorCode[ErrorCode["ERROR_MAX_NAS_CONNECT_NUM"] = -130] = "ERROR_MAX_NAS_CONNECT_NUM";
+    ErrorCode[ErrorCode["ERROR_MODE_DISABLE"] = -129] = "ERROR_MODE_DISABLE";
+    ErrorCode[ErrorCode["ERROR_NETWORK_NOT_AVAILABLE"] = 998] = "ERROR_NETWORK_NOT_AVAILABLE";
+    ErrorCode[ErrorCode["ERROR_NOT_FACE"] = -115] = "ERROR_NOT_FACE";
+    ErrorCode[ErrorCode["ERROR_NOT_FIND_DEV"] = -106] = "ERROR_NOT_FIND_DEV";
+    ErrorCode[ErrorCode["ERROR_NOT_TFCARD"] = -118] = "ERROR_NOT_TFCARD";
+    ErrorCode[ErrorCode["ERROR_NULL_POINT"] = -100] = "ERROR_NULL_POINT";
+    ErrorCode[ErrorCode["ERROR_OPEN_FILE_FAIL"] = -111] = "ERROR_OPEN_FILE_FAIL";
+    ErrorCode[ErrorCode["ERROR_PARAM_NO_CHANGE"] = -116] = "ERROR_PARAM_NO_CHANGE";
+    ErrorCode[ErrorCode["ERROR_PIPE_FAIL"] = -124] = "ERROR_PIPE_FAIL";
+    ErrorCode[ErrorCode["ERROR_PLAY_STOP"] = -127] = "ERROR_PLAY_STOP";
+    ErrorCode[ErrorCode["ERROR_POWER_LOW"] = -117] = "ERROR_POWER_LOW";
+    ErrorCode[ErrorCode["ERROR_PPCS_ALREADY_INITIALIZED"] = -2] = "ERROR_PPCS_ALREADY_INITIALIZED";
+    ErrorCode[ErrorCode["ERROR_PPCS_CONNECTING"] = -126] = "ERROR_PPCS_CONNECTING";
+    ErrorCode[ErrorCode["ERROR_PPCS_DEVICE_NOT_ONLINE"] = -6] = "ERROR_PPCS_DEVICE_NOT_ONLINE";
+    ErrorCode[ErrorCode["ERROR_PPCS_FAIL_TO_CREATE_THREAD"] = -22] = "ERROR_PPCS_FAIL_TO_CREATE_THREAD";
+    ErrorCode[ErrorCode["ERROR_PPCS_FAIL_TO_RESOLVE_NAME"] = -7] = "ERROR_PPCS_FAIL_TO_RESOLVE_NAME";
+    ErrorCode[ErrorCode["ERROR_PPCS_ID_OUT_OF_DATE"] = -9] = "ERROR_PPCS_ID_OUT_OF_DATE";
+    ErrorCode[ErrorCode["ERROR_PPCS_INVALID_APILICENSE"] = -21] = "ERROR_PPCS_INVALID_APILICENSE";
+    ErrorCode[ErrorCode["ERROR_PPCS_INVALID_DSK"] = -23] = "ERROR_PPCS_INVALID_DSK";
+    ErrorCode[ErrorCode["ERROR_PPCS_INVALID_ID"] = -4] = "ERROR_PPCS_INVALID_ID";
+    ErrorCode[ErrorCode["ERROR_PPCS_INVALID_PARAMETER"] = -5] = "ERROR_PPCS_INVALID_PARAMETER";
+    ErrorCode[ErrorCode["ERROR_PPCS_INVALID_PREFIX"] = -8] = "ERROR_PPCS_INVALID_PREFIX";
+    ErrorCode[ErrorCode["ERROR_PPCS_INVALID_SESSION_HANDLE"] = -11] = "ERROR_PPCS_INVALID_SESSION_HANDLE";
+    ErrorCode[ErrorCode["ERROR_PPCS_MAX_SESSION"] = -17] = "ERROR_PPCS_MAX_SESSION";
+    ErrorCode[ErrorCode["ERROR_PPCS_NOT_INITIALIZED"] = -1] = "ERROR_PPCS_NOT_INITIALIZED";
+    ErrorCode[ErrorCode["ERROR_PPCS_NO_RELAY_SERVER_AVAILABLE"] = -10] = "ERROR_PPCS_NO_RELAY_SERVER_AVAILABLE";
+    ErrorCode[ErrorCode["ERROR_PPCS_RELAY"] = 1] = "ERROR_PPCS_RELAY";
+    ErrorCode[ErrorCode["ERROR_PPCS_REMOTE_SITE_BUFFER_FULL"] = -15] = "ERROR_PPCS_REMOTE_SITE_BUFFER_FULL";
+    ErrorCode[ErrorCode["ERROR_PPCS_SESSION_CLOSED_CALLED"] = -14] = "ERROR_PPCS_SESSION_CLOSED_CALLED";
+    ErrorCode[ErrorCode["ERROR_PPCS_SESSION_CLOSED_INSUFFICIENT_MEMORY"] = -20] = "ERROR_PPCS_SESSION_CLOSED_INSUFFICIENT_MEMORY";
+    ErrorCode[ErrorCode["ERROR_PPCS_SESSION_CLOSED_REMOTE"] = -12] = "ERROR_PPCS_SESSION_CLOSED_REMOTE";
+    ErrorCode[ErrorCode["ERROR_PPCS_SESSION_CLOSED_TIMEOUT"] = -13] = "ERROR_PPCS_SESSION_CLOSED_TIMEOUT";
+    ErrorCode[ErrorCode["ERROR_PPCS_SUCCESSFUL"] = 0] = "ERROR_PPCS_SUCCESSFUL";
+    ErrorCode[ErrorCode["ERROR_PPCS_TIME_OUT"] = -3] = "ERROR_PPCS_TIME_OUT";
+    ErrorCode[ErrorCode["ERROR_PPCS_UDP_PORT_BIND_FAILED"] = -18] = "ERROR_PPCS_UDP_PORT_BIND_FAILED";
+    ErrorCode[ErrorCode["ERROR_PPCS_USER_CONNECT_BREAK"] = -19] = "ERROR_PPCS_USER_CONNECT_BREAK";
+    ErrorCode[ErrorCode["ERROR_PPCS_USER_LISTEN_BREAK"] = -16] = "ERROR_PPCS_USER_LISTEN_BREAK";
+    ErrorCode[ErrorCode["ERROR_SET_P2P_INFO"] = -122] = "ERROR_SET_P2P_INFO";
+    ErrorCode[ErrorCode["ERROR_STATION_HAS_BIND"] = 20020] = "ERROR_STATION_HAS_BIND";
+    ErrorCode[ErrorCode["ERROR_TFCARD_FORMATING"] = -119] = "ERROR_TFCARD_FORMATING";
+    ErrorCode[ErrorCode["ERROR_TFCARD_REPAIRING"] = -135] = "ERROR_TFCARD_REPAIRING";
+    ErrorCode[ErrorCode["ERROR_TFCARD_VOLUME_OVERFLOW"] = -132] = "ERROR_TFCARD_VOLUME_OVERFLOW";
+    ErrorCode[ErrorCode["ERROR_WAIT_TIMEOUT"] = -108] = "ERROR_WAIT_TIMEOUT";
+    ErrorCode[ErrorCode["ERROR_WAKEUP_CAMRA_TYPE"] = -131] = "ERROR_WAKEUP_CAMRA_TYPE";
+    ErrorCode[ErrorCode["ERROR_WRITE_FLASH"] = -105] = "ERROR_WRITE_FLASH";
+    ErrorCode[ErrorCode["ERROR_XM_BASE"] = -200] = "ERROR_XM_BASE";
+    ErrorCode[ErrorCode["ERROR_XM_WIFI_DISCONNECT"] = -203] = "ERROR_XM_WIFI_DISCONNECT";
+    ErrorCode[ErrorCode["ERROR_XM_WIFI_TIMEOUT"] = -205] = "ERROR_XM_WIFI_TIMEOUT";
+    ErrorCode[ErrorCode["ERROR_XM_WIFI_WAKEUP_FAIL"] = -204] = "ERROR_XM_WIFI_WAKEUP_FAIL";
+})(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
+var ControlResponse;
+(function (ControlResponse) {
+    //com.oceanwing.battery.cam.zmedia.model.ZControlResponse
+    ControlResponse[ControlResponse["ALARM_HUB_STOP"] = 0] = "ALARM_HUB_STOP";
+    ControlResponse[ControlResponse["ALARM_DEV_STOP"] = 1] = "ALARM_DEV_STOP";
+    ControlResponse[ControlResponse["ALARM_GSENSOR"] = 2] = "ALARM_GSENSOR";
+    ControlResponse[ControlResponse["ALARM_PIR"] = 3] = "ALARM_PIR";
+    ControlResponse[ControlResponse["ALARM_APP"] = 4] = "ALARM_APP";
+    ControlResponse[ControlResponse["ALARM_HOT"] = 5] = "ALARM_HOT";
+    ControlResponse[ControlResponse["ALARM_DOOR"] = 6] = "ALARM_DOOR";
+    ControlResponse[ControlResponse["ALARM_CAMERA_PIR"] = 7] = "ALARM_CAMERA_PIR";
+    ControlResponse[ControlResponse["ALARM_MOTION_SENSOR"] = 8] = "ALARM_MOTION_SENSOR";
+    ControlResponse[ControlResponse["ALARM_CAMERA_GSENSOR"] = 9] = "ALARM_CAMERA_GSENSOR";
+    ControlResponse[ControlResponse["ALARM_CAMERA_APP"] = 10] = "ALARM_CAMERA_APP";
+    ControlResponse[ControlResponse["ALARM_CAMERA_LINKAGE"] = 11] = "ALARM_CAMERA_LINKAGE";
+    ControlResponse[ControlResponse["ALARM_HUB_KEYPAD"] = 13] = "ALARM_HUB_KEYPAD";
+    ControlResponse[ControlResponse["ALARM_HUB_STOP_BY_KEYPAD"] = 15] = "ALARM_HUB_STOP_BY_KEYPAD";
+    ControlResponse[ControlResponse["ALARM_HUB_STOP_BY_APP"] = 16] = "ALARM_HUB_STOP_BY_APP";
+    ControlResponse[ControlResponse["ALARM_HUB_STOP_BY_HAND"] = 17] = "ALARM_HUB_STOP_BY_HAND";
+})(ControlResponse = exports.ControlResponse || (exports.ControlResponse = {}));

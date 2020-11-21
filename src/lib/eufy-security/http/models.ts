@@ -24,7 +24,7 @@ export interface LoginResultResponse {
     phone: string;
     phone_code: string;
     params: any;
-    trust_list: Array<any>;
+    trust_list: Array<TrustDevice>;
 }
 
 export interface HubResponse {
@@ -358,4 +358,10 @@ export interface StreamRequest {
     device_sn: string;
     station_sn: string;
     proto?: number;
+}
+
+export interface TrustDevice {
+    open_udid: string;
+    phone_model: string;
+    is_current_device: number;
 }

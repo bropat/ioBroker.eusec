@@ -37,7 +37,8 @@
 
         "sourceMap": false,
         "inlineSourceMap": false,
-        "watch": false
+        "watch": false,
+        "esModuleInterop": true,
     },
     "include": [
         "src/**/*.ts",

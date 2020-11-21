@@ -6,7 +6,12 @@ class Parameter {
     static readValue(type, value) {
         if (value) {
             if (type == types_1.ParamType.SNOOZE_MODE || type == types_1.ParamType.CAMERA_MOTION_ZONES) {
-                return JSON.parse(Buffer.from(value).toString("ascii"));
+                try {
+                    return JSON.parse(Buffer.from(value).toString("ascii"));
+                }
+                catch (error) {
+                }
+                return "";
             }
         }
         return value;

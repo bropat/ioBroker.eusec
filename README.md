@@ -33,12 +33,18 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
 * Camera:
     * Start livestream (rtmp)
     * Stop livestream (rtmp)
+* Two factor authentication (token renewal needs manual intervention)
+* Push notification support
+* Basic P2P communication functionality:
+    * event: Alarm mode change
 * more to come...
 
 ## Known working devices
 
-* eufyCam 2 (T8114)
 * HomeBase 2 (T8010)
+* eufyCam 2 (T8114)
+* eufyCam2C (T8113)
+* Eufy Battery Doorbell (T8210)
 
 If more devices work (or also not) please report them by opening a GitHub issue.
 
@@ -49,6 +55,14 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.0.2
+* (bropat) Added push notification support for event notification (raw notifications!)
+* (bropat) Added 2FA (token renewal needs manual intervention)
+* (bropat) Added P2P communication with station (event: Alarm mode change)
+* (bropat) Added more device classes (sensors, locks, keypads) with no actions (at the moment! WIP!)
+* (bropat) Added all eufy camera devices release to date
+* (bropat) Added battery state to eufy cameras
 
 ### 0.0.1
 * (bropat) initial release

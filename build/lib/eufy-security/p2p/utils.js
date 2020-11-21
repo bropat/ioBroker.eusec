@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hasHeader = exports.sendMessage = exports.buildIntStringCommandPayload = exports.buildIntCommandPayload = exports.buildCheckCamPayload = exports.buildLookupWithKeyPayload = exports.intToBufferLE = exports.intToBufferBE = exports.promiseAny = exports.isPrivateIp = void 0;
+exports.buildCommandHeader = exports.hasHeader = exports.sendMessage = exports.buildIntStringCommandPayload = exports.buildStringTypeCommandPayload = exports.buildIntCommandPayload = exports.buildCheckCamPayload = exports.buildLookupWithKeyPayload = exports.intToBufferLE = exports.intToBufferBE = exports.promiseAny = exports.isPrivateIp = exports.MAGIC_WORD = void 0;
+exports.MAGIC_WORD = "XZYH";
 exports.isPrivateIp = (ip) => /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
     /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
     /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
@@ -39,6 +40,11 @@ const applyLength = (inp, bufferLength = null) => {
         return inp;
     }
     return inp;
+};
+const stringWithLength = (input, targetByteLength = 128) => {
+    const stringAsBuffer = Buffer.from(input);
+    const postZeros = Buffer.alloc(targetByteLength - stringAsBuffer.byteLength);
+    return Buffer.concat([stringAsBuffer, postZeros]);
 };
 const intToArray = (inp) => {
     const digit = parseInt(inp.toString(), 10);
@@ -118,10 +124,16 @@ exports.buildIntCommandPayload = (value, actor) => {
         rest
     ]);
 };
+exports.buildStringTypeCommandPayload = (strValue, actor) => {
+    const magic = Buffer.from([0x05, 0x01, 0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    const strValueBuffer = stringWithLength(strValue, 128);
+    const valueStrSubBuffer = stringWithLength(actor, 128);
+    return Buffer.concat([magic, strValueBuffer, valueStrSubBuffer]);
+};
 exports.buildIntStringCommandPayload = (value, actor, channel = 0) => {
     const headerBuffer = Buffer.from([0x88, 0x00]);
     const emptyBuffer = Buffer.from([0x00, 0x00]);
-    const magicBuffer = Buffer.from([0x1, 0x00]);
+    const magicBuffer = Buffer.from([0x01, 0x00]);
     const channelBuffer = Buffer.from([channel, 0x00]);
     const valueBuffer = Buffer.from([value, 0x00]);
     const actorBuffer = Buffer.from(actor);
@@ -155,4 +167,11 @@ exports.hasHeader = (msg, searchedType) => {
     const header = Buffer.allocUnsafe(2);
     msg.copy(header, 0, 0, 2);
     return Buffer.compare(header, searchedType) === 0;
+};
+exports.buildCommandHeader = (seqNumber, commandType) => {
+    const dataTypeBuffer = Buffer.from([0xd1, 0x00]);
+    const seqAsBuffer = exports.intToBufferBE(seqNumber, 2);
+    const magicString = Buffer.from(exports.MAGIC_WORD);
+    const commandTypeBuffer = exports.intToBufferLE(commandType, 2);
+    return Buffer.concat([dataTypeBuffer, seqAsBuffer, magicString, commandTypeBuffer]);
 };
