@@ -31,7 +31,7 @@ function generateFid() {
     throw new Error(`Generated FID is invalid?!`);
 }
 exports.generateFid = generateFid;
-exports.buildCheckinRequest = () => __awaiter(void 0, void 0, void 0, function* () {
+const buildCheckinRequest = () => __awaiter(void 0, void 0, void 0, function* () {
     const root = yield protobuf_typescript_1.load(path_1.default.join(__dirname, "./proto/checkin.proto"));
     const CheckinRequestModel = root.lookupType("CheckinRequest");
     const payload = {
@@ -63,7 +63,8 @@ exports.buildCheckinRequest = () => __awaiter(void 0, void 0, void 0, function* 
     const message = CheckinRequestModel.create(payload);
     return CheckinRequestModel.encode(message).finish();
 });
-exports.parseCheckinResponse = (data) => __awaiter(void 0, void 0, void 0, function* () {
+exports.buildCheckinRequest = buildCheckinRequest;
+const parseCheckinResponse = (data) => __awaiter(void 0, void 0, void 0, function* () {
     const root = yield protobuf_typescript_1.load(path_1.default.join(__dirname, "./proto/checkin.proto"));
     const CheckinResponseModel = root.lookupType("CheckinResponse");
     const message = CheckinResponseModel.decode(data);
@@ -74,8 +75,10 @@ exports.parseCheckinResponse = (data) => __awaiter(void 0, void 0, void 0, funct
     });
     return object;
 });
-exports.sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
+exports.parseCheckinResponse = parseCheckinResponse;
+const sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
 });
+exports.sleep = sleep;

@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildCommandHeader = exports.hasHeader = exports.sendMessage = exports.buildIntStringCommandPayload = exports.buildStringTypeCommandPayload = exports.buildIntCommandPayload = exports.buildCheckCamPayload = exports.buildLookupWithKeyPayload = exports.intToBufferLE = exports.intToBufferBE = exports.promiseAny = exports.isPrivateIp = exports.MAGIC_WORD = void 0;
 exports.MAGIC_WORD = "XZYH";
-exports.isPrivateIp = (ip) => /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
+const isPrivateIp = (ip) => /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
     /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
     /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
     /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
@@ -20,12 +20,14 @@ exports.isPrivateIp = (ip) => /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]
     /^fe80:/i.test(ip) ||
     /^::1$/.test(ip) ||
     /^::$/.test(ip);
+exports.isPrivateIp = isPrivateIp;
 const reverse = (promise) => {
     return new Promise((resolve, reject) => Promise.resolve(promise).then(reject, resolve));
 };
-exports.promiseAny = (iterable) => {
+const promiseAny = (iterable) => {
     return reverse(Promise.all([...iterable].map(reverse)));
 };
+exports.promiseAny = promiseAny;
 const applyLength = (inp, bufferLength = null) => {
     if (!bufferLength) {
         return inp;
@@ -71,15 +73,17 @@ const intToArray = (inp) => {
     const third = parseInt(str.substr(4, 2), 16);
     return [first, second, third];
 };
-exports.intToBufferBE = (inp, bufferLength = null) => {
+const intToBufferBE = (inp, bufferLength = null) => {
     const array = intToArray(inp);
     return Buffer.from(applyLength(array, bufferLength));
 };
-exports.intToBufferLE = (inp, bufferLength = null) => {
+exports.intToBufferBE = intToBufferBE;
+const intToBufferLE = (inp, bufferLength = null) => {
     const array = intToArray(inp);
     array.reverse();
     return Buffer.from(applyLength(array, bufferLength));
 };
+exports.intToBufferLE = intToBufferLE;
 const p2pDidToBuffer = (p2pDid) => {
     const p2pArray = p2pDid.split("-");
     const buf1 = Buffer.from(p2pArray[0]);
@@ -90,7 +94,7 @@ const p2pDidToBuffer = (p2pDid) => {
     const buf4 = Buffer.from([0x00, 0x00, 0x00]);
     return Buffer.concat([buf1, buf2, buf3, buf4], 20);
 };
-exports.buildLookupWithKeyPayload = (socket, p2pDid, dskKey) => {
+const buildLookupWithKeyPayload = (socket, p2pDid, dskKey) => {
     const p2pDidBuffer = p2pDidToBuffer(p2pDid);
     const port = socket.address().port;
     const portAsBuffer = exports.intToBufferBE(port);
@@ -103,12 +107,14 @@ exports.buildLookupWithKeyPayload = (socket, p2pDid, dskKey) => {
     const fourEmpty = Buffer.from([0x00, 0x00, 0x00, 0x00]);
     return Buffer.concat([p2pDidBuffer, splitter, portLittleEndianBuffer, ipAsBuffer, magic, dskKeyAsBuffer, fourEmpty]);
 };
-exports.buildCheckCamPayload = (p2pDid) => {
+exports.buildLookupWithKeyPayload = buildLookupWithKeyPayload;
+const buildCheckCamPayload = (p2pDid) => {
     const p2pDidBuffer = p2pDidToBuffer(p2pDid);
     const magic = Buffer.from([0x00, 0x00, 0x00]);
     return Buffer.concat([p2pDidBuffer, magic]);
 };
-exports.buildIntCommandPayload = (value, actor) => {
+exports.buildCheckCamPayload = buildCheckCamPayload;
+const buildIntCommandPayload = (value, actor) => {
     const headerBuffer = Buffer.from([0x84, 0x00]);
     const magicBuffer = Buffer.from([0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00]);
     const valueBuffer = Buffer.from([value]);
@@ -124,13 +130,15 @@ exports.buildIntCommandPayload = (value, actor) => {
         rest
     ]);
 };
-exports.buildStringTypeCommandPayload = (strValue, actor) => {
+exports.buildIntCommandPayload = buildIntCommandPayload;
+const buildStringTypeCommandPayload = (strValue, actor) => {
     const magic = Buffer.from([0x05, 0x01, 0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     const strValueBuffer = stringWithLength(strValue, 128);
     const valueStrSubBuffer = stringWithLength(actor, 128);
     return Buffer.concat([magic, strValueBuffer, valueStrSubBuffer]);
 };
-exports.buildIntStringCommandPayload = (value, actor, channel = 0) => {
+exports.buildStringTypeCommandPayload = buildStringTypeCommandPayload;
+const buildIntStringCommandPayload = (value, actor, channel = 0) => {
     const headerBuffer = Buffer.from([0x88, 0x00]);
     const emptyBuffer = Buffer.from([0x00, 0x00]);
     const magicBuffer = Buffer.from([0x01, 0x00]);
@@ -152,7 +160,8 @@ exports.buildIntStringCommandPayload = (value, actor, channel = 0) => {
         rest,
     ]);
 };
-exports.sendMessage = (socket, address, msgID, payload) => __awaiter(void 0, void 0, void 0, function* () {
+exports.buildIntStringCommandPayload = buildIntStringCommandPayload;
+const sendMessage = (socket, address, msgID, payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!payload)
         payload = Buffer.from([]);
     const payloadLen = Buffer.from([Math.floor(payload.length / 256), payload.length % 256]);
@@ -163,15 +172,18 @@ exports.sendMessage = (socket, address, msgID, payload) => __awaiter(void 0, voi
         });
     });
 });
-exports.hasHeader = (msg, searchedType) => {
+exports.sendMessage = sendMessage;
+const hasHeader = (msg, searchedType) => {
     const header = Buffer.allocUnsafe(2);
     msg.copy(header, 0, 0, 2);
     return Buffer.compare(header, searchedType) === 0;
 };
-exports.buildCommandHeader = (seqNumber, commandType) => {
+exports.hasHeader = hasHeader;
+const buildCommandHeader = (seqNumber, commandType) => {
     const dataTypeBuffer = Buffer.from([0xd1, 0x00]);
     const seqAsBuffer = exports.intToBufferBE(seqNumber, 2);
     const magicString = Buffer.from(exports.MAGIC_WORD);
     const commandTypeBuffer = exports.intToBufferLE(commandType, 2);
     return Buffer.concat([dataTypeBuffer, seqAsBuffer, magicString, commandTypeBuffer]);
 };
+exports.buildCommandHeader = buildCommandHeader;

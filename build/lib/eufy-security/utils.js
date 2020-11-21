@@ -30,27 +30,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setStateChangedAsync = exports.getPushNotificationStateID = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
-exports.decrypt = (key, value) => {
+const decrypt = (key, value) => {
     let result = "";
     for (let i = 0; i < value.length; ++i) {
         result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
     }
     return result;
 };
-exports.generateUDID = function () {
+exports.decrypt = decrypt;
+const generateUDID = function () {
     return crypto.randomBytes(8).readBigUInt64BE().toString(16);
 };
-exports.generateSerialnumber = function (length) {
+exports.generateUDID = generateUDID;
+const generateSerialnumber = function (length) {
     return crypto.randomBytes(length / 2).toString("hex");
 };
-exports.md5 = (contents) => crypto.createHash("md5").update(contents).digest("hex");
-exports.getPushNotificationStateID = (state) => {
+exports.generateSerialnumber = generateSerialnumber;
+const md5 = (contents) => crypto.createHash("md5").update(contents).digest("hex");
+exports.md5 = md5;
+const getPushNotificationStateID = (state) => {
     return `push_notification.${state}`;
 };
+exports.getPushNotificationStateID = getPushNotificationStateID;
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-exports.setStateChangedAsync = function (adapter, id, value) {
+const setStateChangedAsync = function (adapter, id, value) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield adapter.setStateChangedAsync(id, value === undefined || value === null ? null : { val: value, ack: true }).catch();
         //return await adapter.setStateChangedAsync(id, { val: value, ack: true });
     });
 };
+exports.setStateChangedAsync = setStateChangedAsync;

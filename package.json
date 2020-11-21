@@ -49,9 +49,7 @@
     "sinon-chai": "^3.5.0",
     "source-map-support": "^0.5.19",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.5",
-    "copyfiles": "^2.4.0",
-    "npx": "^10.2.2"
+    "typescript": "^4.0.5"
   },
   "main": "build/main.js",
   "scripts": {

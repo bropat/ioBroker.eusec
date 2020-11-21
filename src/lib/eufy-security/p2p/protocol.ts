@@ -24,7 +24,7 @@ export abstract class BaseP2PClientProtocol {
         });
     }
 
-    public abstract async lookup(): Promise<Array<Address>>;
+    public abstract lookup(): Promise<Array<Address>>;
 
 }
 
