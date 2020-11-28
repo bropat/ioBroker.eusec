@@ -300,6 +300,9 @@ export abstract class Device extends EventEmitter {
                 device_sn: this.device.device_sn,
                 station_sn: this.device.station_sn,
                 json: tmp_params
+            }).catch(error => {
+                this.log.error(`Device.setParameters(): error: ${JSON.stringify(error)}`);
+                return error;
             });
             this.log.debug(`Device.setParameters(): Response: ${JSON.stringify(response.data)}`);
 
@@ -354,7 +357,9 @@ export class Camera extends Device {
 
     public async startDetection(): Promise<void> {
         // Start camera detection.
-        await this.setParameters([{ param_type: ParamType.DETECT_SWITCH, param_value: 1 }])
+        await this.setParameters([{ param_type: ParamType.DETECT_SWITCH, param_value: 1 }]).catch(error => {
+            this.log.error(`Device.startDetection(): error: ${JSON.stringify(error)}`);
+        });
     }
 
     public async startStream(): Promise<string> {
@@ -364,6 +369,9 @@ export class Camera extends Device {
                 device_sn: this.device.device_sn,
                 station_sn: this.device.station_sn,
                 proto: 2
+            }).catch(error => {
+                this.log.error(`Camera.startStream(): error: ${JSON.stringify(error)}`);
+                return error;
             });
             this.log.debug(`Camera.startStream(): Response: ${JSON.stringify(response.data)}`);
 
@@ -397,6 +405,9 @@ export class Camera extends Device {
                 device_sn: this.device.device_sn,
                 station_sn: this.device.station_sn,
                 proto: 2
+            }).catch(error => {
+                this.log.error(`Camera.stopStream(): error: ${JSON.stringify(error)}`);
+                return error;
             });
             this.log.debug(`Camera.stopStream(): Response: ${JSON.stringify(response.data)}`);
 
@@ -423,7 +434,7 @@ export class Camera extends Device {
     public async close(): Promise<void> {
         //TODO: Stop other things if implemented such as detection feature
         if (this.is_streaming)
-            await this.stopStream();
+            await this.stopStream().catch();
     }
 
 }

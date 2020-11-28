@@ -49,6 +49,9 @@ export class PushRegisterService {
                     "x-goog-api-key": `${this.GOOGLE_API_KEY}`,
                 },
                 responseType: "json"
+            }).catch(error => {
+                this.log.error(`PushRegisterService.registerFid(): error: ${JSON.stringify(error)}`);
+                return error;
             });
 
             if (response.status == 200) {
@@ -91,6 +94,9 @@ export class PushRegisterService {
                     Authorization: `${this.AUTH_VERSION} ${refreshToken}`
                 },
                 responseType: "json"
+            }).catch(error => {
+                this.log.error(`PushRegisterService.renewFidToken(): error: ${JSON.stringify(error)}`);
+                return error;
             });
 
             if (response.status == 200) {
@@ -163,6 +169,9 @@ export class PushRegisterService {
                     "Content-Type": "application/x-protobuf",
                 },
                 responseType: "arraybuffer"
+            }).catch(error => {
+                this.log.error(`PushRegisterService.executeCheckin(): error: ${JSON.stringify(error)}`);
+                return error;
             });
 
             if (response.status == 200) {
@@ -223,6 +232,9 @@ export class PushRegisterService {
                         "User-Agent": "Android-GCM/1.5 (OnePlus5 NMF26X)",
                         "content-type": "application/x-www-form-urlencoded",
                     }
+                }).catch(error => {
+                    this.log.error(`PushRegisterService.registerGcm(): error: ${JSON.stringify(error)}`);
+                    return error;
                 });
 
                 if (response.status == 200) {

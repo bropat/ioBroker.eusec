@@ -113,6 +113,9 @@ export class Station extends EventEmitter implements P2PInterface {
         try {
             const response = await this.api.request("post", "app/equipment/get_dsk_keys", {
                 station_sns: [this.getSerial()]
+            }).catch(error => {
+                this.log.error(`Station.getDSKKeys(): error: ${JSON.stringify(error)}`);
+                return error;
             });
             this.log.debug(`Station.getDSKKeys(): station: ${this.getSerial()} Response: ${JSON.stringify(response.data)}`);
 
@@ -160,7 +163,10 @@ export class Station extends EventEmitter implements P2PInterface {
         const proto = new DiscoveryP2PClientProtocol(this.log);
         proto.setDSKKey(this.dsk_key);
         proto.setP2PDid(this.hub.p2p_did);
-        const addrs = await proto.lookup();
+        const addrs = await proto.lookup().catch(error => {
+            this.log.error(`Station.connect(): error: ${JSON.stringify(error)}`);
+            return [];
+        });
         this.log.debug("Station.connect(): Discovered station addresses: " + addrs.length);
         if (addrs.length > 0) {
             let local_addr: Address|null = null;
@@ -176,7 +182,10 @@ export class Station extends EventEmitter implements P2PInterface {
                 this.p2p_session.on("camera_info", (camera_info) => this.onCameraInfo(camera_info));
 
                 this.log.info(`Connect to station ${this.getSerial()} on host ${local_addr.host} and port ${local_addr.port}.`);
-                return await this.p2p_session.connect();
+                return await this.p2p_session.connect().catch(error => {
+                    this.log.error(`Station.connect(): P2P session error: ${JSON.stringify(error)}`);
+                    return false;
+                });
             } else {
                 this.log.error(`No local address discovered for station ${this.getSerial()}.`);
             }

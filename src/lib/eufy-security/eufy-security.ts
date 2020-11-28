@@ -224,10 +224,14 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    private async _registerPushNotifications(credentials: Credentials, persistentIds?: string[], renew: boolean = false): Promise<Credentials | undefined> {
-        if (renew) {
-            credentials = await this.pushService.renewPushCredentials(credentials);
-            this.adapter.setPushCredentials(credentials);
+    private async _registerPushNotifications(credentials: Credentials | undefined, persistentIds?: string[], renew: boolean = false): Promise<Credentials | undefined> {
+        if (renew && credentials) {
+            credentials = await this.pushService.renewPushCredentials(credentials).catch(error => {
+                this.log.error(`EufySecurity._registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
+                return undefined;
+            });
+            if (credentials)
+                this.adapter.setPushCredentials(credentials);
         }
 
         if (credentials) {
@@ -274,17 +278,26 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
 
         if (!credentials || Object.keys(credentials).length === 0) {
             this.log.debug("EufySecurity.registerPushNotifications(): create new push credentials...");
-            credentials = await this.pushService.createPushCredentials();
+            credentials = await this.pushService.createPushCredentials().catch(error => {
+                this.log.error(`EufySecurity.registerPushNotifications(): createPushCredentials() - error: ${JSON.stringify(error)}`);
+                return undefined;
+            });
             if (credentials)
                 this.adapter.setPushCredentials(credentials);
         } else if (new Date().getTime() >= credentials.fidResponse.authToken.expiresAt) {
             this.log.debug("EufySecurity.registerPushNotifications(): Renew push credentials...");
-            credentials = await this.pushService.renewPushCredentials(credentials);
+            credentials = await this.pushService.renewPushCredentials(credentials).catch(error => {
+                this.log.error(`EufySecurity.registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
+                return undefined;
+            });
             if (credentials)
                 this.adapter.setPushCredentials(credentials);
         } else {
             this.log.debug(`EufySecurity.registerPushNotifications(): Login with previous push credentials... (${JSON.stringify(credentials)})`);
-            credentials = await this.pushService.loginPushCredentials(credentials);
+            credentials = await this.pushService.loginPushCredentials(credentials).catch(error => {
+                this.log.error(`EufySecurity.registerPushNotifications(): loginPushCredentials() - error: ${JSON.stringify(error)}`);
+                return undefined;
+            });
             if (credentials)
                 this.adapter.setPushCredentials(credentials);
         }

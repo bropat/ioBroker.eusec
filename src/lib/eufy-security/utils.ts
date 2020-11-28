@@ -25,5 +25,4 @@ export const getPushNotificationStateID = (state: string): string => {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const setStateChangedAsync = async function(adapter: ioBroker.Adapter, id: string, value: any): ioBroker.SetStateChangedPromise {
     return await adapter.setStateChangedAsync(id, value === undefined || value === null ? null : { val: value, ack: true }).catch();
-    //return await adapter.setStateChangedAsync(id, { val: value, ack: true });
 };

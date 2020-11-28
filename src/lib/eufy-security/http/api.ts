@@ -60,7 +60,10 @@ export class API extends EventEmitter implements ApiInterface {
                 const response = await this.request("post", "passport/login", {
                     email: this.username,
                     password: this.password
-                }, this.headers);
+                }, this.headers).catch(error => {
+                    this.log.error(`API.authenticate(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 this.log.debug(`API.authenticate(): Response:  ${JSON.stringify(response.data)}`);
 
                 if (response.status == 200) {
@@ -122,7 +125,10 @@ export class API extends EventEmitter implements ApiInterface {
 
             const response = await this.request("post", "sms/send/verify_code", {
                 message_type: type
-            }, this.headers);
+            }, this.headers).catch(error => {
+                this.log.error(`API.sendVerifyCode(): error: ${JSON.stringify(error)}`);
+                return error;
+            });
             if (response.status == 200) {
                 const result: ResultResponse = response.data;
                 if (result.code == ResponseErrorCode.CODE_WHATEVER_ERROR) {
@@ -142,7 +148,10 @@ export class API extends EventEmitter implements ApiInterface {
 
     public async listTrustDevice(): Promise<Array<TrustDevice>> {
         try {
-            const response = await this.request("get", "app/trust_device/list", undefined, this.headers);
+            const response = await this.request("get", "app/trust_device/list", undefined, this.headers).catch(error => {
+                this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
+                return error;
+            });
             this.log.debug(`API.listTrustDevice(): Response:  ${JSON.stringify(response.data)}`);
 
             if (response.status == 200) {
@@ -168,7 +177,10 @@ export class API extends EventEmitter implements ApiInterface {
             const response = await this.request("post", "passport/login", {
                 verify_code: `${verify_code}`,
                 transaction: `${new Date().getTime()}`
-            }, this.headers);
+            }, this.headers).catch(error => {
+                this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
+                return error;
+            });
             this.log.debug(`API.addTrustDevice(): Response:  ${JSON.stringify(response.data)}`);
 
             if (response.status == 200) {
@@ -185,7 +197,10 @@ export class API extends EventEmitter implements ApiInterface {
                         if (result.code == ResponseErrorCode.CODE_WHATEVER_ERROR) {
                             this.log.info(`2FA authentication successfully done. Device trusted.`);
                             // For logging purposes
-                            await this.listTrustDevice();
+                            await this.listTrustDevice().catch(error => {
+                                this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
+                                return error;
+                            });
                             return true;
                         } else {
                             this.log.error(`API.addTrustDevice(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
@@ -213,7 +228,10 @@ export class API extends EventEmitter implements ApiInterface {
 
         //Get Stations
         try {
-            const response = await this.request("post", "app/get_hub_list");
+            const response = await this.request("post", "app/get_hub_list").catch(error => {
+                this.log.error(`API.updateDeviceInfo(): stations - error: ${JSON.stringify(error)}`);
+                return error;
+            });
             this.log.debug(`API.updateDeviceInfo(): stations - Response: ${JSON.stringify(response.data)}`);
 
             if (response.status == 200) {
@@ -246,8 +264,11 @@ export class API extends EventEmitter implements ApiInterface {
 
         //Get Devices
         try {
-            const response = await this.request("post", "app/get_devs_list");
-            this.log.debug(`API.updateDeviceInfo(): cameras - Response: ${JSON.stringify(response.data)}`);
+            const response = await this.request("post", "app/get_devs_list").catch(error => {
+                this.log.error(`API.updateDeviceInfo(): devices - error: ${JSON.stringify(error)}`);
+                return error;
+            });
+            this.log.debug(`API.updateDeviceInfo(): devices - Response: ${JSON.stringify(response.data)}`);
 
             if (response.status == 200) {
                 const result: ResultResponse = response.data;
@@ -258,7 +279,7 @@ export class API extends EventEmitter implements ApiInterface {
                             this.devices[element.device_sn] = element;
                         });
                     } else {
-                        this.log.info("No cameras found.");
+                        this.log.info("No devices found.");
                     }
 
                     if (Object.keys(this.devices).length > 0)
@@ -323,7 +344,10 @@ export class API extends EventEmitter implements ApiInterface {
             const response = await this.request("post", "/app/review/app_push_check", {
                 app_type: "eufySecurity",
                 transaction: `${new Date().getTime()}`
-            }, this.headers);
+            }, this.headers).catch(error => {
+                this.log.error(`API.checkPushToken(): error: ${JSON.stringify(error)}`);
+                return error;
+            });
             this.log.debug(`API.checkPushToken(): Response: ${JSON.stringify(response.data)}`);
 
             if (response.status == 200) {
@@ -352,7 +376,10 @@ export class API extends EventEmitter implements ApiInterface {
                 is_notification_enable: true,
                 token: token,
                 transaction: `${new Date().getTime().toString()}`
-            }, this.headers);
+            }, this.headers).catch(error => {
+                this.log.error(`API.registerPushToken(): error: ${JSON.stringify(error)}`);
+                return error;
+            });
             this.log.debug(`API.registerPushToken(): Response: ${JSON.stringify(response.data)}`);
 
             if (response.status == 200) {
