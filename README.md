@@ -8,6 +8,10 @@
 [![Dependency Status](https://img.shields.io/david/bropat/iobroker.eufy-security.svg)](https://david-dm.org/bropat/iobroker.eufy-security)
 [![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.eufy-security/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.eufy-security)
 
+**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.eufy-security.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.eufy-security)
+Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.eufy-security?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-eufy-security/)
+
+
 [![NPM](https://nodei.co/npm/iobroker.eufy-security.png?downloads=true)](https://nodei.co/npm/iobroker.eufy-security/)
 
 The development of this adapter was only possible thanks to the work of the following people:

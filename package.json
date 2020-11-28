@@ -63,7 +63,7 @@
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit",
     "test:integration": "mocha test/integration --exit",
-    "test": "npm run test:ts && npm run test:package",
+    "test": "npm run test:ts && npm run test:package && npm run test:unit",
     "lint": "eslint --ext .ts src"
   },
   "bugs": {
