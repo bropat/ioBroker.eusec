@@ -244,6 +244,9 @@ class Device extends events_1.EventEmitter {
                     device_sn: this.device.device_sn,
                     station_sn: this.device.station_sn,
                     json: tmp_params
+                }).catch(error => {
+                    this.log.error(`Device.setParameters(): error: ${JSON.stringify(error)}`);
+                    return error;
                 });
                 this.log.debug(`Device.setParameters(): Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
@@ -296,7 +299,9 @@ class Camera extends Device {
     startDetection() {
         return __awaiter(this, void 0, void 0, function* () {
             // Start camera detection.
-            yield this.setParameters([{ param_type: types_1.ParamType.DETECT_SWITCH, param_value: 1 }]);
+            yield this.setParameters([{ param_type: types_1.ParamType.DETECT_SWITCH, param_value: 1 }]).catch(error => {
+                this.log.error(`Device.startDetection(): error: ${JSON.stringify(error)}`);
+            });
         });
     }
     startStream() {
@@ -307,6 +312,9 @@ class Camera extends Device {
                     device_sn: this.device.device_sn,
                     station_sn: this.device.station_sn,
                     proto: 2
+                }).catch(error => {
+                    this.log.error(`Camera.startStream(): error: ${JSON.stringify(error)}`);
+                    return error;
                 });
                 this.log.debug(`Camera.startStream(): Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
@@ -344,6 +352,9 @@ class Camera extends Device {
                     device_sn: this.device.device_sn,
                     station_sn: this.device.station_sn,
                     proto: 2
+                }).catch(error => {
+                    this.log.error(`Camera.stopStream(): error: ${JSON.stringify(error)}`);
+                    return error;
                 });
                 this.log.debug(`Camera.stopStream(): Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
@@ -372,7 +383,7 @@ class Camera extends Device {
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Stop other things if implemented such as detection feature
             if (this.is_streaming)
-                yield this.stopStream();
+                yield this.stopStream().catch();
         });
     }
 }

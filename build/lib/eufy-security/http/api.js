@@ -62,7 +62,10 @@ class API extends events_1.EventEmitter {
                     const response = yield this.request("post", "passport/login", {
                         email: this.username,
                         password: this.password
-                    }, this.headers);
+                    }, this.headers).catch(error => {
+                        this.log.error(`API.authenticate(): error: ${JSON.stringify(error)}`);
+                        return error;
+                    });
                     this.log.debug(`API.authenticate(): Response:  ${JSON.stringify(response.data)}`);
                     if (response.status == 200) {
                         const result = response.data;
@@ -120,7 +123,10 @@ class API extends events_1.EventEmitter {
                     type = types_1.VerfyCodeTypes.TYPE_EMAIL;
                 const response = yield this.request("post", "sms/send/verify_code", {
                     message_type: type
-                }, this.headers);
+                }, this.headers).catch(error => {
+                    this.log.error(`API.sendVerifyCode(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 if (response.status == 200) {
                     const result = response.data;
                     if (result.code == types_1.ResponseErrorCode.CODE_WHATEVER_ERROR) {
@@ -144,7 +150,10 @@ class API extends events_1.EventEmitter {
     listTrustDevice() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.request("get", "app/trust_device/list", undefined, this.headers);
+                const response = yield this.request("get", "app/trust_device/list", undefined, this.headers).catch(error => {
+                    this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 this.log.debug(`API.listTrustDevice(): Response:  ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;
@@ -173,7 +182,10 @@ class API extends events_1.EventEmitter {
                 const response = yield this.request("post", "passport/login", {
                     verify_code: `${verify_code}`,
                     transaction: `${new Date().getTime()}`
-                }, this.headers);
+                }, this.headers).catch(error => {
+                    this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 this.log.debug(`API.addTrustDevice(): Response:  ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;
@@ -188,7 +200,10 @@ class API extends events_1.EventEmitter {
                             if (result.code == types_1.ResponseErrorCode.CODE_WHATEVER_ERROR) {
                                 this.log.info(`2FA authentication successfully done. Device trusted.`);
                                 // For logging purposes
-                                yield this.listTrustDevice();
+                                yield this.listTrustDevice().catch(error => {
+                                    this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
+                                    return error;
+                                });
                                 return true;
                             }
                             else {
@@ -222,7 +237,10 @@ class API extends events_1.EventEmitter {
             //Get the latest device info
             //Get Stations
             try {
-                const response = yield this.request("post", "app/get_hub_list");
+                const response = yield this.request("post", "app/get_hub_list").catch(error => {
+                    this.log.error(`API.updateDeviceInfo(): stations - error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 this.log.debug(`API.updateDeviceInfo(): stations - Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;
@@ -256,8 +274,11 @@ class API extends events_1.EventEmitter {
             }
             //Get Devices
             try {
-                const response = yield this.request("post", "app/get_devs_list");
-                this.log.debug(`API.updateDeviceInfo(): cameras - Response: ${JSON.stringify(response.data)}`);
+                const response = yield this.request("post", "app/get_devs_list").catch(error => {
+                    this.log.error(`API.updateDeviceInfo(): devices - error: ${JSON.stringify(error)}`);
+                    return error;
+                });
+                this.log.debug(`API.updateDeviceInfo(): devices - Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;
                     if (result.code == 0) {
@@ -268,7 +289,7 @@ class API extends events_1.EventEmitter {
                             });
                         }
                         else {
-                            this.log.info("No cameras found.");
+                            this.log.info("No devices found.");
                         }
                         if (Object.keys(this.devices).length > 0)
                             this.emit("devices", this.devices);
@@ -333,7 +354,10 @@ class API extends events_1.EventEmitter {
                 const response = yield this.request("post", "/app/review/app_push_check", {
                     app_type: "eufySecurity",
                     transaction: `${new Date().getTime()}`
-                }, this.headers);
+                }, this.headers).catch(error => {
+                    this.log.error(`API.checkPushToken(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 this.log.debug(`API.checkPushToken(): Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;
@@ -366,7 +390,10 @@ class API extends events_1.EventEmitter {
                     is_notification_enable: true,
                     token: token,
                     transaction: `${new Date().getTime().toString()}`
-                }, this.headers);
+                }, this.headers).catch(error => {
+                    this.log.error(`API.registerPushToken(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
                 this.log.debug(`API.registerPushToken(): Response: ${JSON.stringify(response.data)}`);
                 if (response.status == 200) {
                     const result = response.data;

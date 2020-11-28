@@ -56,7 +56,6 @@ exports.getPushNotificationStateID = getPushNotificationStateID;
 const setStateChangedAsync = function (adapter, id, value) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield adapter.setStateChangedAsync(id, value === undefined || value === null ? null : { val: value, ack: true }).catch();
-        //return await adapter.setStateChangedAsync(id, { val: value, ack: true });
     });
 };
 exports.setStateChangedAsync = setStateChangedAsync;
