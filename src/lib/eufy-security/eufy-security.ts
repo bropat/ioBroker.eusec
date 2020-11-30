@@ -34,6 +34,8 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
     private pushService;
     private pushClient?: PushClient;
     private pushCredentialsTimeout?: NodeJS.Timeout;
+    private pushRetryTimeout?: NodeJS.Timeout;
+    private pushRetryDelay = 0;
 
     constructor(adapter: EufySecurityAdapter) {
         super();
@@ -211,8 +213,16 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
             station.close();
         });
 
-        if (this.pushCredentialsTimeout)
+        if (this.pushCredentialsTimeout) {
             clearTimeout(this.pushCredentialsTimeout);
+            this.pushCredentialsTimeout = undefined;
+        }
+
+        if (this.pushRetryTimeout) {
+            clearTimeout(this.pushRetryTimeout);
+            this.pushRetryTimeout = undefined;
+            this.pushRetryDelay = 0;
+        }
     }
 
     public setCameraMaxLivestreamDuration(seconds: number): void {
@@ -230,11 +240,13 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
                 this.log.error(`EufySecurity._registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
                 return undefined;
             });
-            if (credentials)
-                this.adapter.setPushCredentials(credentials);
+            this.adapter.setPushCredentials(credentials);
         }
 
         if (credentials) {
+            if (this.pushCredentialsTimeout)
+                clearTimeout(this.pushCredentialsTimeout);
+
             this.pushCredentialsTimeout = setTimeout(async () => {
                 this.log.info("Push notification token is expiring, renew it.");
                 await this._registerPushNotifications(credentials, persistentIds, true);
@@ -267,6 +279,7 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
                 await this.adapter.setStateAsync("info.push_connection", { val: false, ack: true });
             }
         } else {
+            await this.adapter.setStateAsync("info.push_connection", { val: false, ack: true });
             this.log.error("Push notifications are disabled, because the registration failed!");
         }
 
@@ -282,27 +295,44 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
                 this.log.error(`EufySecurity.registerPushNotifications(): createPushCredentials() - error: ${JSON.stringify(error)}`);
                 return undefined;
             });
-            if (credentials)
-                this.adapter.setPushCredentials(credentials);
+            this.adapter.setPushCredentials(credentials);
         } else if (new Date().getTime() >= credentials.fidResponse.authToken.expiresAt) {
             this.log.debug("EufySecurity.registerPushNotifications(): Renew push credentials...");
             credentials = await this.pushService.renewPushCredentials(credentials).catch(error => {
                 this.log.error(`EufySecurity.registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
                 return undefined;
             });
-            if (credentials)
-                this.adapter.setPushCredentials(credentials);
+            this.adapter.setPushCredentials(credentials);
         } else {
             this.log.debug(`EufySecurity.registerPushNotifications(): Login with previous push credentials... (${JSON.stringify(credentials)})`);
             credentials = await this.pushService.loginPushCredentials(credentials).catch(error => {
                 this.log.error(`EufySecurity.registerPushNotifications(): loginPushCredentials() - error: ${JSON.stringify(error)}`);
                 return undefined;
             });
-            if (credentials)
-                this.adapter.setPushCredentials(credentials);
+            this.adapter.setPushCredentials(credentials);
         }
 
-        return this._registerPushNotifications(credentials, persistentIds);
+        credentials = await this._registerPushNotifications(credentials, persistentIds);
+
+        if (!credentials) {
+            if (this.pushRetryTimeout)
+                clearTimeout(this.pushRetryTimeout);
+
+            const delay = this.getCurrentPushRetryDelay();
+            this.log.info(`Retry to register/login for push notification in ${delay / 1000} seconds...`);
+            this.pushRetryTimeout = setTimeout(async () => {
+                this.log.info(`Retry to register/login for push notification`);
+                await this.registerPushNotifications(persistentIds);
+            }, delay);
+        } else {
+            this.pushRetryDelay = 0;
+            if (this.pushRetryTimeout) {
+                clearTimeout(this.pushRetryTimeout);
+                this.pushRetryTimeout = undefined;
+            }
+        }
+
+        return credentials;
     }
 
     public async logon(verify_code?:number|null): Promise<void> {
@@ -348,6 +378,18 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
 
     private handleNotConnected(): void {
         this.emit("not_connected");
+    }
+
+    private getCurrentPushRetryDelay(): number {
+        const delay = this.pushRetryDelay == 0 ? 5000 : this.pushRetryDelay;
+
+        if (this.pushRetryDelay < 60000)
+            this.pushRetryDelay += 10000;
+
+        if (this.pushRetryDelay >= 60000 && this.pushRetryDelay < 600000)
+            this.pushRetryDelay += 60000;
+
+        return delay;
     }
 
 }

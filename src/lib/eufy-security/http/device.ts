@@ -4,6 +4,7 @@ import { FullDeviceResponse, ResultResponse, StreamResponse } from "./models"
 import { Parameter } from "./parameter";
 import { IParameter, ParameterArray } from "./interfaces";
 import { EventEmitter } from "events";
+import { CommandType } from "../p2p/types";
 
 export abstract class Device extends EventEmitter {
 
@@ -337,6 +338,10 @@ export abstract class Device extends EventEmitter {
 
     public abstract getStateChannel(): string;
 
+    public getWifiRssi(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_WIFI_RSSI));
+    }
+
 }
 
 export class Camera extends Device {
@@ -427,6 +432,10 @@ export class Camera extends Device {
         }
     }
 
+    public getState(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
+    }
+
     public isStreaming(): boolean {
         return this.is_streaming;
     }
@@ -435,6 +444,22 @@ export class Camera extends Device {
         //TODO: Stop other things if implemented such as detection feature
         if (this.is_streaming)
             await this.stopStream().catch();
+    }
+
+    public getLastChargingDays(): number {
+        return this.device.charging_days;
+    }
+
+    public getLastChargingFalseEvents(): number {
+        return this.device.charging_missing;
+    }
+
+    public getLastChargingRecordedEvents(): number {
+        return this.device.charging_reserve;
+    }
+
+    public getLastChargingTotalEvents(): number {
+        return this.device.charing_total;
     }
 
 }

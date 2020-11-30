@@ -13,6 +13,7 @@ export class API extends EventEmitter implements ApiInterface {
 
     private token: string|null = null;
     private token_expiration: Date|null = null;
+    //TODO: Add device is trusted property and save it's status.
 
     private log: ioBroker.Logger;
 
@@ -310,11 +311,13 @@ export class API extends EventEmitter implements ApiInterface {
                 default: break;
             }
         }
+        //TODO: It seems that if the device is a trusted device the token doesn't expires as stated by token_expiration. So change this accordingly!
         if (this.token_expiration && (new Date()).getTime() >= this.token_expiration.getTime()) {
             this.log.info("Access token expired; fetching a new one")
             this.invalidateToken();
-            //get new token
-            await this.authenticate()
+            if (endpoint != "passport/login")
+                //get new token
+                await this.authenticate()
         }
 
         this.log.debug(`API.request(): method: ${method} endpoint: ${endpoint} baseUrl: ${this.api_base} token: ${this.token} data: ${JSON.stringify(data)} headers: ${JSON.stringify(this.headers)}`);

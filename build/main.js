@@ -364,7 +364,7 @@ class EufySecurity extends utils.Adapter {
                         if (this.eufy)
                             await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
                             //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
-                    */
+                            //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();*/
                 }
                 else if (device_type == "cameras") {
                     const device_sn = values[4];
@@ -498,6 +498,27 @@ class EufySecurity extends utils.Adapter {
                 yield utils_1.setStateChangedAsync(this, device.getStateID(types_1.DeviceStateID.HARDWARE_VERSION), device.getHardwareVersion());
                 if (device.isCamera()) {
                     const camera = device;
+                    // State
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.STATE), {
+                        type: "state",
+                        common: {
+                            name: "State",
+                            type: "number",
+                            role: "state",
+                            read: true,
+                            write: false,
+                            states: {
+                                0: "OFFLINE",
+                                1: "ONLINE",
+                                2: "MANUALLY_DISABLED",
+                                3: "OFFLINE_LOWBAT",
+                                4: "REMOVE_AND_READD",
+                                5: "RESET_AND_READD"
+                            }
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.STATE), camera.getState());
                     // Mac address
                     yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.MAC_ADDRESS), {
                         type: "state",
@@ -577,6 +598,71 @@ class EufySecurity extends utils.Adapter {
                         native: {},
                     });
                     yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.BATTERY), camera.getParameters()[types_3.CommandType.CMD_GET_BATTERY]);
+                    // Wifi RSSI
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.WIFI_RSSI), {
+                        type: "state",
+                        common: {
+                            name: "Wifi RSSI",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.WIFI_RSSI), camera.getWifiRssi());
+                    // Last Charge Used Days
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_CHARGE_USED_DAYS), {
+                        type: "state",
+                        common: {
+                            name: "Used days since last charge",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.LAST_CHARGE_USED_DAYS), camera.getLastChargingDays());
+                    // Last Charge Total Events
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_CHARGE_TOTAL_EVENTS), {
+                        type: "state",
+                        common: {
+                            name: "Total events since last charge",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.LAST_CHARGE_TOTAL_EVENTS), camera.getLastChargingTotalEvents());
+                    // Last Charge Saved Events
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_CHARGE_SAVED_EVENTS), {
+                        type: "state",
+                        common: {
+                            name: "Saved/Recorded events since last charge",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.LAST_CHARGE_SAVED_EVENTS), camera.getLastChargingRecordedEvents());
+                    // Last Charge Filtered Events
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_CHARGE_FILTERED_EVENTS), {
+                        type: "state",
+                        common: {
+                            name: "Filtered false events since last charge",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.LAST_CHARGE_FILTERED_EVENTS), camera.getLastChargingFalseEvents());
                 }
             }));
         });

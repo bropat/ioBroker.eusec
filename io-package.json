@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.3",
+        "version": "0.0.4",
         "news": {
+            "0.0.4": {
+                "en": "Better exception handling; Push notification fixes",
+                "de": "Bessere Ausnahmebehandlung; Push-Benachrichtigungskorrekturen",
+                "ru": "Лучшая обработка исключений; Исправления push-уведомлений",
+                "pt": "Melhor tratamento de exceções; Correções de notificação push",
+                "nl": "Betere afhandeling van uitzonderingen; Fixes voor pushmeldingen",
+                "fr": "Meilleure gestion des exceptions; Correction des notifications push",
+                "it": "Migliore gestione delle eccezioni; Correzioni delle notifiche push",
+                "es": "Mejor manejo de excepciones; Correcciones de notificaciones push",
+                "pl": "Lepsza obsługa wyjątków; Poprawki powiadomień push",
+                "zh-cn": "更好的异常处理；推送通知修复"
+            },
             "0.0.3": {
                 "en": "Fixed issue with push notification credentials initialization",
                 "de": "Problem bei der Initialisierung der Anmeldeinformationen für Push-Benachrichtigungen behoben",

@@ -13,6 +13,7 @@ exports.UnkownDevice = exports.Keypad = exports.Lock = exports.Sensor = exports.
 const types_1 = require("./types");
 const parameter_1 = require("./parameter");
 const events_1 = require("events");
+const types_2 = require("../p2p/types");
 class Device extends events_1.EventEmitter {
     constructor(api, device) {
         super();
@@ -280,6 +281,9 @@ class Device extends events_1.EventEmitter {
                 throw new Error("No state value passed.");
         }
     }
+    getWifiRssi() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_WIFI_RSSI));
+    }
 }
 exports.Device = Device;
 class Camera extends Device {
@@ -376,6 +380,9 @@ class Camera extends Device {
             }
         });
     }
+    getState() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
+    }
     isStreaming() {
         return this.is_streaming;
     }
@@ -385,6 +392,18 @@ class Camera extends Device {
             if (this.is_streaming)
                 yield this.stopStream().catch();
         });
+    }
+    getLastChargingDays() {
+        return this.device.charging_days;
+    }
+    getLastChargingFalseEvents() {
+        return this.device.charging_missing;
+    }
+    getLastChargingRecordedEvents() {
+        return this.device.charging_reserve;
+    }
+    getLastChargingTotalEvents() {
+        return this.device.charing_total;
     }
 }
 exports.Camera = Camera;

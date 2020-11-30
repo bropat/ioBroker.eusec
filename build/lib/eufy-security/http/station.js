@@ -210,6 +210,21 @@ class Station extends events_1.EventEmitter {
             }
         });
     }
+    getStorageInfo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log.silly("Station.getStorageInfo(): ");
+            if (!this.p2p_session || !this.p2p_session.isConnected) {
+                this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} not present, establish it.`);
+                yield this.connect();
+            }
+            if (this.p2p_session) {
+                if (this.p2p_session.isConnected()) {
+                    this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
+                    yield this.p2p_session.sendCommandWithIntString(types_2.CommandType.CMD_SDINFO_EX, 0);
+                }
+            }
+        });
+    }
     onAlarmMode(mode) {
         this.log.info(`Alarm mode for station ${this.getSerial()} changed to: ${types_1.AlarmMode[mode]}`);
         this.parameters[types_1.ParamType.SCHEDULE_MODE] = mode.toString();

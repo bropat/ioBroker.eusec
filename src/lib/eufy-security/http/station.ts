@@ -223,6 +223,20 @@ export class Station extends EventEmitter implements P2PInterface {
         }
     }
 
+    public async getStorageInfo(): Promise<void> {
+        this.log.silly("Station.getStorageInfo(): ");
+        if (!this.p2p_session || !this.p2p_session.isConnected) {
+            this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} not present, establish it.`);
+            await this.connect();
+        }
+        if (this.p2p_session) {
+            if (this.p2p_session.isConnected()) {
+                this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
+                await this.p2p_session.sendCommandWithIntString(CommandType.CMD_SDINFO_EX, 0);
+            }
+        }
+    }
+
     private onAlarmMode(mode: AlarmMode): void {
         this.log.info(`Alarm mode for station ${this.getSerial()} changed to: ${AlarmMode[mode]}`);
         this.parameters[ParamType.SCHEDULE_MODE] = mode.toString();

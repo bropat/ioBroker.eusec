@@ -60,6 +60,17 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.0.4
+* (bropat) Better exception handling
+* (bropat) Fixed push token handling
+* (bropat) Added push connection retry mechanism
+* (bropat) Added camera state (online, offline, etc.)
+* (bropat) Added camera wifi RSSI
+* (bropat) Added camera total events since last charge
+* (bropat) Added camera saved/recorded events since last charge
+* (bropat) Added camera filtered false events since last charge
+* (bropat) Added camera used days since last charge
+
 ### 0.0.3
 * (bropat) Fixed issue with push notification credentials initialization
 

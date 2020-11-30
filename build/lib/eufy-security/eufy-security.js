@@ -24,6 +24,7 @@ class EufySecurity extends events_1.EventEmitter {
         this.devices = {};
         this.camera_max_livestream_seconds = 30;
         this.camera_livestream_timeout = {};
+        this.pushRetryDelay = 0;
         this.adapter = adapter;
         this.username = this.adapter.config.username;
         this.password = this.adapter.config.password;
@@ -189,8 +190,15 @@ class EufySecurity extends events_1.EventEmitter {
         Object.values(this.stations).forEach(station => {
             station.close();
         });
-        if (this.pushCredentialsTimeout)
+        if (this.pushCredentialsTimeout) {
             clearTimeout(this.pushCredentialsTimeout);
+            this.pushCredentialsTimeout = undefined;
+        }
+        if (this.pushRetryTimeout) {
+            clearTimeout(this.pushRetryTimeout);
+            this.pushRetryTimeout = undefined;
+            this.pushRetryDelay = 0;
+        }
     }
     setCameraMaxLivestreamDuration(seconds) {
         this.camera_max_livestream_seconds = seconds;
@@ -206,10 +214,11 @@ class EufySecurity extends events_1.EventEmitter {
                     this.log.error(`EufySecurity._registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
                     return undefined;
                 });
-                if (credentials)
-                    this.adapter.setPushCredentials(credentials);
+                this.adapter.setPushCredentials(credentials);
             }
             if (credentials) {
+                if (this.pushCredentialsTimeout)
+                    clearTimeout(this.pushCredentialsTimeout);
                 this.pushCredentialsTimeout = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                     this.log.info("Push notification token is expiring, renew it.");
                     yield this._registerPushNotifications(credentials, persistentIds, true);
@@ -239,6 +248,7 @@ class EufySecurity extends events_1.EventEmitter {
                 }
             }
             else {
+                yield this.adapter.setStateAsync("info.push_connection", { val: false, ack: true });
                 this.log.error("Push notifications are disabled, because the registration failed!");
             }
             return credentials;
@@ -253,8 +263,7 @@ class EufySecurity extends events_1.EventEmitter {
                     this.log.error(`EufySecurity.registerPushNotifications(): createPushCredentials() - error: ${JSON.stringify(error)}`);
                     return undefined;
                 });
-                if (credentials)
-                    this.adapter.setPushCredentials(credentials);
+                this.adapter.setPushCredentials(credentials);
             }
             else if (new Date().getTime() >= credentials.fidResponse.authToken.expiresAt) {
                 this.log.debug("EufySecurity.registerPushNotifications(): Renew push credentials...");
@@ -262,8 +271,7 @@ class EufySecurity extends events_1.EventEmitter {
                     this.log.error(`EufySecurity.registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
                     return undefined;
                 });
-                if (credentials)
-                    this.adapter.setPushCredentials(credentials);
+                this.adapter.setPushCredentials(credentials);
             }
             else {
                 this.log.debug(`EufySecurity.registerPushNotifications(): Login with previous push credentials... (${JSON.stringify(credentials)})`);
@@ -271,10 +279,27 @@ class EufySecurity extends events_1.EventEmitter {
                     this.log.error(`EufySecurity.registerPushNotifications(): loginPushCredentials() - error: ${JSON.stringify(error)}`);
                     return undefined;
                 });
-                if (credentials)
-                    this.adapter.setPushCredentials(credentials);
+                this.adapter.setPushCredentials(credentials);
             }
-            return this._registerPushNotifications(credentials, persistentIds);
+            credentials = yield this._registerPushNotifications(credentials, persistentIds);
+            if (!credentials) {
+                if (this.pushRetryTimeout)
+                    clearTimeout(this.pushRetryTimeout);
+                const delay = this.getCurrentPushRetryDelay();
+                this.log.info(`Retry to register/login for push notification in ${delay / 1000} seconds...`);
+                this.pushRetryTimeout = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                    this.log.info(`Retry to register/login for push notification`);
+                    yield this.registerPushNotifications(persistentIds);
+                }), delay);
+            }
+            else {
+                this.pushRetryDelay = 0;
+                if (this.pushRetryTimeout) {
+                    clearTimeout(this.pushRetryTimeout);
+                    this.pushRetryTimeout = undefined;
+                }
+            }
+            return credentials;
         });
     }
     logon(verify_code) {
@@ -319,6 +344,14 @@ class EufySecurity extends events_1.EventEmitter {
     }
     handleNotConnected() {
         this.emit("not_connected");
+    }
+    getCurrentPushRetryDelay() {
+        const delay = this.pushRetryDelay == 0 ? 5000 : this.pushRetryDelay;
+        if (this.pushRetryDelay < 60000)
+            this.pushRetryDelay += 10000;
+        if (this.pushRetryDelay >= 60000 && this.pushRetryDelay < 600000)
+            this.pushRetryDelay += 60000;
+        return delay;
     }
 }
 exports.EufySecurity = EufySecurity;

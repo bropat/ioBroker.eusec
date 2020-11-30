@@ -322,11 +322,13 @@ class API extends events_1.EventEmitter {
                     default: break;
                 }
             }
+            //TODO: It seems that if the device is a trusted device the token doesn't expires as stated by token_expiration. So change this accordingly!
             if (this.token_expiration && (new Date()).getTime() >= this.token_expiration.getTime()) {
                 this.log.info("Access token expired; fetching a new one");
                 this.invalidateToken();
-                //get new token
-                yield this.authenticate();
+                if (endpoint != "passport/login")
+                    //get new token
+                    yield this.authenticate();
             }
             this.log.debug(`API.request(): method: ${method} endpoint: ${endpoint} baseUrl: ${this.api_base} token: ${this.token} data: ${JSON.stringify(data)} headers: ${JSON.stringify(this.headers)}`);
             const response = yield axios_1.default({
