@@ -141,6 +141,7 @@ export const CameraStateID = {
     START_STREAM: "start_stream",
     STOP_STREAM: "stop_stream",
     BATTERY: "battery",
+    BATTERY_TEMPERATURE: "battery_temperature",
     LAST_CHARGE_TOTAL_EVENTS: "last_charge_total_events",
     LAST_CHARGE_USED_DAYS: "last_charge_used_days",
     LAST_CHARGE_FILTERED_EVENTS: "last_charge_filtered_events",

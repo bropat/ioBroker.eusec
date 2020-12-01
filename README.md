@@ -70,11 +70,12 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 * (bropat) Added camera saved/recorded events since last charge
 * (bropat) Added camera filtered false events since last charge
 * (bropat) Added camera used days since last charge
+* (bropat) Added camera battery temperature
 
-### 0.0.3
+### 0.0.3 (2020-11-21)
 * (bropat) Fixed issue with push notification credentials initialization
 
-### 0.0.2
+### 0.0.2 (2020-11-21)
 * (bropat) Added push notification support for event notification (raw notifications!)
 * (bropat) Added 2FA (token renewal needs manual intervention)
 * (bropat) Added P2P communication with station (event: Alarm mode change)
@@ -82,7 +83,7 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 * (bropat) Added all eufy camera devices release to date
 * (bropat) Added battery state to eufy cameras
 
-### 0.0.1
+### 0.0.1 (2020-10-04)
 * (bropat) initial release
 
 ## License

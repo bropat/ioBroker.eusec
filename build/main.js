@@ -597,7 +597,20 @@ class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.BATTERY), camera.getParameters()[types_3.CommandType.CMD_GET_BATTERY]);
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.BATTERY), camera.getBatteryValue());
+                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.BATTERY_TEMPERATURE), {
+                        type: "state",
+                        common: {
+                            name: "Battery temperature",
+                            type: "number",
+                            role: "value",
+                            unit: "°C",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.BATTERY_TEMPERATURE), camera.getBatteryTemperature());
                     // Wifi RSSI
                     yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.WIFI_RSSI), {
                         type: "state",

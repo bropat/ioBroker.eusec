@@ -462,6 +462,14 @@ export class Camera extends Device {
         return this.device.charing_total;
     }
 
+    public getBatteryValue(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_BATTERY));
+    }
+
+    public getBatteryTemperature(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_BATTERY_TEMP));
+    }
+
 }
 
 export class DoorbellCamera extends Camera {

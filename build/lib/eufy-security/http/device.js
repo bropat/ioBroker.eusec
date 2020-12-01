@@ -405,6 +405,12 @@ class Camera extends Device {
     getLastChargingTotalEvents() {
         return this.device.charing_total;
     }
+    getBatteryValue() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_BATTERY));
+    }
+    getBatteryTemperature() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_BATTERY_TEMP));
+    }
 }
 exports.Camera = Camera;
 class DoorbellCamera extends Camera {
