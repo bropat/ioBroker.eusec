@@ -125,7 +125,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         const commandHeader = buildCommandHeader(msgSeqNumber, commandType);
         const data = Buffer.concat([commandHeader, payload]);
 
-        this.log.debug(`EufyP2PClientProtocol.connect(): Sending commandType: ${commandType} with seqNum: ${msgSeqNumber}...`);
+        this.log.debug(`EufyP2PClientProtocol.sendCommand(): Sending commandType: ${commandType} with seqNum: ${msgSeqNumber}...`);
         sendMessage(this.socket, this.address, RequestMessageType.DATA, data);
         // -> NOTE:
         // -> We could wait for an ACK and then continue (sync)
@@ -176,6 +176,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
                 // We have already seen this message, skip!
                 // This can happen because the device is sending the message till it gets a ACK
                 // which can take some time.
+                this.sendAck(dataTypeBuffer, seqNo);
                 return;
             }
             this.seenSeqNo[dataType] = seqNo;
@@ -197,7 +198,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
             // Note: data === 65420 when e.g. data mode is already set (guardMode=0, setting guardMode=0 => 65420)
             // Note: data === 65430 when there is an error (sending data to a channel which do not exist)
             const commandStr = CommandType[commandId];
-            this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandStr} (${commandId}) - data: ${data}`);
+            this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandStr} (${commandId}) - data: ${data} - msg: ${msg.toString("hex")}`);
         } else if (dataType === "BINARY") {
             //this.parseBinaryMessage(seqNo, msg);
             this.log.debug(`EufyP2PClientProtocol.handleData(): Binary data: seqNo: ${seqNo} - dataType: ${dataType} - msg: ${msg.toString("hex")}`);

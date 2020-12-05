@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.VerfyCodeTypes = exports.ResponseErrorCode = exports.GuardMode = exports.AlarmMode = exports.ParamType = exports.DeviceType = void 0;
+exports.IndoorCameraStateID = exports.DoorbellStateID = exports.KeyPadStateID = exports.MotionSensorStateID = exports.EntrySensorStateID = exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.VerfyCodeTypes = exports.ResponseErrorCode = exports.GuardMode = exports.AlarmMode = exports.ParamType = exports.DeviceType = void 0;
 var DeviceType;
 (function (DeviceType) {
     //List retrieved from com.oceanwing.battery.cam.binder.model.QueryDeviceData
@@ -128,5 +128,10 @@ exports.DeviceStateID = {
     HARDWARE_VERSION: "hardware_version",
     SOFTWARE_VERSION: "software_version",
 };
-exports.CameraStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", MAC_ADDRESS: "mac_address", LAST_CAMERA_URL: "last_camera_url", LIVESTREAM: "livestream", START_STREAM: "start_stream", STOP_STREAM: "stop_stream", BATTERY: "battery", BATTERY_TEMPERATURE: "battery_temperature", LAST_CHARGE_TOTAL_EVENTS: "last_charge_total_events", LAST_CHARGE_USED_DAYS: "last_charge_used_days", LAST_CHARGE_FILTERED_EVENTS: "last_charge_filtered_events", LAST_CHARGE_SAVED_EVENTS: "last_charge_saved_events", WIFI_RSSI: "wifi_rssi" });
+exports.CameraStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", MAC_ADDRESS: "mac_address", LAST_CAMERA_URL: "last_camera_url", LIVESTREAM: "livestream", START_STREAM: "start_stream", STOP_STREAM: "stop_stream", BATTERY: "battery", BATTERY_TEMPERATURE: "battery_temperature", LAST_CHARGE_TOTAL_EVENTS: "last_charge_total_events", LAST_CHARGE_USED_DAYS: "last_charge_used_days", LAST_CHARGE_FILTERED_EVENTS: "last_charge_filtered_events", LAST_CHARGE_SAVED_EVENTS: "last_charge_saved_events", WIFI_RSSI: "wifi_rssi", MOTION_DETECTED: "motion_detected", PERSON_DETECTED: "person_detected", PERSON_IDENTIFIED: "person_identified", CAPTURED_PIC_URL: "captured_pic_url" });
 exports.StationStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { GUARD_MODE: "guard_mode", CURRENT_MODE: "current_mode", IP_ADDRESS: "ip_address", LAN_IP_ADDRESS: "lan_ip_address", MAC_ADDRESS: "mac_address" });
+exports.EntrySensorStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", SENSOR_OPEN: "sensor_open", LOW_BATTERY: "low_battery", SENSOR_CHANGE_TIME: "sensor_change_time" });
+exports.MotionSensorStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", LOW_BATTERY: "low_battery", MOTION_DETECTED: "motion_detected" });
+exports.KeyPadStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", LOW_BATTERY: "low_battery" });
+exports.DoorbellStateID = Object.assign(Object.assign({}, exports.CameraStateID), { RINGING: "ringing" });
+exports.IndoorCameraStateID = Object.assign(Object.assign({}, exports.CameraStateID), { CRYING_DETECTED: "crying_detected", SOUND_DETECTED: "sound_detected", PET_DETECTED: "pet_detected" });

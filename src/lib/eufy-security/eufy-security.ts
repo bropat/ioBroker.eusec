@@ -2,7 +2,7 @@ import { EventEmitter} from "events";
 import { API } from "./http/api";
 import { Device, Camera, Lock, Sensor, UnkownDevice } from "./http/device";
 import { ApiInterface, Devices, FullDevices, Hubs, Stations } from "./http/interfaces";
-import { CameraStateID } from "./http/types";
+import { CameraStateID, ParamType, StationStateID } from "./http/types";
 
 import { Station } from "./http/station";
 import { FullDeviceResponse, HubResponse } from "./http/models";
@@ -11,6 +11,7 @@ import { PushRegisterService } from "./push/register"
 import { PushClient } from "./push/client"
 import { Credentials, PushMessage } from "./push/models";
 import { EufySecurity as EufySecurityAdapter } from "./../../main";
+import { setStateChangedAsync } from "./utils";
 
 export class EufySecurity extends EventEmitter implements ApiInterface {
 
@@ -370,6 +371,9 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
 
     private stationParameterChanged(station: Station, type: number, value: string): void {
         this.log.debug(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} type: ${type} value: ${value}`);
+        if (type == ParamType.GUARD_MODE)
+        //TODO: if configured guard mode was changed to SCHEDULE (2) we get the correct current mode, but we change the effective guard mode on next http data refresh... Get it asap!
+            setStateChangedAsync(this.adapter, station.getStateID(StationStateID.GUARD_MODE), value);
     }
 
     private deviceParameterChanged(device: Device, type: number, value: string): void {

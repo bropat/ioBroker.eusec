@@ -68,6 +68,21 @@ export abstract class Device extends EventEmitter {
         return false;
     }
 
+    static hasBattery(type: number): boolean {
+        if (type == DeviceType.CAMERA ||
+            type == DeviceType.CAMERA2 ||
+            type == DeviceType.CAMERA_E ||
+            type == DeviceType.CAMERA2C ||
+            type == DeviceType.BATTERY_DOORBELL ||
+            type == DeviceType.BATTERY_DOORBELL_2 ||
+            type == DeviceType.CAMERA2C_PRO ||
+            type == DeviceType.CAMERA2_PRO ||
+            type == DeviceType.SOLO_CAMERA ||
+            type == DeviceType.SOLO_CAMERA_PRO)
+            return true;
+        return false;
+    }
+
     static isStation(type: number): boolean {
         if (type == DeviceType.STATION)
             return true;
@@ -89,6 +104,15 @@ export abstract class Device extends EventEmitter {
         if (type == DeviceType.DOORBELL ||
             type == DeviceType.BATTERY_DOORBELL ||
             type == DeviceType.BATTERY_DOORBELL_2)
+            return true;
+        return false;
+    }
+
+    static isIndoorCamera(type: number): boolean {
+        if (type == DeviceType.INDOOR_CAMERA ||
+            type == DeviceType.INDOOR_CAMERA_1080 ||
+            type == DeviceType.INDOOR_PT_CAMERA ||
+            type == DeviceType.INDOOR_PT_CAMERA_1080)
             return true;
         return false;
     }
@@ -256,6 +280,14 @@ export abstract class Device extends EventEmitter {
 
     public isMotionSensor(): boolean {
         return Device.isMotionSensor(this.device.device_type);
+    }
+
+    public isIndoorCamera(): boolean {
+        return Device.isIndoorCamera(this.device.device_type);
+    }
+
+    public hasBattery(): boolean {
+        return Device.hasBattery(this.device.device_type);
     }
 
     public getDeviceKey(): string {
@@ -488,6 +520,70 @@ export class Sensor extends Device {
 
 }
 
+export class EntrySensor extends Sensor {
+
+    public isSensorOpen(): boolean {
+        if (this.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS) === "1")
+            return true;
+        return false;
+    }
+
+    public getSensorChangeTime(): string {
+        return this.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME);
+    }
+
+    public isBatteryLow(): boolean {
+        if (this.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE) === "1")
+            return true;
+        return false;
+    }
+
+    public getState(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
+    }
+
+}
+
+export class MotionSensor extends Sensor {
+
+    public static readonly MOTION_COOLDOWN_MS = 120000;
+
+    //TODO: CMD_MOTION_SENSOR_ENABLE_LED = 1607
+    //TODO: CMD_MOTION_SENSOR_ENTER_USER_TEST_MODE = 1613
+    //TODO: CMD_MOTION_SENSOR_EXIT_USER_TEST_MODE = 1610
+    //TODO: CMD_MOTION_SENSOR_SET_CHIRP_TONE = 1611
+    //TODO: CMD_MOTION_SENSOR_SET_PIR_SENSITIVITY = 1609
+    //TODO: CMD_MOTION_SENSOR_WORK_MODE = 1612
+
+    public static isMotionDetected(millis: number): { motion: boolean, cooldown_ms: number} {
+        const delta = new Date().getUTCMilliseconds() - millis;
+        if (delta < this.MOTION_COOLDOWN_MS) {
+            return { motion: true, cooldown_ms: this.MOTION_COOLDOWN_MS - delta};
+        }
+        return { motion: false, cooldown_ms: 0};
+    }
+
+    public isMotionDetected(): { motion: boolean, cooldown_ms: number} {
+        return MotionSensor.isMotionDetected(this.getMotionSensorPIREvent());
+    }
+
+    public getState(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
+    }
+
+    public getMotionSensorPIREvent(): number {
+        //TODO: Implement P2P Control Event over active station connection
+        return Number.parseInt(this.getParameter(CommandType.CMD_MOTION_SENSOR_PIR_EVT));
+    }
+
+    public isBatteryLow(): boolean {
+        if (this.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE) === "1")
+            return true;
+        return false;
+    }
+
+}
+
 export class Lock extends Device {
 
     public getStateChannel(): string {
@@ -498,8 +594,27 @@ export class Lock extends Device {
 
 export class Keypad extends Device {
 
+    //TODO: CMD_KEYPAD_BATTERY_CHARGER_STATE = 1655
+    //TODO: CMD_KEYPAD_BATTERY_TEMP_STATE = 1654
+    //TODO: CMD_KEYPAD_GET_PASSWORD = 1657
+    //TODO: CMD_KEYPAD_GET_PASSWORD_LIST = 1662
+    //TODO: CMD_KEYPAD_IS_PSW_SET = 1670
+    //TODO: CMD_KEYPAD_PSW_OPEN = 1664
+    //TODO: CMD_KEYPAD_SET_CUSTOM_MAP = 1660
+    //TODO: CMD_KEYPAD_SET_PASSWORD = 1650
+
     public getStateChannel(): string {
         return "keypads";
+    }
+
+    public getState(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
+    }
+
+    public isBatteryLow(): boolean {
+        if (this.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE) === "1")
+            return true;
+        return false;
     }
 
 }

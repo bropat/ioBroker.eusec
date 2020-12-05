@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UnkownDevice = exports.Keypad = exports.Lock = exports.Sensor = exports.FloodlightCamera = exports.DoorbellCamera = exports.Camera = exports.Device = void 0;
+exports.UnkownDevice = exports.Keypad = exports.Lock = exports.MotionSensor = exports.EntrySensor = exports.Sensor = exports.FloodlightCamera = exports.DoorbellCamera = exports.Camera = exports.Device = void 0;
 const types_1 = require("./types");
 const parameter_1 = require("./parameter");
 const events_1 = require("events");
@@ -64,6 +64,20 @@ class Device extends events_1.EventEmitter {
             return true;
         return false;
     }
+    static hasBattery(type) {
+        if (type == types_1.DeviceType.CAMERA ||
+            type == types_1.DeviceType.CAMERA2 ||
+            type == types_1.DeviceType.CAMERA_E ||
+            type == types_1.DeviceType.CAMERA2C ||
+            type == types_1.DeviceType.BATTERY_DOORBELL ||
+            type == types_1.DeviceType.BATTERY_DOORBELL_2 ||
+            type == types_1.DeviceType.CAMERA2C_PRO ||
+            type == types_1.DeviceType.CAMERA2_PRO ||
+            type == types_1.DeviceType.SOLO_CAMERA ||
+            type == types_1.DeviceType.SOLO_CAMERA_PRO)
+            return true;
+        return false;
+    }
     static isStation(type) {
         if (type == types_1.DeviceType.STATION)
             return true;
@@ -82,6 +96,14 @@ class Device extends events_1.EventEmitter {
         if (type == types_1.DeviceType.DOORBELL ||
             type == types_1.DeviceType.BATTERY_DOORBELL ||
             type == types_1.DeviceType.BATTERY_DOORBELL_2)
+            return true;
+        return false;
+    }
+    static isIndoorCamera(type) {
+        if (type == types_1.DeviceType.INDOOR_CAMERA ||
+            type == types_1.DeviceType.INDOOR_CAMERA_1080 ||
+            type == types_1.DeviceType.INDOOR_PT_CAMERA ||
+            type == types_1.DeviceType.INDOOR_PT_CAMERA_1080)
             return true;
         return false;
     }
@@ -209,6 +231,12 @@ class Device extends events_1.EventEmitter {
     }
     isMotionSensor() {
         return Device.isMotionSensor(this.device.device_type);
+    }
+    isIndoorCamera() {
+        return Device.isIndoorCamera(this.device.device_type);
+    }
+    hasBattery() {
+        return Device.hasBattery(this.device.device_type);
     }
     getDeviceKey() {
         return this.device.station_sn + this.device.device_channel;
@@ -425,6 +453,57 @@ class Sensor extends Device {
     }
 }
 exports.Sensor = Sensor;
+class EntrySensor extends Sensor {
+    isSensorOpen() {
+        if (this.getParameter(types_2.CommandType.CMD_ENTRY_SENSOR_STATUS) === "1")
+            return true;
+        return false;
+    }
+    getSensorChangeTime() {
+        return this.getParameter(types_2.CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME);
+    }
+    isBatteryLow() {
+        if (this.getParameter(types_2.CommandType.CMD_ENTRY_SENSOR_BAT_STATE) === "1")
+            return true;
+        return false;
+    }
+    getState() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
+    }
+}
+exports.EntrySensor = EntrySensor;
+class MotionSensor extends Sensor {
+    //TODO: CMD_MOTION_SENSOR_ENABLE_LED = 1607
+    //TODO: CMD_MOTION_SENSOR_ENTER_USER_TEST_MODE = 1613
+    //TODO: CMD_MOTION_SENSOR_EXIT_USER_TEST_MODE = 1610
+    //TODO: CMD_MOTION_SENSOR_SET_CHIRP_TONE = 1611
+    //TODO: CMD_MOTION_SENSOR_SET_PIR_SENSITIVITY = 1609
+    //TODO: CMD_MOTION_SENSOR_WORK_MODE = 1612
+    static isMotionDetected(millis) {
+        const delta = new Date().getUTCMilliseconds() - millis;
+        if (delta < this.MOTION_COOLDOWN_MS) {
+            return { motion: true, cooldown_ms: this.MOTION_COOLDOWN_MS - delta };
+        }
+        return { motion: false, cooldown_ms: 0 };
+    }
+    isMotionDetected() {
+        return MotionSensor.isMotionDetected(this.getMotionSensorPIREvent());
+    }
+    getState() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
+    }
+    getMotionSensorPIREvent() {
+        //TODO: Implement P2P Control Event over active station connection
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_MOTION_SENSOR_PIR_EVT));
+    }
+    isBatteryLow() {
+        if (this.getParameter(types_2.CommandType.CMD_MOTION_SENSOR_BAT_STATE) === "1")
+            return true;
+        return false;
+    }
+}
+exports.MotionSensor = MotionSensor;
+MotionSensor.MOTION_COOLDOWN_MS = 120000;
 class Lock extends Device {
     getStateChannel() {
         return "locks";
@@ -432,8 +511,24 @@ class Lock extends Device {
 }
 exports.Lock = Lock;
 class Keypad extends Device {
+    //TODO: CMD_KEYPAD_BATTERY_CHARGER_STATE = 1655
+    //TODO: CMD_KEYPAD_BATTERY_TEMP_STATE = 1654
+    //TODO: CMD_KEYPAD_GET_PASSWORD = 1657
+    //TODO: CMD_KEYPAD_GET_PASSWORD_LIST = 1662
+    //TODO: CMD_KEYPAD_IS_PSW_SET = 1670
+    //TODO: CMD_KEYPAD_PSW_OPEN = 1664
+    //TODO: CMD_KEYPAD_SET_CUSTOM_MAP = 1660
+    //TODO: CMD_KEYPAD_SET_PASSWORD = 1650
     getStateChannel() {
         return "keypads";
+    }
+    getState() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
+    }
+    isBatteryLow() {
+        if (this.getParameter(types_2.CommandType.CMD_KEYPAD_BATTERY_CAP_STATE) === "1")
+            return true;
+        return false;
     }
 }
 exports.Keypad = Keypad;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PushNotificationStateID = exports.ServerPushEvent = exports.PushEvent = void 0;
+exports.ServerPushEvent = exports.PushEvent = void 0;
 var PushEvent;
 (function (PushEvent) {
     PushEvent[PushEvent["PUSH_SECURITY_EVT"] = 1] = "PUSH_SECURITY_EVT";
@@ -28,13 +28,3 @@ var ServerPushEvent;
     ServerPushEvent[ServerPushEvent["PUSH_REMOVE_HOMEBASE"] = 10100] = "PUSH_REMOVE_HOMEBASE";
     ServerPushEvent[ServerPushEvent["PUSH_VERIFICATION"] = 10500] = "PUSH_VERIFICATION";
 })(ServerPushEvent = exports.ServerPushEvent || (exports.ServerPushEvent = {}));
-exports.PushNotificationStateID = {
-    CONTENT: "content",
-    DEVICE_SERIALNUMBER: "device_sn",
-    EVENT_TIME: "event_time",
-    PAYLOAD: "payload",
-    PUSH_TIME: "push_time",
-    STATION_SERIALNUMBER: "station_sn",
-    TITLE: "title",
-    TYPE: "type"
-};

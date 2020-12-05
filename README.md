@@ -33,12 +33,45 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
 ## Features
 
 * Base station:
-    * Change guard mode
+    * States:
+        * Configured Guard mode
+        * Current Guard mode
+        * ...
+    * Actions:
+        * Change guard mode
 * Camera:
-    * Start livestream (rtmp)
-    * Stop livestream (rtmp)
+    * States: 
+        * Online / offline etc.
+        * Battery %
+        * ...
+    * Actions:
+        * Start livestream (rtmp)
+        * Stop livestream (rtmp)
+    * Events:
+        * Motion detected
+        * Person detected
+        * Ringing (only Doorbell)
+        * Crying detected (only Indoor cameras)
+        * Sound detected (only Indoor cameras)
+        * Pet detected (only Indoor cameras)
+* Sensor
+    * Entry sensor:
+        * States: 
+            * Online / offline etc.
+            * Low battery
+        * Events: 
+            * Open / closed
+    * Motion sensor:
+        * States:
+            * Online / offline etc.
+            * Low battery
+        * Events:
+            * Motion detected
+* Keypad:
+    * States:
+        * Online / offline etc.
+        * Low battery
 * Two factor authentication (token renewal needs manual intervention)
-* Push notification support
 * Basic P2P communication functionality:
     * event: Alarm mode change
 * more to come...
@@ -60,7 +93,20 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
-### 0.0.4
+### 0.0.5 (2020-12-05)
+* (bropat) Added event states for camera (motion detected, person detected)
+* (bropat) Added event states for entry sensor (open/closed)
+* (bropat) Added event states for motion sensor (motion detected)
+* (bropat) Added event states for doorbell (motion detected, person detected, ringing)
+* (bropat) Added event states for indoor camera (motion detected, person detected, crying detected, sound detected, pet detected)
+* (bropat) Added entry sensor state (online, offline, etc.)
+* (bropat) Added entry sensor low battery
+* (bropat) Added motion sensor state (online, offline, etc.)
+* (bropat) Added motion sensor low battery
+* (bropat) Added keypad state (online, offline, etc.)
+* (bropat) Added keypad low battery
+
+### 0.0.4 (2020-12-03)
 * (bropat) Better exception handling
 * (bropat) Fixed push token handling
 * (bropat) Added push connection retry mechanism

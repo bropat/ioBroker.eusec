@@ -1,6 +1,6 @@
 {
   "name": "iobroker.eufy-security",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "ioBroker adapter that integrates Eufy-Security cameras with stations",
   "author": {
     "name": "bropat",
@@ -19,11 +19,15 @@
     "type": "git",
     "url": "https://github.com/bropat/ioBroker.eufy-security"
   },
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "dependencies": {
     "@iobroker/adapter-core": "^2.4.0",
     "axios": "^0.21.0",
     "protobuf-typescript": "^6.8.8",
-    "@types/qs": "^6.9.5"
+    "@types/qs": "^6.9.5",
+    "read-bigint": "^0.1.4"
   },
   "devDependencies": {
     "@iobroker/testing": "^2.3.0",

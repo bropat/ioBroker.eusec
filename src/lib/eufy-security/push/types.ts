@@ -24,14 +24,3 @@ export enum ServerPushEvent {
     PUSH_REMOVE_HOMEBASE = 10100,
     PUSH_VERIFICATION = 10500
 }
-
-export const PushNotificationStateID = {
-    CONTENT: "content",
-    DEVICE_SERIALNUMBER: "device_sn",
-    EVENT_TIME: "event_time",
-    PAYLOAD: "payload",
-    PUSH_TIME: "push_time",
-    STATION_SERIALNUMBER: "station_sn",
-    TITLE: "title",
-    TYPE: "type"
-}

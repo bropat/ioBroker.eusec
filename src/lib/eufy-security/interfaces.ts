@@ -30,6 +30,7 @@ export interface AdapterConfig {
     password: string;
     pollingInterval: number;
     maxLivestreamDuration: number;
+    eventDuration: number;
     verificationMethod: number;
 }
 

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.4",
+        "version": "0.0.5",
         "news": {
+            "0.0.5": {
+                "en": "Added event states for different devices (motion detected, person detected, etc.)",
+                "de": "Ereigniszustände für Kamera hinzugefügt (Bewegung erkannt, Person erkannt)",
+                "ru": "Добавлены состояния событий для камеры (обнаружено движение, обнаружен человек)",
+                "pt": "Adicionados estados de eventos para a câmera (movimento detectado, pessoa detectada)",
+                "nl": "Gebeurtenisstatussen toegevoegd voor camera (beweging gedetecteerd, persoon gedetecteerd)",
+                "fr": "Ajout d'états d'événement pour la caméra (mouvement détecté, personne détectée)",
+                "it": "Aggiunti stati evento per la telecamera (movimento rilevato, persona rilevata)",
+                "es": "Estados de eventos agregados para la cámara (movimiento detectado, persona detectada)",
+                "pl": "Dodano stany zdarzeń dla kamery (wykryto ruch, wykryto osobę)",
+                "zh-cn": "添加了摄像机的事件状态（检测到运动，检测到人）"
+            },
             "0.0.4": {
                 "en": "Better exception handling; Push notification fixes",
                 "de": "Bessere Ausnahmebehandlung; Push-Benachrichtigungskorrekturen",
@@ -119,7 +131,8 @@
         "password": "",
         "pollingInterval": 10,
         "maxLivestreamDuration": 30,
-        "verificationMethod": 2
+        "verificationMethod": 2,
+        "eventDuration": 15
     },
     "objects": [],
     "instanceObjects": []

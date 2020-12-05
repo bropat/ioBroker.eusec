@@ -146,7 +146,11 @@ export const CameraStateID = {
     LAST_CHARGE_USED_DAYS: "last_charge_used_days",
     LAST_CHARGE_FILTERED_EVENTS: "last_charge_filtered_events",
     LAST_CHARGE_SAVED_EVENTS: "last_charge_saved_events",
-    WIFI_RSSI: "wifi_rssi"
+    WIFI_RSSI: "wifi_rssi",
+    MOTION_DETECTED: "motion_detected",
+    PERSON_DETECTED: "person_detected",
+    PERSON_IDENTIFIED: "person_identified",
+    CAPTURED_PIC_URL: "captured_pic_url",
 }
 
 export const StationStateID = {
@@ -156,4 +160,37 @@ export const StationStateID = {
     IP_ADDRESS: "ip_address",
     LAN_IP_ADDRESS: "lan_ip_address",
     MAC_ADDRESS: "mac_address",
+}
+
+export const EntrySensorStateID = {
+    ...DeviceStateID,
+    STATE: "state",
+    SENSOR_OPEN: "sensor_open",
+    LOW_BATTERY: "low_battery",
+    SENSOR_CHANGE_TIME: "sensor_change_time",
+}
+
+export const MotionSensorStateID = {
+    ...DeviceStateID,
+    STATE: "state",
+    LOW_BATTERY: "low_battery",
+    MOTION_DETECTED: "motion_detected",
+}
+
+export const KeyPadStateID = {
+    ...DeviceStateID,
+    STATE: "state",
+    LOW_BATTERY: "low_battery",
+}
+
+export const DoorbellStateID = {
+    ...CameraStateID,
+    RINGING: "ringing",
+}
+
+export const IndoorCameraStateID = {
+    ...CameraStateID,
+    CRYING_DETECTED: "crying_detected",
+    SOUND_DETECTED: "sound_detected",
+    PET_DETECTED: "pet_detected",
 }

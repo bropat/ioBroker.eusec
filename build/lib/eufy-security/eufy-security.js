@@ -17,6 +17,7 @@ const types_1 = require("./http/types");
 const station_1 = require("./http/station");
 const register_1 = require("./push/register");
 const client_1 = require("./push/client");
+const utils_1 = require("./utils");
 class EufySecurity extends events_1.EventEmitter {
     constructor(adapter) {
         super();
@@ -338,6 +339,9 @@ class EufySecurity extends events_1.EventEmitter {
     }
     stationParameterChanged(station, type, value) {
         this.log.debug(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} type: ${type} value: ${value}`);
+        if (type == types_1.ParamType.GUARD_MODE)
+            //TODO: if configured guard mode was changed to SCHEDULE (2) we get the correct current mode, but we change the effective guard mode on next http data refresh... Get it asap!
+            utils_1.setStateChangedAsync(this.adapter, station.getStateID(types_1.StationStateID.GUARD_MODE), value);
     }
     deviceParameterChanged(device, type, value) {
         this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value}`);

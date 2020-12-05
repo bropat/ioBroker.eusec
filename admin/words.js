@@ -62,16 +62,16 @@ systemDictionary = {
         "pl": "Maksymalny czas trwania transmisji na żywo z kamery (s)",
         "zh-cn": "相机直播的最大持续时间（秒）"
     },
-    "Two factor authentication verification method": {
-        "en": "Two factor authentication verification method",
-        "de": "Überprüfungsmethode für die Zwei-Faktor-Authentifizierung",
-        "ru": "Метод проверки двухфакторной аутентификации",
-        "pt": "Método de verificação de autenticação de dois fatores",
-        "nl": "Verificatiemethode met twee factoren",
-        "fr": "Méthode de vérification de l'authentification à deux facteurs",
-        "it": "Metodo di verifica dell'autenticazione a due fattori",
-        "es": "Método de verificación de autenticación de dos factores",
-        "pl": "Metoda weryfikacji uwierzytelniania dwuskładnikowego",
-        "zh-cn": "两因素认证验证方法"
+    "Time in seconds before event reset": {
+        "en": "Time in seconds before event reset",
+        "de": "Zeit in Sekunden vor dem Zurücksetzen des Ereignisses",
+        "ru": "Время в секундах до сброса события",
+        "pt": "Tempo em segundos antes da redefinição do evento",
+        "nl": "Tijd in seconden voordat de gebeurtenis wordt gereset",
+        "fr": "Temps en secondes avant la réinitialisation de l'événement",
+        "it": "Tempo in secondi prima del ripristino dell'evento",
+        "es": "Tiempo en segundos antes del reinicio del evento",
+        "pl": "Czas w sekundach do zresetowania zdarzenia",
+        "zh-cn": "事件重置之前的时间（以秒为单位）"
     }
 };
