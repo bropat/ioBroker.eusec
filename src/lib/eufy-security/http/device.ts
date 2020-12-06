@@ -518,6 +518,10 @@ export class Sensor extends Device {
         return "sensors";
     }
 
+    public getState(): number {
+        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
+    }
+
 }
 
 export class EntrySensor extends Sensor {
@@ -536,10 +540,6 @@ export class EntrySensor extends Sensor {
         if (this.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE) === "1")
             return true;
         return false;
-    }
-
-    public getState(): number {
-        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
     }
 
 }
@@ -565,10 +565,6 @@ export class MotionSensor extends Sensor {
 
     public isMotionDetected(): { motion: boolean, cooldown_ms: number} {
         return MotionSensor.isMotionDetected(this.getMotionSensorPIREvent());
-    }
-
-    public getState(): number {
-        return Number.parseInt(this.getParameter(CommandType.CMD_GET_DEV_STATUS));
     }
 
     public getMotionSensorPIREvent(): number {
@@ -619,7 +615,7 @@ export class Keypad extends Device {
 
 }
 
-export class UnkownDevice extends Device {
+export class UnknownDevice extends Device {
 
     public getStateChannel(): string {
         return "unknown";

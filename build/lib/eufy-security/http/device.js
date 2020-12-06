@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UnkownDevice = exports.Keypad = exports.Lock = exports.MotionSensor = exports.EntrySensor = exports.Sensor = exports.FloodlightCamera = exports.DoorbellCamera = exports.Camera = exports.Device = void 0;
+exports.UnknownDevice = exports.Keypad = exports.Lock = exports.MotionSensor = exports.EntrySensor = exports.Sensor = exports.FloodlightCamera = exports.DoorbellCamera = exports.Camera = exports.Device = void 0;
 const types_1 = require("./types");
 const parameter_1 = require("./parameter");
 const events_1 = require("events");
@@ -451,6 +451,9 @@ class Sensor extends Device {
     getStateChannel() {
         return "sensors";
     }
+    getState() {
+        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
+    }
 }
 exports.Sensor = Sensor;
 class EntrySensor extends Sensor {
@@ -466,9 +469,6 @@ class EntrySensor extends Sensor {
         if (this.getParameter(types_2.CommandType.CMD_ENTRY_SENSOR_BAT_STATE) === "1")
             return true;
         return false;
-    }
-    getState() {
-        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
     }
 }
 exports.EntrySensor = EntrySensor;
@@ -488,9 +488,6 @@ class MotionSensor extends Sensor {
     }
     isMotionDetected() {
         return MotionSensor.isMotionDetected(this.getMotionSensorPIREvent());
-    }
-    getState() {
-        return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_DEV_STATUS));
     }
     getMotionSensorPIREvent() {
         //TODO: Implement P2P Control Event over active station connection
@@ -532,9 +529,9 @@ class Keypad extends Device {
     }
 }
 exports.Keypad = Keypad;
-class UnkownDevice extends Device {
+class UnknownDevice extends Device {
     getStateChannel() {
         return "unknown";
     }
 }
-exports.UnkownDevice = UnkownDevice;
+exports.UnknownDevice = UnknownDevice;

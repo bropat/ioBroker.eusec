@@ -1,6 +1,6 @@
 import { EventEmitter} from "events";
 import { API } from "./http/api";
-import { Device, Camera, Lock, Sensor, UnkownDevice } from "./http/device";
+import { Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice } from "./http/device";
 import { ApiInterface, Devices, FullDevices, Hubs, Stations } from "./http/interfaces";
 import { CameraStateID, ParamType, StationStateID } from "./http/types";
 
@@ -176,10 +176,14 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
                     new_device = new Camera(this.api, device);
                 } else if (Device.isLock(device.device_type)) {
                     new_device = new Lock(this.api, device);
-                } else if (Device.isSensor(device.device_type)) {
-                    new_device = new Sensor(this.api, device);
+                } else if (Device.isMotionSensor(device.device_type)) {
+                    new_device = new MotionSensor(this.api, device);
+                } else if (Device.isEntrySensor(device.device_type)) {
+                    new_device = new EntrySensor(this.api, device);
+                } else if (Device.isKeyPad(device.device_type)) {
+                    new_device = new Keypad(this.api, device);
                 } else {
-                    new_device = new UnkownDevice(this.api, device);
+                    new_device = new UnknownDevice(this.api, device);
                 }
 
                 new_device.on("parameter", (device, type, value) => this.deviceParameterChanged(device, type, value))

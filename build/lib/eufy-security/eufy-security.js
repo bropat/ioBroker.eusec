@@ -156,11 +156,17 @@ class EufySecurity extends events_1.EventEmitter {
                 else if (device_1.Device.isLock(device.device_type)) {
                     new_device = new device_1.Lock(this.api, device);
                 }
-                else if (device_1.Device.isSensor(device.device_type)) {
-                    new_device = new device_1.Sensor(this.api, device);
+                else if (device_1.Device.isMotionSensor(device.device_type)) {
+                    new_device = new device_1.MotionSensor(this.api, device);
+                }
+                else if (device_1.Device.isEntrySensor(device.device_type)) {
+                    new_device = new device_1.EntrySensor(this.api, device);
+                }
+                else if (device_1.Device.isKeyPad(device.device_type)) {
+                    new_device = new device_1.Keypad(this.api, device);
                 }
                 else {
-                    new_device = new device_1.UnkownDevice(this.api, device);
+                    new_device = new device_1.UnknownDevice(this.api, device);
                 }
                 new_device.on("parameter", (device, type, value) => this.deviceParameterChanged(device, type, value));
                 this.addDevice(new_device);

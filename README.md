@@ -93,6 +93,9 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.0.6 (2020-12-06)
+* (bropat) Fixed issue [#13](https://github.com/bropat/ioBroker.eufy-security/issues/13)
+
 ### 0.0.5 (2020-12-05)
 * (bropat) Added event states for camera (motion detected, person detected)
 * (bropat) Added event states for entry sensor (open/closed)
