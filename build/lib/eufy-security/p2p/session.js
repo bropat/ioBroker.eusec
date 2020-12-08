@@ -96,9 +96,10 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
         const payload = utils_1.buildIntCommandPayload(value, this.actor);
         this.sendCommand(commandType, payload);
     }
-    sendCommandWithString(commandType, value) {
+    sendCommandWithString(commandType, value, channel = 0) {
         // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
-        const payload = utils_1.buildStringTypeCommandPayload(value, this.actor);
+        //const payload = buildStringTypeCommandPayload(value, this.actor);
+        const payload = utils_1.buildCommandWithStringTypePayload(value, channel);
         this.sendCommand(commandType, payload);
     }
     sendCommand(commandType, payload) {

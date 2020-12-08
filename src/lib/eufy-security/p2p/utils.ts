@@ -22,13 +22,15 @@ export const promiseAny = <T>(iterable: Array<Promise<any>>): Promise<T> => {
     return reverse(Promise.all([...iterable].map(reverse)));
 };
 
-const applyLength = (inp: Array<number>, bufferLength: number | null = null): Array<number> => {
+const applyLength = (inp: Array<number>, bufferLength: number | null = null, bigendian = false): Array<number> => {
     if (!bufferLength) {
         return inp;
     }
 
-    if (bufferLength < inp.length) {
+    if (bufferLength < inp.length && !bigendian) {
         return inp.slice(0, bufferLength);
+    } else if (bufferLength < inp.length && bigendian) {
+        return inp.slice(inp.length - bufferLength);
     } else if (bufferLength > inp.length) {
         for (let i = 0; i <= bufferLength - inp.length; i++) {
             inp.push(0);
@@ -73,7 +75,7 @@ const intToArray = (inp: string | number): Array<number> => {
 
 export const intToBufferBE = (inp: string | number, bufferLength: number | null = null): Buffer => {
     const array = intToArray(inp);
-    return Buffer.from(applyLength(array, bufferLength));
+    return Buffer.from(applyLength(array, bufferLength, true));
 };
 
 export const intToBufferLE = (inp: string | number, bufferLength: number | null = null): Buffer => {
@@ -190,4 +192,25 @@ export const buildCommandHeader = (seqNumber: number, commandType: CommandType):
     const magicString = Buffer.from(MAGIC_WORD);
     const commandTypeBuffer = intToBufferLE(commandType, 2);
     return Buffer.concat([dataTypeBuffer, seqAsBuffer, magicString, commandTypeBuffer]);
+};
+
+
+export const buildCommandWithStringTypePayload = (value: string, channel = 0): Buffer => {
+    // type = 6
+    //setCommandWithString()
+
+    const headerBuffer = Buffer.from([0x80, 0x00]);
+    const emptyBuffer = Buffer.from([0x00, 0x00]);
+    const magicBuffer = Buffer.from([0x01, 0x00]);
+    const channelBuffer = Buffer.from([channel, 0x00]);
+    const jsonBuffer = Buffer.from(value);
+
+    return Buffer.concat([
+        headerBuffer,
+        emptyBuffer,
+        magicBuffer,
+        channelBuffer,
+        emptyBuffer,
+        jsonBuffer,
+    ]);
 };

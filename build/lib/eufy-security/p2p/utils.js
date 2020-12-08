@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildCommandHeader = exports.hasHeader = exports.sendMessage = exports.buildIntStringCommandPayload = exports.buildStringTypeCommandPayload = exports.buildIntCommandPayload = exports.buildCheckCamPayload = exports.buildLookupWithKeyPayload = exports.intToBufferLE = exports.intToBufferBE = exports.promiseAny = exports.isPrivateIp = exports.MAGIC_WORD = void 0;
+exports.buildCommandWithStringTypePayload = exports.buildCommandHeader = exports.hasHeader = exports.sendMessage = exports.buildIntStringCommandPayload = exports.buildStringTypeCommandPayload = exports.buildIntCommandPayload = exports.buildCheckCamPayload = exports.buildLookupWithKeyPayload = exports.intToBufferLE = exports.intToBufferBE = exports.promiseAny = exports.isPrivateIp = exports.MAGIC_WORD = void 0;
 exports.MAGIC_WORD = "XZYH";
 const isPrivateIp = (ip) => /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
     /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(ip) ||
@@ -28,12 +28,15 @@ const promiseAny = (iterable) => {
     return reverse(Promise.all([...iterable].map(reverse)));
 };
 exports.promiseAny = promiseAny;
-const applyLength = (inp, bufferLength = null) => {
+const applyLength = (inp, bufferLength = null, bigendian = false) => {
     if (!bufferLength) {
         return inp;
     }
-    if (bufferLength < inp.length) {
+    if (bufferLength < inp.length && !bigendian) {
         return inp.slice(0, bufferLength);
+    }
+    else if (bufferLength < inp.length && bigendian) {
+        return inp.slice(inp.length - bufferLength);
     }
     else if (bufferLength > inp.length) {
         for (let i = 0; i <= bufferLength - inp.length; i++) {
@@ -75,7 +78,7 @@ const intToArray = (inp) => {
 };
 const intToBufferBE = (inp, bufferLength = null) => {
     const array = intToArray(inp);
-    return Buffer.from(applyLength(array, bufferLength));
+    return Buffer.from(applyLength(array, bufferLength, true));
 };
 exports.intToBufferBE = intToBufferBE;
 const intToBufferLE = (inp, bufferLength = null) => {
@@ -187,3 +190,21 @@ const buildCommandHeader = (seqNumber, commandType) => {
     return Buffer.concat([dataTypeBuffer, seqAsBuffer, magicString, commandTypeBuffer]);
 };
 exports.buildCommandHeader = buildCommandHeader;
+const buildCommandWithStringTypePayload = (value, channel = 0) => {
+    // type = 6
+    //setCommandWithString()
+    const headerBuffer = Buffer.from([0x80, 0x00]);
+    const emptyBuffer = Buffer.from([0x00, 0x00]);
+    const magicBuffer = Buffer.from([0x01, 0x00]);
+    const channelBuffer = Buffer.from([channel, 0x00]);
+    const jsonBuffer = Buffer.from(value);
+    return Buffer.concat([
+        headerBuffer,
+        emptyBuffer,
+        magicBuffer,
+        channelBuffer,
+        emptyBuffer,
+        jsonBuffer,
+    ]);
+};
+exports.buildCommandWithStringTypePayload = buildCommandWithStringTypePayload;

@@ -191,6 +191,18 @@ class Station extends events_1.EventEmitter {
                 if (this.p2p_session.isConnected()) {
                     this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
                     yield this.p2p_session.sendCommandWithInt(types_2.CommandType.CMD_SET_ARMING, mode);
+                    // New method available only after a min. software version and only for some devices; The software version is received by FirebaseRemoteConfig
+                    // if ((b != null && a.a().a("new_instance_vision_as", b.main_sw_version) && !b.isIntegratedDeviceBySn()) || (b != null && b.isSoloCams())) {
+                    // If this is met the following works already:
+                    /*await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
+                        "account_id": this.hub.member.action_user_id,
+                        "cmd": CommandType.CMD_SET_ARMING,
+                        "mValue3": 0,
+                        "payload": {
+                            "mode_type": mode,
+                            "user_name": this.hub.member.nick_name
+                        }
+                    }));*/
                 }
             }
         });

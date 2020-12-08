@@ -1,6 +1,6 @@
 import { createSocket, Socket } from "dgram";
 import { Address, CmdCameraInfoResponse } from "./models";
-import { sendMessage, hasHeader, buildCheckCamPayload, buildIntCommandPayload, buildIntStringCommandPayload, buildStringTypeCommandPayload, buildCommandHeader, MAGIC_WORD } from "./utils";
+import { sendMessage, hasHeader, buildCheckCamPayload, buildIntCommandPayload, buildIntStringCommandPayload, buildCommandHeader, MAGIC_WORD, buildCommandWithStringTypePayload } from "./utils";
 import { RequestMessageType, ResponseMessageType, EufyP2PDataType, CommandType } from "./types";
 import { AlarmMode } from "../http/types";
 import { EventEmitter } from "events";
@@ -113,9 +113,10 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         this.sendCommand(commandType, payload);
     }
 
-    public sendCommandWithString(commandType: CommandType, value: string): void {
+    public sendCommandWithString(commandType: CommandType, value: string, channel = 0): void {
         // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
-        const payload = buildStringTypeCommandPayload(value, this.actor);
+        //const payload = buildStringTypeCommandPayload(value, this.actor);
+        const payload = buildCommandWithStringTypePayload(value, channel);
         this.sendCommand(commandType, payload);
     }
 

@@ -93,6 +93,9 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.0.7 (2020-12-08)
+* (bropat) Fixed issue [#11](https://github.com/bropat/ioBroker.eufy-security/issues/11)
+
 ### 0.0.6 (2020-12-06)
 * (bropat) Fixed issue [#13](https://github.com/bropat/ioBroker.eufy-security/issues/13)
 
