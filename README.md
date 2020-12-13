@@ -93,6 +93,14 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.0.8 (2020-12-13)
+* (bropat) Fixed issue [#16](https://github.com/bropat/ioBroker.eufy-security/issues/16)
+* (bropat) P2P communication revisited
+* (bropat) Added reconnect functionality for P2P communication
+* (bropat) Added heartbeat for P2P communication
+* (bropat) Added local caching of last event picture as image url or html image (removed old state: last_camera_url)
+* (bropat) Updated versions of the package dependencies
+
 ### 0.0.7 (2020-12-08)
 * (bropat) Fixed issue [#11](https://github.com/bropat/ioBroker.eufy-security/issues/11)
 

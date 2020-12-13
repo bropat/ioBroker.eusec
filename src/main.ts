@@ -11,7 +11,7 @@ import * as EufySecurityAPI from "./lib/eufy-security/eufy-security";
 import * as Interface from "./lib/eufy-security/interfaces"
 import { Devices, Stations } from "./lib/eufy-security/http/interfaces";
 import { CameraStateID, DeviceStateID, DoorbellStateID, EntrySensorStateID, GuardMode, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, ParamType, StationStateID/*, VerfyCodeTypes*/ } from "./lib/eufy-security/http/types";
-import { decrypt, generateSerialnumber, generateUDID, isEmpty, md5, setStateChangedAsync } from "./lib/eufy-security/utils";
+import { decrypt, generateSerialnumber, generateUDID, isEmpty, md5, saveImage, setStateChangedAsync } from "./lib/eufy-security/utils";
 import { PushMessage, Credentials } from "./lib/eufy-security/push/models";
 import { PushEvent, ServerPushEvent } from "./lib/eufy-security/push/types";
 import { PersistentData } from "./lib/eufy-security/interfaces";
@@ -159,6 +159,13 @@ export class EufySecurity extends utils.Adapter {
                 await this.delObjectAsync(id);
             });
             await this.delObjectAsync("push_notification");
+        } catch (error) {
+        }
+        try {
+            const schedule_modes = await this.getStatesAsync("*.last_camera_url");
+            Object.keys(schedule_modes).forEach(async id => {
+                await this.delObjectAsync(id);
+            });
         } catch (error) {
         }
         // End
@@ -340,8 +347,9 @@ export class EufySecurity extends utils.Adapter {
                 //TODO: Test to remove!
                 this.log.debug("TEST PUSH pressed");
                 if (this.eufy)
-                    await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                    //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                    //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
+                    await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                    //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                     //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();*/
             } else if (device_type == "cameras") {
                 const device_sn = values[4];
@@ -363,7 +371,7 @@ export class EufySecurity extends utils.Adapter {
                     switch(station_state_name) {
                         case StationStateID.GUARD_MODE:
                             await this.eufy.getStation(station_sn).setGuardMode(<GuardMode>state.val);
-                            await this.setStateAsync(`${station_sn}.${device_type}.${station_state_name}`, {...state, ack: true });
+                            //await this.setStateAsync(`${station_sn}.${device_type}.${station_state_name}`, {...state, ack: true });
                             break;
                     }
                 }
@@ -522,19 +530,48 @@ export class EufySecurity extends utils.Adapter {
                 });
                 await setStateChangedAsync(this, camera.getStateID(CameraStateID.MAC_ADDRESS), camera.getMACAddress());
 
-                // Last camera URL
-                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_CAMERA_URL), {
-                    type: "state",
-                    common: {
-                        name: "Last camera URL",
-                        type: "string",
-                        role: "text.url",
-                        read: true,
-                        write: false,
-                    },
-                    native: {},
-                });
-                await setStateChangedAsync(this, camera.getStateID(CameraStateID.LAST_CAMERA_URL), camera.getLastCameraImageURL());
+                const obj = await this.getObjectAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL));
+                if (obj) {
+                    if ((obj.native.url && obj.native.url.split("?")[0] !== camera.getLastCameraImageURL().split("?")[0]) || (!obj.native.url && camera.getLastCameraImageURL() && camera.getLastCameraImageURL() !== "")) {
+                        obj.native.url = camera.getLastCameraImageURL();
+                        const image_data = await saveImage(this, obj.native.url, camera);
+
+                        await this.setStateAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), { val: image_data.image_url, ack: true });
+                        await this.setStateAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), { val: image_data.image_html, ack: true });
+                        await this.setObject(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), obj);
+                    }
+                } else {
+                    const image_data = await saveImage(this, camera.getLastCameraImageURL(), camera);
+
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), {
+                        type: "state",
+                        common: {
+                            name: "Last event picture URL",
+                            type: "string",
+                            role: "text",
+                            read: true,
+                            write: false,
+                        },
+                        native: {
+                            url: camera.getLastCameraImageURL()
+                        },
+                    });
+                    await this.setStateAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), { val: image_data.image_url, ack: true });
+
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), {
+                        type: "state",
+                        common: {
+                            name: "Last event picture HTML image",
+                            type: "string",
+                            role: "text",
+                            read: true,
+                            write: false,
+                        },
+                        native: {
+                        },
+                    });
+                    await this.setStateAsync(camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), { val: image_data.image_html, ack: true });
+                }
 
                 // Start Stream
                 await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.START_STREAM), {
@@ -1495,7 +1532,7 @@ export class EufySecurity extends utils.Adapter {
                 this.setCloudToken(token, token_expiration);
             }
 
-            await this.eufy.registerPushNotifications(this.getPersistentData().push_persistentIds);
+            this.eufy.registerPushNotifications(this.getPersistentData().push_persistentIds);
             Object.values(this.eufy.getStations()).forEach(function (station: Station) {
                 station.connect();
             });

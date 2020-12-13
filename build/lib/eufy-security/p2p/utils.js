@@ -103,7 +103,12 @@ const buildLookupWithKeyPayload = (socket, p2pDid, dskKey) => {
     const portAsBuffer = exports.intToBufferBE(port);
     const portLittleEndianBuffer = Buffer.from([portAsBuffer[2], portAsBuffer[1]]);
     const ip = socket.address().address;
-    const ipAsBuffer = Buffer.from(ip.split("."));
+    //const ipAsBuffer = Buffer.from(ip.split("."));   //error TS2769: No overload matches this call.
+    const temp_buff = [];
+    ip.split(".").forEach(element => {
+        temp_buff.push(Buffer.from(element));
+    });
+    const ipAsBuffer = Buffer.concat(temp_buff);
     const splitter = Buffer.from([0x00, 0x00]);
     const magic = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x04, 0x00, 0x00]);
     const dskKeyAsBuffer = Buffer.from(dskKey);
@@ -117,9 +122,9 @@ const buildCheckCamPayload = (p2pDid) => {
     return Buffer.concat([p2pDidBuffer, magic]);
 };
 exports.buildCheckCamPayload = buildCheckCamPayload;
-const buildIntCommandPayload = (value, actor) => {
-    const headerBuffer = Buffer.from([0x84, 0x00]);
-    const magicBuffer = Buffer.from([0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00]);
+const buildIntCommandPayload = (value, actor, channel = 255) => {
+    const headerBuffer = Buffer.from([0x04, 0x00]);
+    const magicBuffer = Buffer.from([0x00, 0x00, 0x01, 0x00, channel, 0x00, 0x00, 0x00]);
     const valueBuffer = Buffer.from([value]);
     const magicBuffer2 = Buffer.from([0x00, 0x00, 0x00]);
     const actorBuffer = Buffer.from(actor);
@@ -134,8 +139,8 @@ const buildIntCommandPayload = (value, actor) => {
     ]);
 };
 exports.buildIntCommandPayload = buildIntCommandPayload;
-const buildStringTypeCommandPayload = (strValue, actor) => {
-    const magic = Buffer.from([0x05, 0x01, 0x00, 0x00, 0x01, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+const buildStringTypeCommandPayload = (strValue, actor, channel = 255) => {
+    const magic = Buffer.from([0x05, 0x01, 0x00, 0x00, 0x01, 0x00, channel, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     const strValueBuffer = stringWithLength(strValue, 128);
     const valueStrSubBuffer = stringWithLength(actor, 128);
     return Buffer.concat([magic, strValueBuffer, valueStrSubBuffer]);

@@ -18,6 +18,7 @@ const station_1 = require("./http/station");
 const register_1 = require("./push/register");
 const client_1 = require("./push/client");
 const utils_1 = require("./utils");
+const types_2 = require("./p2p/types");
 class EufySecurity extends events_1.EventEmitter {
     constructor(adapter) {
         super();
@@ -70,6 +71,14 @@ class EufySecurity extends events_1.EventEmitter {
         if (Object.keys(this.devices).includes(device_sn))
             return this.devices[device_sn];
         throw new Error(`No device with this serial number: ${device_sn}!`);
+    }
+    getStationDevice(station_sn, channel) {
+        Object.values(this.devices).forEach((device) => {
+            if (device.getStationSerial() === station_sn && device.getChannel() === channel) {
+                return device;
+            }
+        });
+        throw new Error(`No device with channel ${channel} found on station with serial number: ${station_sn}!`);
     }
     getStations() {
         return this.stations;
@@ -132,6 +141,7 @@ class EufySecurity extends events_1.EventEmitter {
             else {
                 const station = new station_1.Station(this.api, hub);
                 station.on("parameter", (station, type, value) => this.stationParameterChanged(station, type, value));
+                station.on("p2p_command", (station, result) => this.stationP2PCommandResult(station, result));
                 this.addStation(station);
             }
         }
@@ -140,6 +150,47 @@ class EufySecurity extends events_1.EventEmitter {
         if (station_count > 0) {
             this.emit("stations", this.stations);
         }
+    }
+    stationP2PCommandResult(station, result) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //TODO: Finish implementation!!!!
+            if (result.return_code === 0) {
+                const state_name = utils_1.getState(result.command_type);
+                if (state_name) {
+                    if (result.channel === station_1.Station.CHANNEL) {
+                        // Station
+                        if (state_name) {
+                            const state_id = station.getStateID(state_name);
+                            const state = yield this.adapter.getStateAsync(state_id);
+                            this.adapter.setStateAsync(state_id, Object.assign(Object.assign({}, state), { ack: true }));
+                            this.log.debug(`EufySecurity.stationP2PCommandResult(): State ${state_id} aknowledged - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
+                        }
+                        else {
+                            this.log.debug(`EufySecurity.stationP2PCommandResult(): Loading current state not possible - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
+                        }
+                    }
+                    else {
+                        // Device
+                        try {
+                            const device = this.getStationDevice(station.getSerial(), result.channel);
+                            const state_id = device.getStateID(state_name);
+                            const state = yield this.adapter.getStateAsync(state_id);
+                            this.adapter.setStateAsync(state_id, Object.assign(Object.assign({}, state), { ack: true }));
+                            this.log.debug(`EufySecurity.stationP2PCommandResult(): State ${state_id} aknowledged - station: ${station.getSerial()} device: ${device.getSerial()} result: ${JSON.stringify(result)}`);
+                        }
+                        catch (error) {
+                            this.log.error(`EufySecurity.stationP2PCommandResult(): Error: ${error} - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
+                        }
+                    }
+                }
+                else {
+                    this.log.debug(`EufySecurity.stationP2PCommandResult(): No mapping for state <> command_type - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
+                }
+            }
+            else {
+                this.log.error(`EufySecurity.stationP2PCommandResult(): Station: ${station.getSerial()} command ${types_2.CommandType[result.command_type]} failed with error: ${types_2.ErrorCode[result.return_code]} (${result.return_code})`);
+            }
+        });
     }
     handleDevices(devices) {
         this.log.debug(`EufySecurity.handleDevices(): devices: ${Object.keys(devices).length}`);

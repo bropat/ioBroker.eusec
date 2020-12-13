@@ -146,6 +146,14 @@ class EufySecurity extends utils.Adapter {
             }
             catch (error) {
             }
+            try {
+                const schedule_modes = yield this.getStatesAsync("*.last_camera_url");
+                Object.keys(schedule_modes).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                    yield this.delObjectAsync(id);
+                }));
+            }
+            catch (error) {
+            }
             // End
             try {
                 if (fs.statSync(this.persistentFile).isFile()) {
@@ -307,8 +315,9 @@ class EufySecurity extends utils.Adapter {
                         //TODO: Test to remove!
                         this.log.debug("TEST PUSH pressed");
                         if (this.eufy)
-                            await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                            //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                            //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
+                            await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                            //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                             //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();*/
                 }
                 else if (device_type == "cameras") {
@@ -331,7 +340,7 @@ class EufySecurity extends utils.Adapter {
                         switch (station_state_name) {
                             case types_1.StationStateID.GUARD_MODE:
                                 yield this.eufy.getStation(station_sn).setGuardMode(state.val);
-                                yield this.setStateAsync(`${station_sn}.${device_type}.${station_state_name}`, Object.assign(Object.assign({}, state), { ack: true }));
+                                //await this.setStateAsync(`${station_sn}.${device_type}.${station_state_name}`, {...state, ack: true });
                                 break;
                         }
                     }
@@ -477,19 +486,45 @@ class EufySecurity extends utils.Adapter {
                         native: {},
                     });
                     yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.MAC_ADDRESS), camera.getMACAddress());
-                    // Last camera URL
-                    yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_CAMERA_URL), {
-                        type: "state",
-                        common: {
-                            name: "Last camera URL",
-                            type: "string",
-                            role: "text.url",
-                            read: true,
-                            write: false,
-                        },
-                        native: {},
-                    });
-                    yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.LAST_CAMERA_URL), camera.getLastCameraImageURL());
+                    const obj = yield this.getObjectAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL));
+                    if (obj) {
+                        if ((obj.native.url && obj.native.url.split("?")[0] !== camera.getLastCameraImageURL().split("?")[0]) || (!obj.native.url && camera.getLastCameraImageURL() && camera.getLastCameraImageURL() !== "")) {
+                            obj.native.url = camera.getLastCameraImageURL();
+                            const image_data = yield utils_1.saveImage(this, obj.native.url, camera);
+                            yield this.setStateAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL), { val: image_data.image_url, ack: true });
+                            yield this.setStateAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_HTML), { val: image_data.image_html, ack: true });
+                            yield this.setObject(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL), obj);
+                        }
+                    }
+                    else {
+                        const image_data = yield utils_1.saveImage(this, camera.getLastCameraImageURL(), camera);
+                        yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL), {
+                            type: "state",
+                            common: {
+                                name: "Last event picture URL",
+                                type: "string",
+                                role: "text",
+                                read: true,
+                                write: false,
+                            },
+                            native: {
+                                url: camera.getLastCameraImageURL()
+                            },
+                        });
+                        yield this.setStateAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL), { val: image_data.image_url, ack: true });
+                        yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_HTML), {
+                            type: "state",
+                            common: {
+                                name: "Last event picture HTML image",
+                                type: "string",
+                                role: "text",
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        yield this.setStateAsync(camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_HTML), { val: image_data.image_html, ack: true });
+                    }
                     // Start Stream
                     yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.START_STREAM), {
                         type: "state",
@@ -1418,7 +1453,7 @@ class EufySecurity extends utils.Adapter {
                     this.log.debug(`onConnect(): save token and expiration - token: ${token} token_expiration: ${token_expiration}`);
                     this.setCloudToken(token, token_expiration);
                 }
-                yield this.eufy.registerPushNotifications(this.getPersistentData().push_persistentIds);
+                this.eufy.registerPushNotifications(this.getPersistentData().push_persistentIds);
                 Object.values(this.eufy.getStations()).forEach(function (station) {
                     station.connect();
                 });

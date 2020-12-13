@@ -1,5 +1,10 @@
 import * as crypto from "crypto";
 import { readBigUInt64BE } from "read-bigint";
+import axios from "axios";
+import { Device } from "./http/device";
+import { StationStateID } from "./http/types";
+import { CommandType } from "./p2p/types";
+import { ImageResponse } from "./interfaces";
 
 export const decrypt = (key: string, value: string): string => {
     let result = "";
@@ -33,3 +38,40 @@ export const isEmpty = function(str: string | null | undefined): boolean {
     }
     return true;
 };
+
+export const getState = function(type: CommandType): string | null {
+    //TODO: Finish implementation!
+    switch(type) {
+        case CommandType.CMD_SET_ARMING:
+            return StationStateID.GUARD_MODE;
+    }
+    return null;
+}
+
+export const getImage = async function(url: string): Promise<Buffer> {
+    const response = await axios({
+        method: "GET",
+        url: url,
+        responseType: "arraybuffer"
+    });
+
+    return Buffer.from(response.data);
+}
+
+export const saveImage = async function(adapter: ioBroker.Adapter, url: string, device: Device): Promise<ImageResponse> {
+    const result: ImageResponse = {
+        image_url: "",
+        image_html: ""
+    };
+    if (url) {
+        const data = await getImage(url);
+        const filename = `${device.getSerial()}.jpg`;
+        await adapter.writeFileAsync(`${adapter.name}.${adapter.instance}`, filename, data).then(() => {
+            result.image_url = `/${adapter.name}.${adapter.instance}/${filename}`;
+            result.image_html = `<img src="data:image/jpg;base64,${data.toString("base64")}" style="width: auto ;height: 100%;" />`;
+        }).catch(error => {
+            adapter.log.error(`saveImage(): Error: ${JSON.stringify(error)}`);
+        });
+    }
+    return result;
+}

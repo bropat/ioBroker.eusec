@@ -44,3 +44,9 @@ export interface PersistentData {
     push_credentials: Credentials | undefined;
     push_persistentIds: string[];
 }
+
+
+export interface ImageResponse {
+    image_url: string;
+    image_html: string;
+}

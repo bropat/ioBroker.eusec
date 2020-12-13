@@ -355,6 +355,10 @@ export abstract class Device extends EventEmitter {
         }
     }
 
+    public getChannel(): number {
+        return this.device.device_channel;
+    }
+
     public getStateID(state: string, level = 2): string {
         switch(level) {
             case 0:

@@ -297,6 +297,9 @@ class Device extends events_1.EventEmitter {
             }
         });
     }
+    getChannel() {
+        return this.device.device_channel;
+    }
     getStateID(state, level = 2) {
         switch (level) {
             case 0:

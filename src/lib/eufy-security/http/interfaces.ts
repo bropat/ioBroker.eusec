@@ -1,3 +1,4 @@
+import { CommandResult } from "../p2p/models";
 import { Camera, Device } from "./device";
 import { FullDeviceResponse, HubResponse } from "./models";
 import { Station } from "./station";
@@ -51,6 +52,7 @@ export declare interface ApiInterface {
 
 interface StationInterfaceEvents {
     "parameter": (station: Station, type: number, value: string) => void;
+    "p2p_command": (station: Station, result: CommandResult) => void;
 }
 
 export declare interface StationInterface {

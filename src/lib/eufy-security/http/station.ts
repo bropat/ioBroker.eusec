@@ -6,9 +6,9 @@ import { ParameterArray } from "./interfaces";
 import { P2PInterface } from "./../p2p/interfaces";
 import { DiscoveryP2PClientProtocol } from "../p2p/protocol";
 import { EufyP2PClientProtocol } from "../p2p/session";
-import { CommandType } from "../p2p/types";
+import { CommandType, ErrorCode } from "../p2p/types";
 import { isPrivateIp } from "../p2p/utils";
-import { Address, CmdCameraInfoResponse } from "../p2p/models";
+import { Address, CmdCameraInfoResponse, CommandResult } from "../p2p/models";
 import { EventEmitter } from "events";
 
 export class Station extends EventEmitter implements P2PInterface {
@@ -22,6 +22,11 @@ export class Station extends EventEmitter implements P2PInterface {
 
     private p2p_session: EufyP2PClientProtocol|null = null;
     private parameters: ParameterArray = {};
+
+    private currentDelay = 0;
+    private reconnectTimeout?: NodeJS.Timeout;
+
+    public static readonly CHANNEL:number = 255;
 
     constructor(api: API, hub: HubResponse) {
         super();
@@ -148,6 +153,10 @@ export class Station extends EventEmitter implements P2PInterface {
 
     public close(): void {
         this.log.info(`Disconnect from station ${this.getSerial()}.`);
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = undefined;
+        }
         if (this.p2p_session) {
             this.p2p_session.close();
             this.p2p_session = null;
@@ -178,6 +187,9 @@ export class Station extends EventEmitter implements P2PInterface {
             }
             if (local_addr) {
                 this.p2p_session = new EufyP2PClientProtocol(local_addr, this.hub.p2p_did, this.hub.member.action_user_id, this.log);
+                this.p2p_session.on("connected", () => this.onConnected());
+                this.p2p_session.on("disconnected", () => this.onDisconnected());
+                this.p2p_session.on("command", (cmd_result) => this.onCommandResponse(cmd_result));
                 this.p2p_session.on("alarm_mode", (mode) => this.onAlarmMode(mode));
                 this.p2p_session.on("camera_info", (camera_info) => this.onCameraInfo(camera_info));
 
@@ -197,14 +209,14 @@ export class Station extends EventEmitter implements P2PInterface {
 
     public async setGuardMode(mode: GuardMode): Promise<void> {
         this.log.silly("Station.setGuardMode(): ");
-        if (!this.p2p_session || !this.p2p_session.isConnected) {
+        if (!this.p2p_session || !this.p2p_session.isConnected()) {
             this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
             await this.connect();
         }
         if (this.p2p_session) {
             if (this.p2p_session.isConnected()) {
                 this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
-                await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode);
+                await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, Station.CHANNEL);
                 // New method available only after a min. software version and only for some devices; The software version is received by FirebaseRemoteConfig
                 // if ((b != null && a.a().a("new_instance_vision_as", b.main_sw_version) && !b.isIntegratedDeviceBySn()) || (b != null && b.isSoloCams())) {
                 // If this is met the following works already:
@@ -223,27 +235,28 @@ export class Station extends EventEmitter implements P2PInterface {
 
     public async getCameraInfo(): Promise<void> {
         this.log.silly("Station.getCameraInfo(): ");
-        if (!this.p2p_session || !this.p2p_session.isConnected) {
+        if (!this.p2p_session || !this.p2p_session.isConnected()) {
             this.log.debug(`Station.getCameraInfo(): P2P connection to station ${this.getSerial()} not present, establish it.`);
             await this.connect();
         }
         if (this.p2p_session) {
             if (this.p2p_session.isConnected()) {
                 this.log.debug(`Station.getCameraInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
-                await this.p2p_session.sendCommandWithInt(CommandType.CMD_CAMERA_INFO, 255);
+                await this.p2p_session.sendCommandWithInt(CommandType.CMD_CAMERA_INFO, Station.CHANNEL);
             }
         }
     }
 
     public async getStorageInfo(): Promise<void> {
         this.log.silly("Station.getStorageInfo(): ");
-        if (!this.p2p_session || !this.p2p_session.isConnected) {
+        if (!this.p2p_session || !this.p2p_session.isConnected()) {
             this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} not present, establish it.`);
             await this.connect();
         }
         if (this.p2p_session) {
             if (this.p2p_session.isConnected()) {
                 this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
+                //TODO: Verify channel! Should be 255...
                 await this.p2p_session.sendCommandWithIntString(CommandType.CMD_SDINFO_EX, 0);
             }
         }
@@ -260,8 +273,52 @@ export class Station extends EventEmitter implements P2PInterface {
         this.log.debug(`Station.onCameraInfo(): station: ${this.getSerial()} camera_info: ${JSON.stringify(camera_info)}`);
     }
 
+    private onCommandResponse(cmd_result: CommandResult): void {
+        this.log.debug(`Station.onCommandResponse(): station: ${this.getSerial()} command_type: ${cmd_result.command_type} channel: ${cmd_result.channel} return_code: ${ErrorCode[cmd_result.return_code]} (${cmd_result.return_code})`);
+        this.emit("p2p_command", this, cmd_result);
+    }
+
+    private onConnected(): void {
+        this.log.debug(`Station.onConnected(): station: ${this.getSerial()}`);
+        //TODO: Finish implementation
+    }
+
+    private onDisconnected(): void {
+        this.log.debug(`Station.onDisconnected(): station: ${this.getSerial()}`);
+        if (this.p2p_session)
+            this.scheduleReconnect();
+    }
+
     public getParameters(): ParameterArray {
         return this.parameters;
+    }
+
+    private getCurrentDelay(): number {
+        const delay = this.currentDelay == 0 ? 5000 : this.currentDelay;
+
+        if (this.currentDelay < 60000)
+            this.currentDelay += 10000;
+
+        if (this.currentDelay >= 60000 && this.currentDelay < 600000)
+            this.currentDelay += 60000;
+
+        return delay;
+    }
+
+    private resetCurrentDelay(): void {
+        this.currentDelay = 0;
+    }
+
+    private scheduleReconnect(): void {
+        const delay = this.getCurrentDelay();
+        this.log.debug(`Station.scheduleReconnect(): delay: ${delay}`);
+        if (!this.reconnectTimeout)
+            this.reconnectTimeout = setTimeout(async () => {
+                if (!await this.connect()) {
+                    this.reconnectTimeout = undefined;
+                    this.scheduleReconnect();
+                }
+            }, delay);
     }
 
 }

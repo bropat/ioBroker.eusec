@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.7",
+        "version": "0.0.8",
         "news": {
+            "0.0.8": {
+                "en": "Fixed issue #16",
+                "de": "Problem Nr. 16 behoben",
+                "ru": "Исправленная проблема # 16",
+                "pt": "Problema nº 16 corrigido",
+                "nl": "Probleem # 16 opgelost",
+                "fr": "Problème résolu n ° 16",
+                "it": "Risolto il problema # 16",
+                "es": "Problema solucionado # 16",
+                "pl": "Naprawiono problem nr 16",
+                "zh-cn": "已修复问题16"
+            },
             "0.0.7": {
                 "en": "Fixed issue #11",
                 "de": "Problem Nr. 11 behoben",
@@ -159,5 +171,15 @@
         "eventDuration": 15
     },
     "objects": [],
-    "instanceObjects": []
+    "instanceObjects": [
+        {
+            "_id": "",
+            "type": "meta",
+            "common": {
+              "name": "User files for eufy-security",
+              "type": "meta.user"
+            },
+            "native": {}
+        }
+    ]
 }

@@ -1,16 +1,21 @@
 import { createSocket, Socket } from "dgram";
-import { Address, CmdCameraInfoResponse } from "./models";
+import { Address, CmdCameraInfoResponse, CommandResult } from "./models";
 import { sendMessage, hasHeader, buildCheckCamPayload, buildIntCommandPayload, buildIntStringCommandPayload, buildCommandHeader, MAGIC_WORD, buildCommandWithStringTypePayload } from "./utils";
-import { RequestMessageType, ResponseMessageType, EufyP2PDataType, CommandType } from "./types";
+import { RequestMessageType, ResponseMessageType, EufyP2PDataType, CommandType, ErrorCode } from "./types";
 import { AlarmMode } from "../http/types";
 import { EventEmitter } from "events";
-import { P2PInterface } from "./interfaces";
+import { P2PInterface, P2PMessageState } from "./interfaces";
 
 export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface {
 
-    private addressTimeoutInMs = 3 * 1000;
-    private socket: Socket;
+    private readonly MAX_RETRIES = 5;
+    private readonly MAX_COMMAND_RESULT_WAIT = 15 * 1000;
+    private readonly MAX_AKNOWLEDGE_TIMEOUT = 3 * 1000;
+    private readonly HEARTBEAT_INTERVAL = 15 * 1000;
+
+    private socket!: Socket;
     private connected = false;
+
     private seqNumber = 0;
     private seenSeqNo: {
         [dataType: string]: number;
@@ -28,6 +33,12 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         messages: {},
     };
 
+    private message_states: Map<number, P2PMessageState> = new Map<number, P2PMessageState>();
+
+    private heartbeatTimeout?: NodeJS.Timeout;
+    private connectTime: number | null = null;
+    private lastPong: number | null = null;
+
     private address: Address;
     private p2pDid: string;
     private actor: string;
@@ -39,8 +50,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         this.p2pDid = p2pDid;
         this.actor = actor;
         this.log = log;
-        this.socket = createSocket("udp4");
-        this.socket.bind(0);
+        this.initialize();
     }
 
     private initialize(): void {
@@ -53,12 +63,21 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         this.connected = false;
         this.seqNumber = 0;
         this.seenSeqNo = {};
+        this.message_states.clear();
+        this.connectTime = null;
+        this.lastPong = null;
+
+        if (this.heartbeatTimeout) {
+            clearTimeout(this.heartbeatTimeout);
+            this.heartbeatTimeout = undefined;
+        }
 
         if (this.socket) {
             this.socket.removeAllListeners();
+            this.socket.close();
         }
-
-        //TODO: Implement reconnect strategy?
+        this.socket = createSocket("udp4");
+        this.socket.bind(0);
     }
 
     public isConnected(): boolean {
@@ -77,7 +96,13 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
                             clearTimeout(timer);
                         }
                         this.socket.on("message", (msg) => this.handleMsg(msg));
+                        this.socket.on("error", (error) => this.onError(error));
+                        this.socket.on("close", () => this.onClose());
                         this.connected = true;
+                        this.connectTime = new Date().getTime();
+                        this.heartbeatTimeout = setTimeout(() => {
+                            this.scheduleHeartbeat();
+                        }, this.getHeartbeatInterval());
                         this.emit("connected");
                         resolve(true);
                     }
@@ -86,7 +111,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
                 this.sendCamCheck();
                 timer = setTimeout(() => {
                     reject(`Timeout on connect to ${JSON.stringify(this.address)}`);
-                }, this.addressTimeoutInMs);
+                }, this.MAX_AKNOWLEDGE_TIMEOUT);
             });
         }
         return false;
@@ -98,58 +123,92 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
     }
 
     public sendPing(): void {
+        if ((this.lastPong && ((new Date().getTime() - this.lastPong) / this.getHeartbeatInterval() >= 5)) ||
+            (this.connectTime && !this.lastPong && ((new Date().getTime() - this.connectTime) / this.getHeartbeatInterval() >= 5))) {
+            this.log.warn(`EufyP2PClientProtocol.sendPing(): Heartbeat check failed. Connection seems lost. Try to reconnect...`);
+            this.initialize();
+            this.emit("disconnected");
+        }
         sendMessage(this.socket, this.address, RequestMessageType.PING);
     }
 
     public sendCommandWithIntString(commandType: CommandType, value: number, channel = 0): void {
         // SET_COMMAND_WITH_INT_STRING_TYPE = msgTypeID == 10
         const payload = buildIntStringCommandPayload(value, this.actor, channel);
-        this.sendCommand(commandType, payload);
+        this.sendCommand(commandType, payload, channel);
     }
 
-    public sendCommandWithInt(commandType: CommandType, value: number): void {
+    public sendCommandWithInt(commandType: CommandType, value: number, channel = 255): void {
         // SET_COMMAND_WITH_INT_TYPE = msgTypeID == 4
-        const payload = buildIntCommandPayload(value, this.actor);
-        this.sendCommand(commandType, payload);
+        const payload = buildIntCommandPayload(value, this.actor, channel);
+        this.sendCommand(commandType, payload, channel);
     }
 
     public sendCommandWithString(commandType: CommandType, value: string, channel = 0): void {
         // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
         //const payload = buildStringTypeCommandPayload(value, this.actor);
         const payload = buildCommandWithStringTypePayload(value, channel);
-        this.sendCommand(commandType, payload);
+        this.sendCommand(commandType, payload, channel);
     }
 
-    private sendCommand(commandType: CommandType, payload: Buffer): void {
+    private sendCommand(commandType: CommandType, payload: Buffer, channel: number): void {
         // Command header
         const msgSeqNumber = this.seqNumber++;
         const commandHeader = buildCommandHeader(msgSeqNumber, commandType);
         const data = Buffer.concat([commandHeader, payload]);
 
-        this.log.debug(`EufyP2PClientProtocol.sendCommand(): Sending commandType: ${commandType} with seqNum: ${msgSeqNumber}...`);
-        sendMessage(this.socket, this.address, RequestMessageType.DATA, data);
-        // -> NOTE:
-        // -> We could wait for an ACK and then continue (sync)
-        // -> Python impl creating an array an putting an "event" behind a seqNumber
-        // -> ACK-Listener triggers the seq-number and therefore showing that the message
-        // -> is done, until then the promise is waiting (await)
+        const message: P2PMessageState = {
+            sequence: msgSeqNumber,
+            command_type: commandType,
+            channel: channel,
+            data: data,
+            retries: 0,
+            acknowledged: false,
+            return_code: -1
+        };
+        this.message_states.set(msgSeqNumber, message);
+
+        this._sendCommand(message);
+    }
+
+    private _sendCommand(message: P2PMessageState): void {
+        this.log.debug(`EufyP2PClientProtocol._sendCommand(): sequence: ${message.sequence} command_type: ${message.command_type} channel: ${message.channel} retries: ${message.retries} message_states.size: ${this.message_states.size}`);
+        sendMessage(this.socket, this.address, RequestMessageType.DATA, message.data);
+        if (message.retries < this.MAX_RETRIES) {
+            const msg = this.message_states.get(message.sequence);
+            if (msg) {
+                msg.retries++;
+                msg.timeout = setTimeout(() => {
+                    this._sendCommand(msg);
+                }, this.MAX_AKNOWLEDGE_TIMEOUT);
+            }
+        } else {
+            this.log.error(`EufyP2PClientProtocol._sendCommand(): Max retries ${this.message_states.get(message.sequence)?.retries} - stop with error for sequence: ${message.sequence} command_type: ${message.command_type} channel: ${message.channel} retries: ${message.retries}`);
+            this.emit("command", {
+                command_type: message.command_type,
+                channel: message.channel,
+                return_code: -1
+            } as CommandResult);
+            this.message_states.delete(message.sequence);
+            this.log.warn(`EufyP2PClientProtocol._sendCommand(): Connection seems lost. Try to reconnect...`);
+            this.initialize();
+            this.emit("disconnected");
+        }
     }
 
     private handleMsg(msg: Buffer): void {
         if (hasHeader(msg, ResponseMessageType.PONG)) {
             // Response to a ping from our side
-            this.log.debug("EufyP2PClientProtocol.handleMsg(): received PONG");
+            this.lastPong = new Date().getTime();
             return;
         } else if (hasHeader(msg, ResponseMessageType.PING)) {
             // Response with PONG to keep alive
-            //this.log.debug("EufyP2PClientProtocol.handleMsg(): received PING, respond with PONG");
             sendMessage(this.socket, this.address, RequestMessageType.PONG);
             return;
         } else if (hasHeader(msg, ResponseMessageType.END)) {
             // Connection is closed by device
             this.log.debug("EufyP2PClientProtocol.handleMsg(): received END");
-            this.connected = false;
-            this.socket.close();
+            this.initialize();
             this.emit("disconnected");
             return;
         } else if (hasHeader(msg, ResponseMessageType.CAM_ID)) {
@@ -159,6 +218,8 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         } else if (hasHeader(msg, ResponseMessageType.ACK)) {
             // Device ACK a message from our side
             // Number of Acks sended in the message
+            const dataTypeBuffer = msg.slice(4, 6);
+            const dataType = this.toDataTypeName(dataTypeBuffer);
             const numAcksBuffer = msg.slice(6, 8);
             const numAcks = numAcksBuffer.readUIntBE(0, numAcksBuffer.length);
             for (let i = 1; i <= numAcks; i++) {
@@ -166,7 +227,23 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
                 const seqBuffer = msg.slice(idx, idx + 2);
                 const ackedSeqNo = seqBuffer.readUIntBE(0, seqBuffer.length);
                 // -> Message with seqNo was received at the station
-                this.log.debug(`EufyP2PClientProtocol.handleMsg(): received ACK for squence ${ackedSeqNo}`);
+                this.log.debug(`EufyP2PClientProtocol.handleMsg(): received ACK for datatype ${dataType} sequence ${ackedSeqNo}`);
+                const msg_state = this.message_states.get(ackedSeqNo);
+                if (msg_state && !msg_state.acknowledged) {
+                    msg_state.acknowledged = true;
+                    if (msg_state.timeout) {
+                        clearTimeout(msg_state.timeout);
+                    }
+                    msg_state.timeout = setTimeout(() => {
+                        this.log.warn(`EufyP2PClientProtocol.handleMsg(): Result data for command not received - message: ${JSON.stringify(msg_state)}`);
+                        this.message_states.delete(ackedSeqNo);
+                        this.emit("command", {
+                            command_type: msg_state.command_type,
+                            channel: msg_state.channel,
+                            return_code: -1
+                        } as CommandResult);
+                    }, this.MAX_COMMAND_RESULT_WAIT);
+                }
             }
         } else if (hasHeader(msg, ResponseMessageType.DATA)) {
             const seqNo = msg[6] * 256 + msg[7];
@@ -194,12 +271,33 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         if (dataType === "CONTROL") {
             this.parseDataControlMessage(seqNo, msg);
         } else if (dataType === "DATA") {
-            const commandId = msg.slice(12, 14).readUIntLE(0, 2); // could also be the parameter type on DATA events (1224 = GUARD)
-            const data = msg.slice(24, 26).readUIntLE(0, 2); // 0 = Away, 1 = Home, 63 = Deactivated
-            // Note: data === 65420 when e.g. data mode is already set (guardMode=0, setting guardMode=0 => 65420)
-            // Note: data === 65430 when there is an error (sending data to a channel which do not exist)
+            const commandId = msg.slice(12, 14).readUIntLE(0, 2);
+            const return_code = msg.slice(24, 28).readUInt32LE()|0;
+
             const commandStr = CommandType[commandId];
-            this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandStr} (${commandId}) - data: ${data} - msg: ${msg.toString("hex")}`);
+            const error_codeStr = ErrorCode[return_code];
+
+            const msg_state = this.message_states.get(seqNo);
+
+            if (msg_state) {
+                if (msg_state.command_type === commandId) {
+                    if (msg_state.timeout) {
+                        clearTimeout(msg_state.timeout);
+                    }
+                    this.emit("command", {
+                        command_type: msg_state.command_type,
+                        channel: msg_state.channel,
+                        return_code: return_code
+                    } as CommandResult);
+                    this.log.debug(`EufyP2PClientProtocol.handleData(): Result data for command received - message: ${JSON.stringify(msg_state)} result: ${error_codeStr} (${return_code})`);
+                    this.message_states.delete(seqNo);
+                } else {
+                    this.log.warn(`EufyP2PClientProtocol.handleData(): data_type: ${dataType} commandtype and sequencenumber different!!!`);
+                }
+            } else {
+                this.log.warn(`EufyP2PClientProtocol.handleData(): data_type: ${dataType} sequence: ${seqNo} not present!!!`);
+            }
+            this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandStr} (${commandId}) - result: ${error_codeStr} (${return_code}) - msg: ${msg.toString("hex")}`);
         } else if (dataType === "BINARY") {
             //this.parseBinaryMessage(seqNo, msg);
             this.log.debug(`EufyP2PClientProtocol.handleData(): Binary data: seqNo: ${seqNo} - dataType: ${dataType} - msg: ${msg.toString("hex")}`);
@@ -234,10 +332,10 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
             const messages = this.currentControlMessageBuilder.messages;
             // sort by keys
             let completeMessage = Buffer.from([]);
-            Object.keys(messages)
-                .sort() // assure the seqNumbers are in correct order
-                .forEach((key: string) => {
-                    completeMessage = Buffer.concat([completeMessage, messages[parseInt(key)]]);
+            Object.keys(messages).map(Number)
+                .sort((a, b) => a - b) // assure the seqNumbers are in correct order
+                .forEach((key: number) => {
+                    completeMessage = Buffer.concat([completeMessage, messages[key]]);
                 });
             this.currentControlMessageBuilder = { bytesRead: 0, bytesToRead: 0, commandId: 0, messages: {} };
             this.handleDataControl(commandId, completeMessage);
@@ -282,7 +380,37 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
     }
 
     public async close(): Promise<void> {
-        if (this.socket && this.connected)
+        if (this.socket && this.connected) {
             await sendMessage(this.socket, this.address, RequestMessageType.END);
+        } else {
+            this.initialize();
+        }
+    }
+
+    private getHeartbeatInterval(): number {
+        return this.HEARTBEAT_INTERVAL;
+    }
+
+    private onClose(): void {
+        /*if (this.heartbeatTimeout) {
+            clearTimeout(this.heartbeatTimeout);
+            this.heartbeatTimeout = undefined;
+        }*/
+        this.log.debug("EufyP2PClientProtocol.onClose(): ");
+    }
+
+    private onError(error: any): void {
+        this.log.debug(`EufyP2PClientProtocol.onError(): Error: ${error}`);
+    }
+
+    private scheduleHeartbeat(): void {
+        if (this.isConnected()) {
+            this.sendPing();
+            this.heartbeatTimeout = setTimeout(() => {
+                this.scheduleHeartbeat();
+            }, this.getHeartbeatInterval());
+        } else {
+            this.log.debug("EufyP2PClientProtocol.scheduleHeartbeat(): disabled!");
+        }
     }
 }
