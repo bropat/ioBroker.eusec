@@ -1,8 +1,10 @@
 import axios, { AxiosResponse, Method } from "axios";
 import { ResultResponse, FullDeviceResponse, HubResponse, LoginResultResponse, TrustDevice } from "./models"
 import { EventEmitter } from "events";
-import { ApiInterface, FullDevices, Hubs } from "./interfaces";
+import { ApiInterface, FullDevices, Hubs, IParameter } from "./interfaces";
 import { ResponseErrorCode, VerfyCodeTypes } from "./types";
+import { Parameter } from "./parameter";
+import { getTimezoneGMTString } from "./utils";
 
 export class API extends EventEmitter implements ApiInterface {
 
@@ -13,7 +15,7 @@ export class API extends EventEmitter implements ApiInterface {
 
     private token: string|null = null;
     private token_expiration: Date|null = null;
-    //TODO: Add device is trusted property and save it's status.
+    private trusted_token_expiration = new Date(2100, 12, 31, 23, 59, 59, 0);
 
     private log: ioBroker.Logger;
 
@@ -21,7 +23,7 @@ export class API extends EventEmitter implements ApiInterface {
     private hubs: Hubs = {};
 
     private headers = {
-        app_version: "v2.2.2_741",
+        app_version: "v2.3.0_792",
         os_type: "android",
         os_version: "29",
         phone_model: "ONEPLUS A3003",
@@ -44,6 +46,8 @@ export class API extends EventEmitter implements ApiInterface {
         this.username = username;
         this.password = password;
         this.log = log;
+
+        this.headers.timezone = getTimezoneGMTString();
     }
 
     private invalidateToken(): void {
@@ -54,7 +58,6 @@ export class API extends EventEmitter implements ApiInterface {
 
     public async authenticate(): Promise<string> {
         //Authenticate and get an access token
-        //TODO: Finish token renew implementation with 2FA!
         this.log.debug(`API.authenticate(): token: ${this.token} token_expiration: ${this.token_expiration}`);
         if (!this.token || this.token_expiration && (new Date()).getTime() >= this.token_expiration.getTime()) {
             try {
@@ -158,8 +161,8 @@ export class API extends EventEmitter implements ApiInterface {
             if (response.status == 200) {
                 const result: ResultResponse = response.data;
                 if (result.code == ResponseErrorCode.CODE_WHATEVER_ERROR) {
-                    if (response.data && response.data.list) {
-                        return response.data.list;
+                    if (result.data && result.data.list) {
+                        return result.data.list;
                     }
                 } else {
                     this.log.error(`API.listTrustDevice(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
@@ -197,10 +200,12 @@ export class API extends EventEmitter implements ApiInterface {
                         const result: ResultResponse = response2.data;
                         if (result.code == ResponseErrorCode.CODE_WHATEVER_ERROR) {
                             this.log.info(`2FA authentication successfully done. Device trusted.`);
-                            // For logging purposes
-                            await this.listTrustDevice().catch(error => {
-                                this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
-                                return error;
+                            const trusted_devices = await this.listTrustDevice();
+                            trusted_devices.forEach((trusted_device: TrustDevice) => {
+                                if (trusted_device.is_current_device === 1) {
+                                    this.token_expiration = this.trusted_token_expiration;
+                                    this.log.debug(`API.addTrustDevice(): This device is trusted. Token expiration extended to: ${this.token_expiration})`);
+                                }
                             });
                             return true;
                         } else {
@@ -243,10 +248,10 @@ export class API extends EventEmitter implements ApiInterface {
                         dataresult.forEach(element => {
                             this.log.debug(`API.updateDeviceInfo(): stations - element: ${JSON.stringify(element)}`);
                             this.log.debug(`API.updateDeviceInfo(): stations - device_type: ${element.device_type}`);
-                            if (element.device_type == 0) {
-                                // Station
-                                this.hubs[element.station_sn] = element;
-                            }
+                            //if (element.device_type == 0) {
+                            // Station
+                            this.hubs[element.station_sn] = element;
+                            //}
                         });
                     } else {
                         this.log.info("No stations found.");
@@ -311,7 +316,6 @@ export class API extends EventEmitter implements ApiInterface {
                 default: break;
             }
         }
-        //TODO: It seems that if the device is a trusted device the token doesn't expires as stated by token_expiration. So change this accordingly!
         if (this.token_expiration && (new Date()).getTime() >= this.token_expiration.getTime()) {
             this.log.info("Access token expired; fetching a new one")
             this.invalidateToken();
@@ -404,6 +408,40 @@ export class API extends EventEmitter implements ApiInterface {
         return false;
     }
 
+    public async setParameters(station_sn: string, device_sn: string, params: IParameter[]): Promise<boolean> {
+        const tmp_params: any[] = []
+        params.forEach(param => {
+            tmp_params.push({ param_type: param.param_type, param_value: Parameter.writeValue(param.param_type, param.param_value) });
+        });
+
+        try {
+            const response = await this.request("post", "app/upload_devs_params", {
+                device_sn: device_sn,
+                station_sn: station_sn,
+                params: tmp_params
+            }).catch(error => {
+                this.log.error(`API.setParameters(): error: ${JSON.stringify(error)}`);
+                return error;
+            });
+            this.log.debug(`API.setParameters(): station_sn: ${station_sn} device_sn: ${device_sn} params: ${JSON.stringify(tmp_params)} Response: ${JSON.stringify(response.data)}`);
+
+            if (response.status == 200) {
+                const result: ResultResponse = response.data;
+                if (result.code == 0) {
+                    const dataresult = result.data;
+                    this.log.debug(`API.setParameters(): New Parameters set. response: ${JSON.stringify(dataresult)}`);
+                    return true;
+                } else
+                    this.log.error(`API.setParameters(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
+            } else {
+                this.log.error(`API.setParameters(): Status return code not 200 (status: ${response.status} text: ${response.statusText}`);
+            }
+        } catch (error) {
+            this.log.error(`API.setParameters(): error: ${error}`);
+        }
+        return false;
+    }
+
     public getLog(): ioBroker.Logger {
         return this.log;
     }
@@ -422,6 +460,10 @@ export class API extends EventEmitter implements ApiInterface {
 
     public getTokenExpiration(): Date|null {
         return this.token_expiration;
+    }
+
+    public getTrustedTokenExpiration(): Date {
+        return this.trusted_token_expiration;
     }
 
     public setToken(token: string): void {

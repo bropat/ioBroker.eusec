@@ -39,6 +39,8 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * ...
     * Actions:
         * Change guard mode
+    * Events:
+        * Alarm mode change
 * Camera:
     * States: 
         * Online / offline etc.
@@ -72,9 +74,11 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * Online / offline etc.
         * Low battery
 * Two factor authentication (token renewal needs manual intervention)
-* Basic P2P communication functionality:
-    * event: Alarm mode change
 * more to come...
+
+## Configuration
+
+See [here](./docs/en/README.md)
 
 ## Known working devices
 
@@ -89,9 +93,19 @@ If more devices work (or also not) please report them by opening a GitHub issue.
 
 Please use GitHub issues for this.
 
-Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
+Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.0.9 (2020-12-xx)
+* (bropat) Finished implementation for feature request: [#1](https://github.com/bropat/ioBroker.eufy-security/issues/1)
+* (bropat) Little progress for feature request: [#5](https://github.com/bropat/ioBroker.eufy-security/issues/5)
+* (bropat) Implemented set Guard Mode with CMD_SET_PAYLOAD for certain devices
+* (bropat) Added back USA ip addresses for P2P cloud discovery
+* (bropat) Using the correct local time zone for communication with the Eufy Cloud
+* (bropat) HUB filtering by device type 0 (station) removed
+* (bropat) Added documentation for 2FA
+* (bropat) Updated versions of the package dependencies
 
 ### 0.0.8 (2020-12-13)
 * (bropat) Fixed issue [#16](https://github.com/bropat/ioBroker.eufy-security/issues/16)

@@ -73,7 +73,7 @@ const isEmpty = function (str) {
 };
 exports.isEmpty = isEmpty;
 const getState = function (type) {
-    //TODO: Finish implementation!
+    //TODO: Extend the implementation as soon as new p2p commands are implemented!
     switch (type) {
         case types_2.CommandType.CMD_SET_ARMING:
             return types_1.StationStateID.GUARD_MODE;

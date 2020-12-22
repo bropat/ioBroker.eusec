@@ -169,6 +169,12 @@ class Device extends events_1.EventEmitter {
     static isMotionSensor(type) {
         return types_1.DeviceType.MOTION_SENSOR == type;
     }
+    static isIntegratedDeviceBySn(sn) {
+        return sn.startsWith("T8420") || sn.startsWith("T820") || sn.startsWith("T8410") || sn.startsWith("T8400") || sn.startsWith("T8401") || sn.startsWith("T8411") || sn.startsWith("T8130") || sn.startsWith("T8131");
+    }
+    static isSoloCameraBySn(sn) {
+        return sn.startsWith("T8130") || sn.startsWith("T8131");
+    }
     isCamera() {
         return Device.isCamera(this.device.device_type);
     }
@@ -264,37 +270,7 @@ class Device extends events_1.EventEmitter {
     }
     setParameters(params) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tmp_params = [];
-            params.forEach(param => {
-                tmp_params.push({ param_type: param.param_type, param_value: parameter_1.Parameter.writeValue(param.param_type, param.param_value) });
-            });
-            try {
-                const response = yield this.api.request("post", "app/upload_devs_params", {
-                    device_sn: this.device.device_sn,
-                    station_sn: this.device.station_sn,
-                    json: tmp_params
-                }).catch(error => {
-                    this.log.error(`Device.setParameters(): error: ${JSON.stringify(error)}`);
-                    return error;
-                });
-                this.log.debug(`Device.setParameters(): Response: ${JSON.stringify(response.data)}`);
-                if (response.status == 200) {
-                    const result = response.data;
-                    if (result.code == 0) {
-                        const dataresult = result.data;
-                        this.log.debug("New Parameters successfully set.");
-                        this.log.info(`Device.setParameters(): New Parameters set. response: ${JSON.stringify(dataresult)}`);
-                    }
-                    else
-                        this.log.error(`Device.setParameters(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
-                }
-                else {
-                    this.log.error(`Device.setParameters(): Status return code not 200 (status: ${response.status} text: ${response.statusText}`);
-                }
-            }
-            catch (error) {
-                this.log.error(`Device.setParameters(): error: ${error}`);
-            }
+            return this.api.setParameters(this.device.station_sn, this.device.device_sn, params);
         });
     }
     getChannel() {

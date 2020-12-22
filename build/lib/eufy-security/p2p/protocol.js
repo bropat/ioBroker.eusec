@@ -86,8 +86,11 @@ class DiscoveryP2PClientProtocol extends BaseP2PClientProtocol {
     constructor() {
         super(...arguments);
         this.addresses = [
-            { host: "54.223.148.206", port: 32100 },
             { host: "18.197.212.165", port: 32100 },
+            { host: "34.235.4.153", port: 32100 },
+            { host: "54.153.101.7", port: 32100 },
+            { host: "18.223.127.200", port: 32100 },
+            { host: "54.223.148.206", port: 32100 },
             { host: "13.251.222.7", port: 32100 },
         ];
         this.p2p_did = "";

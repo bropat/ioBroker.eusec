@@ -16,6 +16,8 @@ exports.API = void 0;
 const axios_1 = __importDefault(require("axios"));
 const events_1 = require("events");
 const types_1 = require("./types");
+const parameter_1 = require("./parameter");
+const utils_1 = require("./utils");
 class API extends events_1.EventEmitter {
     constructor(username, password, log) {
         super();
@@ -24,10 +26,11 @@ class API extends events_1.EventEmitter {
         this.password = null;
         this.token = null;
         this.token_expiration = null;
+        this.trusted_token_expiration = new Date(2100, 12, 31, 23, 59, 59, 0);
         this.devices = {};
         this.hubs = {};
         this.headers = {
-            app_version: "v2.2.2_741",
+            app_version: "v2.3.0_792",
             os_type: "android",
             os_version: "29",
             phone_model: "ONEPLUS A3003",
@@ -46,6 +49,7 @@ class API extends events_1.EventEmitter {
         this.username = username;
         this.password = password;
         this.log = log;
+        this.headers.timezone = utils_1.getTimezoneGMTString();
     }
     invalidateToken() {
         this.token = null;
@@ -55,7 +59,6 @@ class API extends events_1.EventEmitter {
     authenticate() {
         return __awaiter(this, void 0, void 0, function* () {
             //Authenticate and get an access token
-            //TODO: Finish token renew implementation with 2FA!
             this.log.debug(`API.authenticate(): token: ${this.token} token_expiration: ${this.token_expiration}`);
             if (!this.token || this.token_expiration && (new Date()).getTime() >= this.token_expiration.getTime()) {
                 try {
@@ -158,8 +161,8 @@ class API extends events_1.EventEmitter {
                 if (response.status == 200) {
                     const result = response.data;
                     if (result.code == types_1.ResponseErrorCode.CODE_WHATEVER_ERROR) {
-                        if (response.data && response.data.list) {
-                            return response.data.list;
+                        if (result.data && result.data.list) {
+                            return result.data.list;
                         }
                     }
                     else {
@@ -199,10 +202,12 @@ class API extends events_1.EventEmitter {
                             const result = response2.data;
                             if (result.code == types_1.ResponseErrorCode.CODE_WHATEVER_ERROR) {
                                 this.log.info(`2FA authentication successfully done. Device trusted.`);
-                                // For logging purposes
-                                yield this.listTrustDevice().catch(error => {
-                                    this.log.error(`API.listTrustDevice(): error: ${JSON.stringify(error)}`);
-                                    return error;
+                                const trusted_devices = yield this.listTrustDevice();
+                                trusted_devices.forEach((trusted_device) => {
+                                    if (trusted_device.is_current_device === 1) {
+                                        this.token_expiration = this.trusted_token_expiration;
+                                        this.log.debug(`API.addTrustDevice(): This device is trusted. Token expiration extended to: ${this.token_expiration})`);
+                                    }
                                 });
                                 return true;
                             }
@@ -250,10 +255,10 @@ class API extends events_1.EventEmitter {
                             dataresult.forEach(element => {
                                 this.log.debug(`API.updateDeviceInfo(): stations - element: ${JSON.stringify(element)}`);
                                 this.log.debug(`API.updateDeviceInfo(): stations - device_type: ${element.device_type}`);
-                                if (element.device_type == 0) {
-                                    // Station
-                                    this.hubs[element.station_sn] = element;
-                                }
+                                //if (element.device_type == 0) {
+                                // Station
+                                this.hubs[element.station_sn] = element;
+                                //}
                             });
                         }
                         else {
@@ -322,7 +327,6 @@ class API extends events_1.EventEmitter {
                     default: break;
                 }
             }
-            //TODO: It seems that if the device is a trusted device the token doesn't expires as stated by token_expiration. So change this accordingly!
             if (this.token_expiration && (new Date()).getTime() >= this.token_expiration.getTime()) {
                 this.log.info("Access token expired; fetching a new one");
                 this.invalidateToken();
@@ -420,6 +424,42 @@ class API extends events_1.EventEmitter {
             return false;
         });
     }
+    setParameters(station_sn, device_sn, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tmp_params = [];
+            params.forEach(param => {
+                tmp_params.push({ param_type: param.param_type, param_value: parameter_1.Parameter.writeValue(param.param_type, param.param_value) });
+            });
+            try {
+                const response = yield this.request("post", "app/upload_devs_params", {
+                    device_sn: device_sn,
+                    station_sn: station_sn,
+                    params: tmp_params
+                }).catch(error => {
+                    this.log.error(`API.setParameters(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
+                this.log.debug(`API.setParameters(): station_sn: ${station_sn} device_sn: ${device_sn} params: ${JSON.stringify(tmp_params)} Response: ${JSON.stringify(response.data)}`);
+                if (response.status == 200) {
+                    const result = response.data;
+                    if (result.code == 0) {
+                        const dataresult = result.data;
+                        this.log.debug(`API.setParameters(): New Parameters set. response: ${JSON.stringify(dataresult)}`);
+                        return true;
+                    }
+                    else
+                        this.log.error(`API.setParameters(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
+                }
+                else {
+                    this.log.error(`API.setParameters(): Status return code not 200 (status: ${response.status} text: ${response.statusText}`);
+                }
+            }
+            catch (error) {
+                this.log.error(`API.setParameters(): error: ${error}`);
+            }
+            return false;
+        });
+    }
     getLog() {
         return this.log;
     }
@@ -434,6 +474,9 @@ class API extends events_1.EventEmitter {
     }
     getTokenExpiration() {
         return this.token_expiration;
+    }
+    getTrustedTokenExpiration() {
+        return this.trusted_token_expiration;
     }
     setToken(token) {
         this.token = token;

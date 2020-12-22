@@ -244,7 +244,6 @@ export class PushClient extends EventEmitter {
             streamId = this.getStreamId();
         }
         if (message.object && message.object.status) {
-            //TODO: Check if correctly implemented
             status = message.object.status;
         }
         if (this.client) this.client.write(this.buildHeartbeatAckRequest(streamId, status));

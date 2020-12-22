@@ -40,7 +40,7 @@ export const isEmpty = function(str: string | null | undefined): boolean {
 };
 
 export const getState = function(type: CommandType): string | null {
-    //TODO: Finish implementation!
+    //TODO: Extend the implementation as soon as new p2p commands are implemented!
     switch(type) {
         case CommandType.CMD_SET_ARMING:
             return StationStateID.GUARD_MODE;
