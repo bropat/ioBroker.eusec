@@ -165,10 +165,10 @@ class EufySecurity extends utils.Adapter {
                 this.log.debug("No stored data from last exit found.");
             }
             //TODO: Temporary Test to be removed!
-            /*await this.setObjectNotExistsAsync("test_push", {
+            /*await this.setObjectNotExistsAsync("test_button", {
                 type: "state",
                 common: {
-                    name: "Test push",
+                    name: "Test button",
                     type: "boolean",
                     role: "button",
                     read: false,
@@ -176,7 +176,7 @@ class EufySecurity extends utils.Adapter {
                 },
                 native: {},
             });
-            this.subscribeStates("test_push");*/
+            this.subscribeStates("test_button");*/
             // END
             this.subscribeStates("verify_code");
             this.eufy = new EufySecurityAPI.EufySecurity(this);
@@ -311,12 +311,13 @@ class EufySecurity extends utils.Adapter {
                         this.eufy.logon(state.val);
                         yield this.delStateAsync(id);
                     }
-                    /*} else if (station_sn == "test_push") {
+                    /*} else if (station_sn == "test_button") {
                         //TODO: Test to remove!
-                        this.log.debug("TEST PUSH pressed");
+                        this.log.debug("TEST button pressed");
                         if (this.eufy)
                             //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                            await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                            //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                            await this.eufy.getApi().setParameters("T8010P23201721F8", "T8010P23201721F8", [{ param_type: ParamType.GUARD_MODE, param_value: 1 }]);
                             //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                             //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();*/
                 }
@@ -1066,7 +1067,12 @@ class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.GUARD_MODE), station.getParameter(types_1.ParamType.GUARD_MODE));
+                try {
+                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.GUARD_MODE), Number.parseInt(station.getParameter(types_1.ParamType.GUARD_MODE)));
+                }
+                catch (error) {
+                    this.log.error(`handleStations(): GUARD_MODE - Error: ${error}`);
+                }
                 // Current Alarm Mode
                 yield this.setObjectNotExistsAsync(station.getStateID(types_1.StationStateID.CURRENT_MODE), {
                     type: "state",
@@ -1085,7 +1091,12 @@ class EufySecurity extends utils.Adapter {
                     native: {},
                 });
                 //APP_CMD_GET_ALARM_MODE = 1151
-                yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.CURRENT_MODE), station.getParameter(types_1.ParamType.SCHEDULE_MODE));
+                try {
+                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.CURRENT_MODE), Number.parseInt(station.getParameter(types_1.ParamType.SCHEDULE_MODE)));
+                }
+                catch (error) {
+                    this.log.error(`handleStations(): CURRENT_MODE - Error: ${error}`);
+                }
             }));
         });
     }
@@ -1442,9 +1453,25 @@ class EufySecurity extends utils.Adapter {
             yield this.setStateAsync("info.connection", { val: true, ack: true });
             yield this.refreshData(this);
             if (this.eufy) {
-                const api_base = this.eufy.getApi().getAPIBase();
-                const token = this.eufy.getApi().getToken();
-                const token_expiration = this.eufy.getApi().getTokenExpiration();
+                const api = this.eufy.getApi();
+                const api_base = api.getAPIBase();
+                const token = api.getToken();
+                let token_expiration = api.getTokenExpiration();
+                const trusted_token_expiration = api.getTrustedTokenExpiration();
+                if ((token_expiration === null || token_expiration === void 0 ? void 0 : token_expiration.getTime()) !== trusted_token_expiration.getTime())
+                    try {
+                        const trusted_devices = yield api.listTrustDevice();
+                        trusted_devices.forEach(trusted_device => {
+                            if (trusted_device.is_current_device === 1) {
+                                token_expiration = trusted_token_expiration;
+                                api.setTokenExpiration(token_expiration);
+                                this.log.debug(`onConnect(): This device is trusted. Token expiration extended to: ${token_expiration})`);
+                            }
+                        });
+                    }
+                    catch (error) {
+                        this.log.error(`onConnect(): trusted_devices - Error: ${error}`);
+                    }
                 if (api_base) {
                     this.log.debug(`onConnect(): save api_base - api_base: ${api_base}`);
                     this.setAPIBase(api_base);

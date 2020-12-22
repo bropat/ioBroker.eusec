@@ -25,6 +25,7 @@ export declare interface P2PInterface {
 export interface P2PMessageState {
     sequence: number;
     command_type: CommandType;
+    nested_command_type?: CommandType;
     channel: number;
     data: Buffer;
     retries: number;

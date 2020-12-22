@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.8",
+        "version": "0.0.9",
         "news": {
+            "0.0.9": {
+                "en": "Implemented feature request #1 and updated dependencies",
+                "de": "Funktionsanforderung 1 implementiert und Abhängigkeiten aktualisiert",
+                "ru": "Реализованный запрос функции #1 и обновленные зависимости",
+                "pt": "Pedido de funcionalidade implementada #1 e dependências actualizadas",
+                "nl": "Geïmplementeerde functieaanvra",
+                "fr": "Mise en œuvre de la demande de fonctionnalité n°1 et mise à jour des dépendances",
+                "it": "Implementata richiesta di funzionalità n. 1 e aggiornato le dipendenze",
+                "es": "Se ha aplicado la solicitud de características Nº 1 y se han actualizado las dependencias",
+                "pl": "Zaimplementowane żądanie funkcji nr 1 i zaktualizowane zależności",
+                "zh-cn": "实现了功能请求#1，并更新了依赖性。"
+            },
             "0.0.8": {
                 "en": "Fixed issue #16",
                 "de": "Problem Nr. 16 behoben",

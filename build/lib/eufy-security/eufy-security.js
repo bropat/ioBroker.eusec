@@ -398,7 +398,19 @@ class EufySecurity extends events_1.EventEmitter {
         this.log.debug(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} type: ${type} value: ${value}`);
         if (type == types_1.ParamType.GUARD_MODE)
             //TODO: if configured guard mode was changed to SCHEDULE (2) we get the correct current mode, but we change the effective guard mode on next http data refresh... Get it asap!
-            utils_1.setStateChangedAsync(this.adapter, station.getStateID(types_1.StationStateID.GUARD_MODE), value);
+            try {
+                utils_1.setStateChangedAsync(this.adapter, station.getStateID(types_1.StationStateID.GUARD_MODE), Number.parseInt(value));
+            }
+            catch (error) {
+                this.log.error(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} GUARD_MODE Error: ${error}`);
+            }
+        else if (type == types_1.ParamType.SCHEDULE_MODE)
+            try {
+                utils_1.setStateChangedAsync(this.adapter, station.getStateID(types_1.StationStateID.CURRENT_MODE), Number.parseInt(value));
+            }
+            catch (error) {
+                this.log.error(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} CURRENT_MODE Error: ${error}`);
+            }
     }
     deviceParameterChanged(device, type, value) {
         this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value}`);

@@ -180,10 +180,10 @@ export class EufySecurity extends utils.Adapter {
         }
 
         //TODO: Temporary Test to be removed!
-        /*await this.setObjectNotExistsAsync("test_push", {
+        /*await this.setObjectNotExistsAsync("test_button", {
             type: "state",
             common: {
-                name: "Test push",
+                name: "Test button",
                 type: "boolean",
                 role: "button",
                 read: false,
@@ -191,7 +191,7 @@ export class EufySecurity extends utils.Adapter {
             },
             native: {},
         });
-        this.subscribeStates("test_push");*/
+        this.subscribeStates("test_button");*/
         // END
 
         this.subscribeStates("verify_code");
@@ -343,12 +343,13 @@ export class EufySecurity extends utils.Adapter {
                     this.eufy.logon(state.val as number);
                     await this.delStateAsync(id);
                 }
-            /*} else if (station_sn == "test_push") {
+            /*} else if (station_sn == "test_button") {
                 //TODO: Test to remove!
-                this.log.debug("TEST PUSH pressed");
+                this.log.debug("TEST button pressed");
                 if (this.eufy)
                     //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                    await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                    //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                    await this.eufy.getApi().setParameters("T8010P23201721F8", "T8010P23201721F8", [{ param_type: ParamType.GUARD_MODE, param_value: 1 }]);
                     //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                     //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();*/
             } else if (device_type == "cameras") {
@@ -1146,7 +1147,11 @@ export class EufySecurity extends utils.Adapter {
                 },
                 native: {},
             });
-            await setStateChangedAsync(this, station.getStateID(StationStateID.GUARD_MODE), station.getParameter(ParamType.GUARD_MODE));
+            try {
+                await setStateChangedAsync(this, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(station.getParameter(ParamType.GUARD_MODE)));
+            } catch (error) {
+                this.log.error(`handleStations(): GUARD_MODE - Error: ${error}`);
+            }
 
             // Current Alarm Mode
             await this.setObjectNotExistsAsync(station.getStateID(StationStateID.CURRENT_MODE), {
@@ -1166,7 +1171,11 @@ export class EufySecurity extends utils.Adapter {
                 native: {},
             });
             //APP_CMD_GET_ALARM_MODE = 1151
-            await setStateChangedAsync(this, station.getStateID(StationStateID.CURRENT_MODE), station.getParameter(ParamType.SCHEDULE_MODE));
+            try {
+                await setStateChangedAsync(this, station.getStateID(StationStateID.CURRENT_MODE), Number.parseInt(station.getParameter(ParamType.SCHEDULE_MODE)));
+            } catch (error) {
+                this.log.error(`handleStations(): CURRENT_MODE - Error: ${error}`);
+            }
 
         });
     }
@@ -1518,9 +1527,25 @@ export class EufySecurity extends utils.Adapter {
 
         if (this.eufy) {
 
-            const api_base = this.eufy.getApi().getAPIBase();
-            const token = this.eufy.getApi().getToken();
-            const token_expiration = this.eufy.getApi().getTokenExpiration();
+            const api = this.eufy.getApi();
+            const api_base = api.getAPIBase();
+            const token = api.getToken();
+            let token_expiration = api.getTokenExpiration();
+            const trusted_token_expiration = api.getTrustedTokenExpiration();
+
+            if (token_expiration?.getTime() !== trusted_token_expiration.getTime())
+                try {
+                    const trusted_devices = await api.listTrustDevice();
+                    trusted_devices.forEach(trusted_device => {
+                        if (trusted_device.is_current_device === 1) {
+                            token_expiration = trusted_token_expiration;
+                            api.setTokenExpiration(token_expiration);
+                            this.log.debug(`onConnect(): This device is trusted. Token expiration extended to: ${token_expiration})`);
+                        }
+                    });
+                } catch (error) {
+                    this.log.error(`onConnect(): trusted_devices - Error: ${error}`);
+                }
 
             if (api_base) {
                 this.log.debug(`onConnect(): save api_base - api_base: ${api_base}`);

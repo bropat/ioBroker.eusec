@@ -242,7 +242,6 @@ class PushClient extends events_1.EventEmitter {
             streamId = this.getStreamId();
         }
         if (message.object && message.object.status) {
-            //TODO: Check if correctly implemented
             status = message.object.status;
         }
         if (this.client)

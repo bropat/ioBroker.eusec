@@ -148,10 +148,21 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
         //const payload = buildStringTypeCommandPayload(value, this.actor);
         const payload = buildCommandWithStringTypePayload(value, channel);
-        this.sendCommand(commandType, payload, channel);
+        let nested_commandType = undefined;
+
+        if (commandType == CommandType.CMD_SET_PAYLOAD) {
+            try {
+                const json = JSON.parse(value);
+                nested_commandType = json.cmd;
+            } catch (error) {
+                this.log.error(`EufyP2PClientProtocol.sendCommandWithString(): Error: ${error}`);
+            }
+        }
+
+        this.sendCommand(commandType, payload, channel, nested_commandType);
     }
 
-    private sendCommand(commandType: CommandType, payload: Buffer, channel: number): void {
+    private sendCommand(commandType: CommandType, payload: Buffer, channel: number, nested_commandType?: CommandType): void {
         // Command header
         const msgSeqNumber = this.seqNumber++;
         const commandHeader = buildCommandHeader(msgSeqNumber, commandType);
@@ -160,6 +171,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         const message: P2PMessageState = {
             sequence: msgSeqNumber,
             command_type: commandType,
+            nested_command_type: nested_commandType,
             channel: channel,
             data: data,
             retries: 0,
@@ -185,7 +197,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         } else {
             this.log.error(`EufyP2PClientProtocol._sendCommand(): Max retries ${this.message_states.get(message.sequence)?.retries} - stop with error for sequence: ${message.sequence} command_type: ${message.command_type} channel: ${message.channel} retries: ${message.retries}`);
             this.emit("command", {
-                command_type: message.command_type,
+                command_type: message.nested_command_type !== undefined ? message.nested_command_type : message.command_type,
                 channel: message.channel,
                 return_code: -1
             } as CommandResult);
@@ -238,7 +250,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
                         this.log.warn(`EufyP2PClientProtocol.handleMsg(): Result data for command not received - message: ${JSON.stringify(msg_state)}`);
                         this.message_states.delete(ackedSeqNo);
                         this.emit("command", {
-                            command_type: msg_state.command_type,
+                            command_type: msg_state.nested_command_type !== undefined ? msg_state.nested_command_type : msg_state.command_type,
                             channel: msg_state.channel,
                             return_code: -1
                         } as CommandResult);
@@ -285,7 +297,7 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
                         clearTimeout(msg_state.timeout);
                     }
                     this.emit("command", {
-                        command_type: msg_state.command_type,
+                        command_type: msg_state.nested_command_type !== undefined ? msg_state.nested_command_type : msg_state.command_type,
                         channel: msg_state.channel,
                         return_code: return_code
                     } as CommandResult);

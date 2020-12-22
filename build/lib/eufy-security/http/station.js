@@ -12,11 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Station = void 0;
 const types_1 = require("./types");
 const parameter_1 = require("./parameter");
+const utils_1 = require("./utils");
 const protocol_1 = require("../p2p/protocol");
 const session_1 = require("../p2p/session");
 const types_2 = require("../p2p/types");
-const utils_1 = require("../p2p/utils");
+const utils_2 = require("../p2p/utils");
 const events_1 = require("events");
+const device_1 = require("./device");
 class Station extends events_1.EventEmitter {
     constructor(api, hub) {
         super();
@@ -161,7 +163,7 @@ class Station extends events_1.EventEmitter {
                 let local_addr = null;
                 for (const addr of addrs) {
                     this.log.debug("Station.connect(): Discovered station addresses: host: " + addr.host + " port: " + addr.port);
-                    if (utils_1.isPrivateIp(addr.host)) {
+                    if (utils_2.isPrivateIp(addr.host)) {
                         local_addr = addr;
                     }
                 }
@@ -191,26 +193,39 @@ class Station extends events_1.EventEmitter {
     setGuardMode(mode) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.silly("Station.setGuardMode(): ");
-            if (!this.p2p_session || !this.p2p_session.isConnected()) {
-                this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
-                yield this.connect();
-            }
-            if (this.p2p_session) {
-                if (this.p2p_session.isConnected()) {
-                    this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
-                    yield this.p2p_session.sendCommandWithInt(types_2.CommandType.CMD_SET_ARMING, mode, Station.CHANNEL);
-                    // New method available only after a min. software version and only for some devices; The software version is received by FirebaseRemoteConfig
-                    // if ((b != null && a.a().a("new_instance_vision_as", b.main_sw_version) && !b.isIntegratedDeviceBySn()) || (b != null && b.isSoloCams())) {
-                    // If this is met the following works already:
-                    /*await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
-                        "account_id": this.hub.member.action_user_id,
-                        "cmd": CommandType.CMD_SET_ARMING,
-                        "mValue3": 0,
-                        "payload": {
-                            "mode_type": mode,
-                            "user_name": this.hub.member.nick_name
+            if (this.hub.device_type == types_1.DeviceType.STATION) {
+                if (!this.p2p_session || !this.p2p_session.isConnected()) {
+                    this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
+                    yield this.connect();
+                }
+                if (this.p2p_session) {
+                    if (this.p2p_session.isConnected()) {
+                        this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
+                        if ((utils_1.isGreaterMinVersion("2.0.7.9", this.getSerial()) && !device_1.Device.isIntegratedDeviceBySn(this.getSerial())) || device_1.Device.isSoloCameraBySn(this.getSerial())) {
+                            this.log.debug("Station.setGuardMode(): Using CMD_SET_PAYLOAD...");
+                            yield this.p2p_session.sendCommandWithString(types_2.CommandType.CMD_SET_PAYLOAD, JSON.stringify({
+                                "account_id": this.hub.member.action_user_id,
+                                "cmd": types_2.CommandType.CMD_SET_ARMING,
+                                "mValue3": 0,
+                                "payload": {
+                                    "mode_type": mode,
+                                    "user_name": this.hub.member.nick_name
+                                }
+                            }), Station.CHANNEL);
                         }
-                    }));*/
+                        else {
+                            this.log.debug("Station.setGuardMode(): Using CMD_SET_ARMING...");
+                            yield this.p2p_session.sendCommandWithInt(types_2.CommandType.CMD_SET_ARMING, mode, Station.CHANNEL);
+                        }
+                    }
+                }
+            }
+            else {
+                //TODO: Experimental!
+                this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, try to send command mode with HTTPS: ${mode}.`);
+                if (yield this.api.setParameters(this.hub.station_sn, this.hub.station_sn, [{ param_type: types_1.ParamType.GUARD_MODE, param_value: mode.toString() }])) {
+                    this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, guard mode changed successfully to: ${mode}.`);
+                    this.emit("parameter", this, types_1.ParamType.GUARD_MODE, mode.toString());
                 }
             }
         });
