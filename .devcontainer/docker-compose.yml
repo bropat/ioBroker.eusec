@@ -8,6 +8,7 @@ services:
         # This port is only internal, so we can work on this while another instance of ioBroker is running on the host
         expose:
             - 8081
+            - 8082
         volumes:
             - ..:/workspace:cached
             - iobrokerdata-eufy-security:/opt/iobroker
@@ -30,8 +31,10 @@ services:
             - ./nginx/nginx.conf:/etc/nginx/nginx.conf
             - ..:/workspace:cached
         ports:
-            # Make the ioBroker admin available under http://localhost:8082
-            - 8082:80
+            # Make the ioBroker admin available under http://localhost:8081
+            - 8081:80
+            # Make the ioBroker vis available under http://localhost:8082
+            - 8082:81
 
 volumes:
     iobrokerdata-eufy-security:
