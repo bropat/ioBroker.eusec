@@ -54,7 +54,10 @@ class PushRegisterService {
                         "X-Android-Cert": `${this.APP_CERT_SHA1}`,
                         "x-goog-api-key": `${this.GOOGLE_API_KEY}`,
                     },
-                    responseType: "json"
+                    responseType: "json",
+                    validateStatus: function (status) {
+                        return status < 500; // Resolve only if the status code is less than 500
+                    }
                 }).catch(error => {
                     this.log.error(`PushRegisterService.registerFid(): error: ${JSON.stringify(error)}`);
                     return error;
@@ -93,7 +96,10 @@ class PushRegisterService {
                         "x-goog-api-key": `${this.GOOGLE_API_KEY}`,
                         Authorization: `${this.AUTH_VERSION} ${refreshToken}`
                     },
-                    responseType: "json"
+                    responseType: "json",
+                    validateStatus: function (status) {
+                        return status < 500; // Resolve only if the status code is less than 500
+                    }
                 }).catch(error => {
                     this.log.error(`PushRegisterService.renewFidToken(): error: ${JSON.stringify(error)}`);
                     return error;
@@ -164,7 +170,10 @@ class PushRegisterService {
                     headers: {
                         "Content-Type": "application/x-protobuf",
                     },
-                    responseType: "arraybuffer"
+                    responseType: "arraybuffer",
+                    validateStatus: function (status) {
+                        return status < 500; // Resolve only if the status code is less than 500
+                    }
                 }).catch(error => {
                     this.log.error(`PushRegisterService.executeCheckin(): error: ${JSON.stringify(error)}`);
                     return error;
@@ -225,6 +234,9 @@ class PushRegisterService {
                             gcm_ver: "201216023",
                             "User-Agent": "Android-GCM/1.5 (OnePlus5 NMF26X)",
                             "content-type": "application/x-www-form-urlencoded",
+                        },
+                        validateStatus: function (status) {
+                            return status < 500; // Resolve only if the status code is less than 500
                         }
                     }).catch(error => {
                         this.log.error(`PushRegisterService.registerGcm(): error: ${JSON.stringify(error)}`);
