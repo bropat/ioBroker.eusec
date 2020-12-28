@@ -5,11 +5,11 @@ import { Parameter } from "./parameter";
 import { ParameterArray } from "./interfaces";
 import { isGreaterMinVersion } from "./utils";
 import { P2PInterface } from "./../p2p/interfaces";
-import { DiscoveryP2PClientProtocol } from "../p2p/protocol";
+//import { DiscoveryP2PClientProtocol } from "../p2p/protocol";
 import { EufyP2PClientProtocol } from "../p2p/session";
 import { CommandType, ErrorCode } from "../p2p/types";
-import { isPrivateIp } from "../p2p/utils";
-import { Address, CmdCameraInfoResponse, CommandResult } from "../p2p/models";
+//import { isPrivateIp } from "../p2p/utils";
+import { /*Address, */Address, CmdCameraInfoResponse, CommandResult } from "../p2p/models";
 import { EventEmitter } from "events";
 import { Device } from "./device";
 
@@ -165,86 +165,66 @@ export class Station extends EventEmitter implements P2PInterface {
         }
     }
 
-    public async connect(): Promise<boolean> {
+    public async connect(): Promise<void> {
         if (this.dsk_key == "" || (this.dsk_expiration && (new Date()).getTime() >= this.dsk_expiration.getTime())) {
             this.log.debug(`Station.connect(): station: ${this.getSerial()} DSK keys not present or expired, get/renew it. (dsk_expiration: ${this.dsk_expiration})`);
             await this.getDSKKeys();
         }
 
-        const proto = new DiscoveryP2PClientProtocol(this.log);
-        proto.setDSKKey(this.dsk_key);
-        proto.setP2PDid(this.hub.p2p_did);
-        const addrs = await proto.lookup().catch(error => {
-            this.log.error(`Station.connect(): error: ${JSON.stringify(error)}`);
-            return [];
-        });
-        this.log.debug("Station.connect(): Discovered station addresses: " + addrs.length);
-        if (addrs.length > 0) {
-            let local_addr: Address|null = null;
-            for (const addr of addrs) {
-                this.log.debug("Station.connect(): Discovered station addresses: host: " + addr.host + " port: " + addr.port);
-                if (isPrivateIp(addr.host)) {
-                    local_addr = addr;
-                }
-            }
-            if (local_addr) {
-                this.p2p_session = new EufyP2PClientProtocol(local_addr, this.hub.p2p_did, this.hub.member.action_user_id, this.log);
-                this.p2p_session.on("connected", () => this.onConnected());
-                this.p2p_session.on("disconnected", () => this.onDisconnected());
-                this.p2p_session.on("command", (cmd_result) => this.onCommandResponse(cmd_result));
-                this.p2p_session.on("alarm_mode", (mode) => this.onAlarmMode(mode));
-                this.p2p_session.on("camera_info", (camera_info) => this.onCameraInfo(camera_info));
+        this.log.debug(`Station.connect(): station: ${this.getSerial()} p2p_did: ${this.hub.p2p_did} dsk_key: ${this.dsk_key}`);
 
-                this.log.info(`Connect to station ${this.getSerial()} on host ${local_addr.host} and port ${local_addr.port}.`);
-                return await this.p2p_session.connect().catch(error => {
-                    this.log.error(`Station.connect(): P2P session error: ${JSON.stringify(error)}`);
-                    return false;
-                });
-            } else {
-                this.log.error(`No local address discovered for station ${this.getSerial()}.`);
-            }
-        } else {
-            this.log.error(`Discovering of connect details for station ${this.getSerial()} failed. Impossible to establish connection!`);
+        if (this.p2p_session) {
+            this.p2p_session.removeAllListeners();
+            this.p2p_session.close();
+            this.p2p_session = null;
         }
-        return false;
+
+        this.p2p_session = new EufyP2PClientProtocol(this.hub.p2p_did, this.dsk_key, this.hub.member.action_user_id, this.log);
+        this.p2p_session.on("connected", (address) => this.onConnected(address));
+        this.p2p_session.on("disconnected", () => this.onDisconnected());
+        this.p2p_session.on("command", (cmd_result) => this.onCommandResponse(cmd_result));
+        this.p2p_session.on("alarm_mode", (mode) => this.onAlarmMode(mode));
+        this.p2p_session.on("camera_info", (camera_info) => this.onCameraInfo(camera_info));
+
+        this.p2p_session.connect();
     }
 
     public async setGuardMode(mode: GuardMode): Promise<void> {
         this.log.silly("Station.setGuardMode(): ");
-        if (this.hub.device_type == DeviceType.STATION) {
-            if (!this.p2p_session || !this.p2p_session.isConnected()) {
-                this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
-                await this.connect();
-            }
-            if (this.p2p_session) {
-                if (this.p2p_session.isConnected()) {
-                    this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
+        //if (this.hub.device_type == DeviceType.STATION) {
+        if (!this.p2p_session || !this.p2p_session.isConnected()) {
+            this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
+            await this.connect();
+        }
+        if (this.p2p_session) {
+            if (this.p2p_session.isConnected()) {
+                this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
 
-                    if ((isGreaterMinVersion("2.0.7.9", this.getSerial()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
-                        this.log.debug("Station.setGuardMode(): Using CMD_SET_PAYLOAD...");
-                        await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
-                            "account_id": this.hub.member.action_user_id,
-                            "cmd": CommandType.CMD_SET_ARMING,
-                            "mValue3": 0,
-                            "payload": {
-                                "mode_type": mode,
-                                "user_name": this.hub.member.nick_name
-                            }
-                        }), Station.CHANNEL);
-                    } else {
-                        this.log.debug("Station.setGuardMode(): Using CMD_SET_ARMING...");
-                        await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, Station.CHANNEL);
-                    }
+                if ((isGreaterMinVersion("2.0.7.9", this.getSerial()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
+                    this.log.debug("Station.setGuardMode(): Using CMD_SET_PAYLOAD...");
+                    await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
+                        "account_id": this.hub.member.action_user_id,
+                        "cmd": CommandType.CMD_SET_ARMING,
+                        "mValue3": 0,
+                        "payload": {
+                            "mode_type": mode,
+                            "user_name": this.hub.member.nick_name
+                        }
+                    }), Station.CHANNEL);
+                } else {
+                    this.log.debug("Station.setGuardMode(): Using CMD_SET_ARMING...");
+                    await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, Station.CHANNEL);
                 }
             }
-        } else {
+        }
+        /*} else {
             //TODO: Experimental!
             this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, try to send command mode with HTTPS: ${mode}.`);
             if (await this.api.setParameters(this.hub.station_sn, this.hub.station_sn, [{ param_type: ParamType.GUARD_MODE, param_value: mode.toString() }])) {
                 this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, guard mode changed successfully to: ${mode}.`);
                 this.emit("parameter", this, ParamType.GUARD_MODE, mode.toString());
             }
-        }
+        }*/
     }
 
     public async getCameraInfo(): Promise<void> {
@@ -292,13 +272,16 @@ export class Station extends EventEmitter implements P2PInterface {
         this.emit("p2p_command", this, cmd_result);
     }
 
-    private onConnected(): void {
+    private onConnected(address: Address): void {
         this.log.debug(`Station.onConnected(): station: ${this.getSerial()}`);
+        this.resetCurrentDelay();
+        this.log.info(`Connected to station ${this.getSerial()} on host ${address.host} and port ${address.port}.`);
         //TODO: Finish implementation
     }
 
     private onDisconnected(): void {
         this.log.debug(`Station.onDisconnected(): station: ${this.getSerial()}`);
+        this.log.info(`Disconnected from station ${this.getSerial()}.`);
         if (this.p2p_session)
             this.scheduleReconnect();
     }
@@ -328,10 +311,8 @@ export class Station extends EventEmitter implements P2PInterface {
         this.log.debug(`Station.scheduleReconnect(): delay: ${delay}`);
         if (!this.reconnectTimeout)
             this.reconnectTimeout = setTimeout(async () => {
-                if (!await this.connect()) {
-                    this.reconnectTimeout = undefined;
-                    this.scheduleReconnect();
-                }
+                this.reconnectTimeout = undefined;
+                this.connect();
             }, delay);
     }
 

@@ -16,12 +16,14 @@ const types_1 = require("./types");
 const types_2 = require("../http/types");
 const events_1 = require("events");
 class EufyP2PClientProtocol extends events_1.EventEmitter {
-    constructor(address, p2pDid, actor, log) {
+    constructor(p2p_did, dsk_key, actor, log) {
         super();
         this.MAX_RETRIES = 5;
         this.MAX_COMMAND_RESULT_WAIT = 15 * 1000;
         this.MAX_AKNOWLEDGE_TIMEOUT = 3 * 1000;
-        this.HEARTBEAT_INTERVAL = 15 * 1000;
+        this.MAX_LOOKUP_TIMEOUT = 10 * 1000;
+        this.HEARTBEAT_INTERVAL = 5 * 1000;
+        this.binded = false;
         this.connected = false;
         this.seqNumber = 0;
         this.seenSeqNo = {};
@@ -31,86 +33,110 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
             commandId: 0,
             messages: {},
         };
+        this.cloud_addresses = [
+            { host: "18.197.212.165", port: 32100 },
+            { host: "34.235.4.153", port: 32100 },
+            { host: "54.153.101.7", port: 32100 },
+            { host: "18.223.127.200", port: 32100 },
+            { host: "54.223.148.206", port: 32100 },
+            { host: "13.251.222.7", port: 32100 },
+        ];
         this.message_states = new Map();
+        this.address_lookups = {};
         this.connectTime = null;
         this.lastPong = null;
-        this.address = address;
-        this.p2pDid = p2pDid;
+        this.addresses = [];
+        this.current_address = 0;
+        this.p2p_did = p2p_did;
+        this.dsk_key = dsk_key;
         this.actor = actor;
         this.log = log;
-        this.initialize();
+        this.socket = dgram_1.createSocket("udp4");
+        this.socket.on("message", (msg, rinfo) => this.handleMsg(msg, rinfo));
+        this.socket.on("error", (error) => this.onError(error));
+        this.socket.on("close", () => this.onClose());
     }
-    initialize() {
-        this.currentControlMessageBuilder = {
-            bytesToRead: 0,
-            bytesRead: 0,
-            commandId: 0,
-            messages: {},
-        };
-        this.connected = false;
-        this.seqNumber = 0;
-        this.seenSeqNo = {};
-        this.message_states.clear();
-        this.connectTime = null;
-        this.lastPong = null;
+    _clearHeartbeat() {
         if (this.heartbeatTimeout) {
             clearTimeout(this.heartbeatTimeout);
             this.heartbeatTimeout = undefined;
         }
-        if (this.socket) {
-            this.socket.removeAllListeners();
-            this.socket.close();
-        }
-        this.socket = dgram_1.createSocket("udp4");
-        this.socket.bind(0);
+    }
+    _disconnected() {
+        this._clearHeartbeat();
+        this.connected = false;
+        this.lastPong = null;
+        this.connectTime = null;
+        this.emit("disconnected");
+    }
+    lookup() {
+        this.cloud_addresses.map((address) => this.lookupByAddress(address, this.p2p_did, this.dsk_key));
+        if (this.lookupTimeout)
+            clearTimeout(this.lookupTimeout);
+        this.lookupTimeout = setTimeout(() => {
+            this.log.error(`EufyP2PClientProtocol.lookup(): All address lookup tentatives failed.`);
+            this._disconnected();
+        }, this.MAX_LOOKUP_TIMEOUT);
+    }
+    lookupByAddress(address, p2pDid, dskKey) {
+        // Send lookup message
+        const msgId = types_1.RequestMessageType.LOOKUP_WITH_KEY;
+        const payload = utils_1.buildLookupWithKeyPayload(this.socket, p2pDid, dskKey);
+        utils_1.sendMessage(this.socket, address, msgId, payload);
     }
     isConnected() {
         return this.connected;
     }
+    _connect() {
+        this.log.debug(`EufyP2PClientProtocol.connect(): Connecting to host ${this.addresses[this.current_address].host} on port ${this.addresses[this.current_address].port}...`);
+        for (let i = 0; i < 4; i++)
+            this.sendCamCheck();
+        this.connectTimeout = setTimeout(() => {
+            if (this.addresses.length - 1 > this.current_address) {
+                this.log.warn(`EufyP2PClientProtocol.connect(): Could not connect to host ${this.addresses[this.current_address].host} on port ${this.addresses[this.current_address].port}! Try next one...`);
+                this.current_address++;
+                this._connect();
+                return;
+            }
+            else {
+                this.log.warn(`EufyP2PClientProtocol.connect(): Tried all hosts, no connection could be established.`);
+                this._disconnected();
+            }
+        }, this.MAX_AKNOWLEDGE_TIMEOUT);
+    }
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.connected) {
-                return new Promise((resolve, reject) => {
-                    let timer = null;
-                    this.socket.once("message", (msg) => {
-                        if (utils_1.hasHeader(msg, types_1.ResponseMessageType.CAM_ID)) {
-                            this.log.debug("EufyP2PClientProtocol.connect(): connected!");
-                            if (!!timer) {
-                                clearTimeout(timer);
-                            }
-                            this.socket.on("message", (msg) => this.handleMsg(msg));
-                            this.socket.on("error", (error) => this.onError(error));
-                            this.socket.on("close", () => this.onClose());
-                            this.connected = true;
-                            this.connectTime = new Date().getTime();
-                            this.heartbeatTimeout = setTimeout(() => {
-                                this.scheduleHeartbeat();
-                            }, this.getHeartbeatInterval());
-                            this.emit("connected");
-                            resolve(true);
-                        }
-                    });
-                    this.sendCamCheck();
-                    timer = setTimeout(() => {
-                        reject(`Timeout on connect to ${JSON.stringify(this.address)}`);
-                    }, this.MAX_AKNOWLEDGE_TIMEOUT);
-                });
+                if (this.addresses.length === 0) {
+                    if (!this.binded)
+                        this.socket.bind(0, () => {
+                            this.binded = true;
+                            this.lookup();
+                        });
+                    else
+                        this.lookup();
+                }
+                else {
+                    this._connect();
+                }
             }
-            return false;
         });
     }
-    sendCamCheck() {
-        const payload = utils_1.buildCheckCamPayload(this.p2pDid);
-        utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.CHECK_CAM, payload);
+    sendCamCheck(port) {
+        const payload = utils_1.buildCheckCamPayload(this.p2p_did);
+        if (port) {
+            utils_1.sendMessage(this.socket, { host: this.addresses[this.current_address].host, port: port }, types_1.RequestMessageType.CHECK_CAM, payload);
+        }
+        else
+            utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.CHECK_CAM, payload);
     }
     sendPing() {
-        if ((this.lastPong && ((new Date().getTime() - this.lastPong) / this.getHeartbeatInterval() >= 5)) ||
-            (this.connectTime && !this.lastPong && ((new Date().getTime() - this.connectTime) / this.getHeartbeatInterval() >= 5))) {
+        if ((this.lastPong && ((new Date().getTime() - this.lastPong) / this.getHeartbeatInterval() >= this.MAX_RETRIES)) ||
+            (this.connectTime && !this.lastPong && ((new Date().getTime() - this.connectTime) / this.getHeartbeatInterval() >= this.MAX_RETRIES))) {
             this.log.warn(`EufyP2PClientProtocol.sendPing(): Heartbeat check failed. Connection seems lost. Try to reconnect...`);
-            this.initialize();
-            this.emit("disconnected");
+            this._disconnected();
         }
-        utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.PING);
+        utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.PING);
     }
     sendCommandWithIntString(commandType, value, channel = 0) {
         // SET_COMMAND_WITH_INT_STRING_TYPE = msgTypeID == 10
@@ -159,7 +185,7 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
     _sendCommand(message) {
         var _a;
         this.log.debug(`EufyP2PClientProtocol._sendCommand(): sequence: ${message.sequence} command_type: ${message.command_type} channel: ${message.channel} retries: ${message.retries} message_states.size: ${this.message_states.size}`);
-        utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.DATA, message.data);
+        utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.DATA, message.data);
         if (message.retries < this.MAX_RETRIES) {
             const msg = this.message_states.get(message.sequence);
             if (msg) {
@@ -178,31 +204,80 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
             });
             this.message_states.delete(message.sequence);
             this.log.warn(`EufyP2PClientProtocol._sendCommand(): Connection seems lost. Try to reconnect...`);
-            this.initialize();
-            this.emit("disconnected");
+            this._disconnected();
         }
     }
-    handleMsg(msg) {
-        if (utils_1.hasHeader(msg, types_1.ResponseMessageType.PONG)) {
+    handleMsg(msg, rinfo) {
+        if (utils_1.hasHeader(msg, types_1.ResponseMessageType.LOOKUP_ADDR)) {
+            const port = msg[7] * 256 + msg[6];
+            const ip = `${msg[11]}.${msg[10]}.${msg[9]}.${msg[8]}`;
+            this.log.debug(`EufyP2PClientProtocol.handleMsg(): LOOKUP_ADDR - Got response from host ${rinfo.address}:${rinfo.port}: ip: ${ip} port: ${port}`);
+            if (this.addresses.length === 2 && this.connected) {
+                this.log.debug(`EufyP2PClientProtocol.handleMsg(): LOOKUP_ADDR - Addresses already got, ignoring response from host ${rinfo.address}:${rinfo.port}: ip: ${ip} port: ${port}`);
+            }
+            else {
+                if (ip === "0.0.0.0") {
+                    this.log.debug(`EufyP2PClientProtocol.handleMsg(): LOOKUP_ADDR - Got invalid ip address 0.0.0.0, ignoring response!`);
+                    return;
+                }
+                const tmp = this.address_lookups[`${rinfo.address}:${rinfo.port}`];
+                if (tmp) {
+                    if (!tmp.includes({ host: ip, port: port }))
+                        if (utils_1.isPrivateIp(ip)) {
+                            tmp.unshift({ host: ip, port: port });
+                        }
+                        else {
+                            tmp.push({ host: ip, port: port });
+                        }
+                    this.address_lookups[`${rinfo.address}:${rinfo.port}`] = tmp;
+                }
+                else {
+                    this.address_lookups[`${rinfo.address}:${rinfo.port}`] = [{ host: ip, port: port }];
+                }
+                if (this.address_lookups[`${rinfo.address}:${rinfo.port}`].length === 2 && !!this.lookupTimeout) {
+                    this.addresses = this.address_lookups[`${rinfo.address}:${rinfo.port}`];
+                    this.address_lookups = {};
+                    clearTimeout(this.lookupTimeout);
+                    this.lookupTimeout = undefined;
+                    this.log.debug(`EufyP2PClientProtocol.handleMsg(): Got addresses (${JSON.stringify(this.addresses)})! Try to connect...`);
+                    this._connect();
+                }
+            }
+        }
+        else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.CAM_ID)) {
+            // Answer from the device to a CAM_CHECK message
+            this.log.debug(`EufyP2PClientProtocol.handleMsg(): CAM_ID - received from host ${rinfo.address}:${rinfo.port}`);
+            if (!this.connected) {
+                this.log.debug("EufyP2PClientProtocol.handleMsg(): CAM_ID - Connected!");
+                if (!!this.connectTimeout) {
+                    clearTimeout(this.connectTimeout);
+                }
+                this.connected = true;
+                this.connectTime = new Date().getTime();
+                this.lastPong = null;
+                this.heartbeatTimeout = setTimeout(() => {
+                    this.scheduleHeartbeat();
+                }, this.getHeartbeatInterval());
+                this.emit("connected", this.addresses[this.current_address]);
+            }
+            else {
+                this.log.debug("EufyP2PClientProtocol.handleMsg(): CAM_ID - Already connected, ignoring...");
+            }
+        }
+        else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.PONG)) {
             // Response to a ping from our side
             this.lastPong = new Date().getTime();
             return;
         }
         else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.PING)) {
             // Response with PONG to keep alive
-            utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.PONG);
+            utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.PONG);
             return;
         }
         else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.END)) {
             // Connection is closed by device
-            this.log.debug("EufyP2PClientProtocol.handleMsg(): received END");
-            this.initialize();
-            this.emit("disconnected");
-            return;
-        }
-        else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.CAM_ID)) {
-            // Answer from the device to a CAM_CHECK message
-            this.log.debug("EufyP2PClientProtocol.handleMsg(): received CAM_ID");
+            this.log.debug(`EufyP2PClientProtocol.handleMsg(): END - received from host ${rinfo.address}:${rinfo.port}`);
+            this.socket.close();
             return;
         }
         else if (utils_1.hasHeader(msg, types_1.ResponseMessageType.ACK)) {
@@ -217,7 +292,7 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
                 const seqBuffer = msg.slice(idx, idx + 2);
                 const ackedSeqNo = seqBuffer.readUIntBE(0, seqBuffer.length);
                 // -> Message with seqNo was received at the station
-                this.log.debug(`EufyP2PClientProtocol.handleMsg(): received ACK for datatype ${dataType} sequence ${ackedSeqNo}`);
+                this.log.debug(`EufyP2PClientProtocol.handleMsg(): ACK - received from host ${rinfo.address}:${rinfo.port} for datatype ${dataType} sequence ${ackedSeqNo}`);
                 const msg_state = this.message_states.get(ackedSeqNo);
                 if (msg_state && !msg_state.acknowledged) {
                     msg_state.acknowledged = true;
@@ -248,12 +323,12 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
                 return;
             }
             this.seenSeqNo[dataType] = seqNo;
-            this.log.debug(`EufyP2PClientProtocol.handleMsg(): received DATA - Processing ${dataType} with sequence ${seqNo}...`);
+            this.log.debug(`EufyP2PClientProtocol.handleMsg(): DATA - received from host ${rinfo.address}:${rinfo.port} - Processing ${dataType} with sequence ${seqNo}...`);
             this.sendAck(dataTypeBuffer, seqNo);
             this.handleData(seqNo, dataType, msg);
         }
         else {
-            this.log.debug(`EufyP2PClientProtocol.handleMsg(): received unknown message - msg.length: ${msg.length} msg: ${msg.toString("hex")}`);
+            this.log.debug(`EufyP2PClientProtocol.handleMsg(): received unknown message from host ${rinfo.address}:${rinfo.port} - msg.length: ${msg.length} msg: ${msg.toString("hex")}`);
         }
     }
     handleData(seqNo, dataType, msg) {
@@ -289,7 +364,6 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
             this.log.debug(`EufyP2PClientProtocol.handleData(): commandId: ${commandStr} (${commandId}) - result: ${error_codeStr} (${return_code}) - msg: ${msg.toString("hex")}`);
         }
         else if (dataType === "BINARY") {
-            //this.parseBinaryMessage(seqNo, msg);
             this.log.debug(`EufyP2PClientProtocol.handleData(): Binary data: seqNo: ${seqNo} - dataType: ${dataType} - msg: ${msg.toString("hex")}`);
         }
         else {
@@ -334,12 +408,10 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
             case types_1.CommandType.CMD_GET_ALARM_MODE:
                 this.log.debug(`EufyP2PClientProtocol.handleDataControl(): Alarm mode changed to: ${types_2.AlarmMode[message.readUIntBE(0, 1)]}`);
                 this.emit("alarm_mode", message.readUIntBE(0, 1));
-                //this.emit("data", commandId, message.readUIntBE(0, 1) as AlarmMode);
                 break;
             case types_1.CommandType.CMD_CAMERA_INFO:
                 this.log.debug(`EufyP2PClientProtocol.handleDataControl(): Camera info: ${message.toString()}`);
                 this.emit("camera_info", JSON.parse(message.toString()));
-                //this.emit("data", commandId, JSON.parse(message.toString()) as CmdCameraInfoResponse);
                 break;
         }
     }
@@ -348,7 +420,7 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
         const pendingAcksBuffer = Buffer.from([Math.floor(num_pending_acks / 256), num_pending_acks % 256]);
         const seqBuffer = Buffer.from([Math.floor(seqNo / 256), seqNo % 256]);
         const payload = Buffer.concat([dataType, pendingAcksBuffer, seqBuffer]);
-        utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.ACK, payload);
+        utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.ACK, payload);
     }
     toDataTypeName(input) {
         if (input.compare(types_1.EufyP2PDataType.DATA) === 0) {
@@ -367,11 +439,11 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
     }
     close() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.socket && this.connected) {
-                yield utils_1.sendMessage(this.socket, this.address, types_1.RequestMessageType.END);
-            }
-            else {
-                this.initialize();
+            if (this.socket) {
+                if (this.connected)
+                    yield utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.END);
+                else
+                    this.socket.close();
             }
         });
     }
@@ -379,11 +451,8 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
         return this.HEARTBEAT_INTERVAL;
     }
     onClose() {
-        /*if (this.heartbeatTimeout) {
-            clearTimeout(this.heartbeatTimeout);
-            this.heartbeatTimeout = undefined;
-        }*/
         this.log.debug("EufyP2PClientProtocol.onClose(): ");
+        this._disconnected();
     }
     onError(error) {
         this.log.debug(`EufyP2PClientProtocol.onError(): Error: ${error}`);

@@ -1,11 +1,11 @@
 import { AlarmMode } from "../http/types";
-import { CmdCameraInfoResponse, CommandResult } from "./models";
+import { Address, CmdCameraInfoResponse, CommandResult } from "./models";
 import { CommandType } from "./types";
 
 interface P2PInterfaceEvents {
     "alarm_mode": (mode: AlarmMode) => void;
     "camera_info": (camera_info: CmdCameraInfoResponse) => void;
-    "connected": () => void;
+    "connected": (address: Address) => void;
     "disconnected": () => void;
     "command": (result: CommandResult) => void;
 }
@@ -32,4 +32,8 @@ export interface P2PMessageState {
     acknowledged: boolean;
     return_code: number;
     timeout?: NodeJS.Timeout;
+}
+
+export interface LookupAdresses {
+    [index: string]: Array<Address>;
 }
