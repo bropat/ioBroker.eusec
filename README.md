@@ -36,7 +36,13 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
     * States:
         * Configured Guard mode
         * Current Guard mode
-        * ...
+        * Name
+        * Model
+        * Serial number
+        * Software version
+        * Hardware version
+        * MAC address
+        * LAN ip address
     * Actions:
         * Change guard mode
     * Events:
@@ -45,7 +51,18 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
     * States: 
         * Online / offline etc.
         * Battery %
-        * ...
+        * Battery temperature
+        * Name
+        * Model
+        * Serial number
+        * Software version
+        * Hardware version
+        * MAC address
+        * Wifi RSSI
+        * Filtered false events since last charge
+        * Saved/Recorded events since last charge
+        * Total events since last charge
+        * Used days since last charge
     * Actions:
         * Start livestream (rtmp)
         * Stop livestream (rtmp)
@@ -73,7 +90,7 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
     * States:
         * Online / offline etc.
         * Low battery
-* Two factor authentication (token renewal needs manual intervention)
+* Two factor authentication
 * more to come...
 
 ## Configuration
@@ -97,9 +114,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
-### 0.0.9 (2020-12-xx)
+### 0.0.9 (2020-12-28)
 * (bropat) Finished implementation for feature request: [#1](https://github.com/bropat/ioBroker.eufy-security/issues/1)
 * (bropat) Little progress for feature request: [#5](https://github.com/bropat/ioBroker.eufy-security/issues/5)
+* (bropat) Now supports also cloud P2P communication if local P2P comunication isn't possible
 * (bropat) Implemented set Guard Mode with CMD_SET_PAYLOAD for certain devices
 * (bropat) Added back USA ip addresses for P2P cloud discovery
 * (bropat) Using the correct local time zone for communication with the Eufy Cloud
