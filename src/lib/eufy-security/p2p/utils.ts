@@ -99,15 +99,13 @@ export const buildLookupWithKeyPayload = (socket: Socket, p2pDid: string, dskKey
     const p2pDidBuffer = p2pDidToBuffer(p2pDid);
 
     const port = socket.address().port;
-    const portAsBuffer = intToBufferBE(port);
-    const portLittleEndianBuffer = Buffer.from([portAsBuffer[2], portAsBuffer[1]]);
+    const portAsBuffer = intToBufferLE(port, 2);
     const ip = socket.address().address;
-    //const ipAsBuffer = Buffer.from(ip.split("."));   //error TS2769: No overload matches this call.
-    const temp_buff: Buffer[] = [];
-    ip.split(".").forEach(element => {
-        temp_buff.push(Buffer.from(element));
+    const temp_buff: number[] = [];
+    ip.split(".").reverse().forEach(element => {
+        temp_buff.push(Number.parseInt(element));
     });
-    const ipAsBuffer = Buffer.concat(temp_buff);
+    const ipAsBuffer = Buffer.from(temp_buff);
 
     const splitter = Buffer.from([0x00, 0x00]);
     const magic = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x04, 0x00, 0x00]);
@@ -115,7 +113,7 @@ export const buildLookupWithKeyPayload = (socket: Socket, p2pDid: string, dskKey
     const dskKeyAsBuffer = Buffer.from(dskKey);
 
     const fourEmpty = Buffer.from([0x00, 0x00, 0x00, 0x00]);
-    return Buffer.concat([p2pDidBuffer, splitter, portLittleEndianBuffer, ipAsBuffer, magic, dskKeyAsBuffer, fourEmpty]);
+    return Buffer.concat([p2pDidBuffer, splitter, portAsBuffer, ipAsBuffer, magic, dskKeyAsBuffer, fourEmpty]);
 };
 
 export const buildCheckCamPayload = (p2pDid: string): Buffer => {
