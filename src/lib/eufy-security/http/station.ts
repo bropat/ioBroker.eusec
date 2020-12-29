@@ -191,7 +191,6 @@ export class Station extends EventEmitter implements P2PInterface {
 
     public async setGuardMode(mode: GuardMode): Promise<void> {
         this.log.silly("Station.setGuardMode(): ");
-        //if (this.hub.device_type == DeviceType.STATION) {
         if (!this.p2p_session || !this.p2p_session.isConnected()) {
             this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
             await this.connect();
@@ -200,7 +199,7 @@ export class Station extends EventEmitter implements P2PInterface {
             if (this.p2p_session.isConnected()) {
                 this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
 
-                if ((isGreaterMinVersion("2.0.7.9", this.getSerial()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
+                if ((isGreaterMinVersion("2.0.7.9", this.getSoftwareVersion()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
                     this.log.debug("Station.setGuardMode(): Using CMD_SET_PAYLOAD...");
                     await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
                         "account_id": this.hub.member.action_user_id,
@@ -217,14 +216,6 @@ export class Station extends EventEmitter implements P2PInterface {
                 }
             }
         }
-        /*} else {
-            //TODO: Experimental!
-            this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, try to send command mode with HTTPS: ${mode}.`);
-            if (await this.api.setParameters(this.hub.station_sn, this.hub.station_sn, [{ param_type: ParamType.GUARD_MODE, param_value: mode.toString() }])) {
-                this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, guard mode changed successfully to: ${mode}.`);
-                this.emit("parameter", this, ParamType.GUARD_MODE, mode.toString());
-            }
-        }*/
     }
 
     public async getCameraInfo(): Promise<void> {

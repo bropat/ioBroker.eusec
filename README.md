@@ -22,6 +22,10 @@ The development of this adapter was only possible thanks to the work of the foll
 
 Credits goes to them.
 
+If you appreciate my work and progress and want to support me, you can do it here:
+
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E332Q6Z)
+
 ## Description
 
 This adapter allows to control Eufy security devices by connecting to the Eufy cloud servers.
@@ -113,6 +117,11 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.1.1 (2020-12-29)
+* (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.eufy-security/issues/37)
+* (bropat) Fixed version numbering
+* (bropat) Updated versions of the package dependencies
 
 ### 0.0.9 (2020-12-28)
 * (bropat) Finished implementation for feature request: [#1](https://github.com/bropat/ioBroker.eufy-security/issues/1)

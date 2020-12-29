@@ -168,7 +168,6 @@ class Station extends events_1.EventEmitter {
     setGuardMode(mode) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.silly("Station.setGuardMode(): ");
-            //if (this.hub.device_type == DeviceType.STATION) {
             if (!this.p2p_session || !this.p2p_session.isConnected()) {
                 this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
                 yield this.connect();
@@ -176,7 +175,7 @@ class Station extends events_1.EventEmitter {
             if (this.p2p_session) {
                 if (this.p2p_session.isConnected()) {
                     this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
-                    if ((utils_1.isGreaterMinVersion("2.0.7.9", this.getSerial()) && !device_1.Device.isIntegratedDeviceBySn(this.getSerial())) || device_1.Device.isSoloCameraBySn(this.getSerial())) {
+                    if ((utils_1.isGreaterMinVersion("2.0.7.9", this.getSoftwareVersion()) && !device_1.Device.isIntegratedDeviceBySn(this.getSerial())) || device_1.Device.isSoloCameraBySn(this.getSerial())) {
                         this.log.debug("Station.setGuardMode(): Using CMD_SET_PAYLOAD...");
                         yield this.p2p_session.sendCommandWithString(types_2.CommandType.CMD_SET_PAYLOAD, JSON.stringify({
                             "account_id": this.hub.member.action_user_id,
@@ -194,14 +193,6 @@ class Station extends events_1.EventEmitter {
                     }
                 }
             }
-            /*} else {
-                //TODO: Experimental!
-                this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, try to send command mode with HTTPS: ${mode}.`);
-                if (await this.api.setParameters(this.hub.station_sn, this.hub.station_sn, [{ param_type: ParamType.GUARD_MODE, param_value: mode.toString() }])) {
-                    this.log.debug(`Station.setGuardMode(): Station ${this.getSerial()} is also a device, guard mode changed successfully to: ${mode}.`);
-                    this.emit("parameter", this, ParamType.GUARD_MODE, mode.toString());
-                }
-            }*/
         });
     }
     getCameraInfo() {

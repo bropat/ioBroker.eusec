@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.0.9",
+        "version": "0.1.1",
         "news": {
+            "0.1.1": {
+                "en": "Fixed issue #37",
+                "de": "Problem Nr. 37 behoben",
+                "ru": "Исправленная проблема # 37",
+                "pt": "Problema nº 37 corrigido",
+                "nl": "Probleem # 37 opgelost",
+                "fr": "Problème résolu n ° 37",
+                "it": "Risolto il problema # 37",
+                "es": "Problema solucionado # 37",
+                "pl": "Naprawiono problem nr 37",
+                "zh-cn": "已修复问题37"
+            },
             "0.0.9": {
                 "en": "Implemented feature request #1, updated dependencies and more",
                 "de": "Feature Request #1 implementiert, Abhängigkeiten aktualisiert und mehr",
