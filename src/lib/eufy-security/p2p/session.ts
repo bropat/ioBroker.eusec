@@ -57,14 +57,12 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
     private current_address = 0;
     private p2p_did: string;
     private dsk_key: string;
-    private actor: string;
     private log: ioBroker.Logger;
 
-    constructor(p2p_did: string, dsk_key: string, actor: string, log: ioBroker.Logger) {
+    constructor(p2p_did: string, dsk_key: string, log: ioBroker.Logger) {
         super();
         this.p2p_did = p2p_did;
         this.dsk_key = dsk_key;
-        this.actor = actor;
         this.log = log;
 
         this.socket = createSocket("udp4");
@@ -162,21 +160,20 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
         sendMessage(this.socket, this.addresses[this.current_address], RequestMessageType.PING);
     }
 
-    public sendCommandWithIntString(commandType: CommandType, value: number, channel = 0): void {
+    public sendCommandWithIntString(commandType: CommandType, value: number, admin_user_id: string, channel = 0): void {
         // SET_COMMAND_WITH_INT_STRING_TYPE = msgTypeID == 10
-        const payload = buildIntStringCommandPayload(value, this.actor, channel);
+        const payload = buildIntStringCommandPayload(value, admin_user_id, channel);
         this.sendCommand(commandType, payload, channel);
     }
 
-    public sendCommandWithInt(commandType: CommandType, value: number, channel = 255): void {
+    public sendCommandWithInt(commandType: CommandType, value: number, admin_user_id: string, channel = 255): void {
         // SET_COMMAND_WITH_INT_TYPE = msgTypeID == 4
-        const payload = buildIntCommandPayload(value, this.actor, channel);
+        const payload = buildIntCommandPayload(value, admin_user_id, channel);
         this.sendCommand(commandType, payload, channel);
     }
 
     public sendCommandWithString(commandType: CommandType, value: string, channel = 0): void {
         // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
-        //const payload = buildStringTypeCommandPayload(value, this.actor);
         const payload = buildCommandWithStringTypePayload(value, channel);
         let nested_commandType = undefined;
 

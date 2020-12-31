@@ -1,4 +1,4 @@
-export interface EufyPushMessagePayload {
+export interface CusPushData {
     a: number;                          // Event type, see enum PushEvent
     alarm?: number;                     // ?
     alarm_delay?: number;               // alarm delay...
@@ -8,6 +8,7 @@ export interface EufyPushMessagePayload {
     batt_powered?: number;
     c?: number;                         // Channel (received on event security)
     channel?: number;
+    click_action: string;
     create_time?: number;
     device_name?: string;
     e?: string;                         // Sensor Open (1=True, 0=False)
@@ -21,6 +22,7 @@ export interface EufyPushMessagePayload {
     mode?: number;                      // Station mode (if arming=2=SCHEDULE, this parameter shows the changed mode by SCHEDULE; on manually changing mode, mode=arming)
     n?: string;                         // Nickname / Device name
     name?: string;
+    news_id: number;
     nick_name?: string;
     notification_style?: number;
     p?: string;                         // Filename
@@ -37,30 +39,30 @@ export interface EufyPushMessagePayload {
     user?: number;                      // User Type (NORMAL=0, ADMIN=1, SUPER_ADMIN=2, ENTRY_ONLY=4)
     user_id?: string;
     user_name?: string;                 // Username
-    verify_code?: string;               // 2FA Verification code
 }
 
 export interface EufyPushMessage {
-    content: string,
-    device_sn: string,
-    event_time: string,
-    payload: EufyPushMessagePayload,
-    push_time: string,
-    station_sn: string,
-    title: string,
-    type: string,
-    "google.c.sender.id": string
+    content: string;
+    device_sn: string;
+    event_time: number;
+    payload: CusPushData | IndoorPushData | ServerPushData;
+    push_time: number;
+    station_sn: string;
+    title: string;
+    type: number;
+    doorbell: DoorbellPushData;
+    "google.c.sender.id": string;
 }
 
 export interface PushMessage{
-    id: string,
-    from: string,
-    to: string,
-    category: string,
-    persistentId: string,
-    ttl: number,
-    sent: string,
-    payload: EufyPushMessage
+    id: string;
+    from: string;
+    to: string;
+    category: string;
+    persistentId: string;
+    ttl: number;
+    sent: string;
+    payload: EufyPushMessage;
 }
 
 export interface FidTokenResponse {
@@ -125,4 +127,53 @@ export interface Credentials {
     fidResponse: FidInstallationResponse;
     checkinResponse: CheckinResponse;
     gcmResponse: GcmRegisterResponse;
+}
+
+export interface DoorbellPushData {
+    campaign_name: string;
+    channel: number;
+    cipher: number;
+    content: string;
+    create_time: number;
+    device_sn: string;
+    event_session: string;
+    event_time: string;
+    event_type: number;
+    file_path: string;
+    outer_body: string;
+    outer_title: string;
+    pic_url: string;
+    push_count: number;
+    station_sn: string;
+    title: string;
+    url: string;
+    url_ex: string;
+    video_url: string;
+}
+
+export interface IndoorPushData {
+    a: number;
+    channel: number;
+    cipher: number;
+    create_time: number;
+    device_sn: string;
+    event_type: number;
+    file_path: string;
+    msg_type: number;
+    name: string;
+    notification_style: number;
+    pic_url: string;
+    push_count: number;
+    session_id: string;
+    storage_type: number;
+    t: number;
+    tfcard_status: number;
+    timeout: number;
+    unique_id: string;
+}
+
+export interface ServerPushData {
+    email: string;
+    nick_name: string;
+    verify_code: string;
 }

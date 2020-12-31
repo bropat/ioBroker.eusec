@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "news": {
+            "0.1.2": {
+                "en": "",
+                "de": "",
+                "ru": "",
+                "pt": "",
+                "nl": "",
+                "fr": "",
+                "it": "",
+                "es": "",
+                "pl": "",
+                "zh-cn": ""
+            },
             "0.1.1": {
                 "en": "Fixed issue #37",
                 "de": "Problem Nr. 37 behoben",

@@ -179,7 +179,7 @@ export class Station extends EventEmitter implements P2PInterface {
             this.p2p_session = null;
         }
 
-        this.p2p_session = new EufyP2PClientProtocol(this.hub.p2p_did, this.dsk_key, this.hub.member.action_user_id, this.log);
+        this.p2p_session = new EufyP2PClientProtocol(this.hub.p2p_did, this.dsk_key, this.log);
         this.p2p_session.on("connected", (address) => this.onConnected(address));
         this.p2p_session.on("disconnected", () => this.onDisconnected());
         this.p2p_session.on("command", (cmd_result) => this.onCommandResponse(cmd_result));
@@ -200,9 +200,9 @@ export class Station extends EventEmitter implements P2PInterface {
                 this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
 
                 if ((isGreaterMinVersion("2.0.7.9", this.getSoftwareVersion()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
-                    this.log.debug("Station.setGuardMode(): Using CMD_SET_PAYLOAD...");
+                    this.log.debug(`Station.setGuardMode(): Using CMD_SET_PAYLOAD... (main_sw_version: ${this.getSoftwareVersion()})`);
                     await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
-                        "account_id": this.hub.member.action_user_id,
+                        "account_id": this.hub.member.admin_user_id,
                         "cmd": CommandType.CMD_SET_ARMING,
                         "mValue3": 0,
                         "payload": {
@@ -212,7 +212,7 @@ export class Station extends EventEmitter implements P2PInterface {
                     }), Station.CHANNEL);
                 } else {
                     this.log.debug("Station.setGuardMode(): Using CMD_SET_ARMING...");
-                    await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, Station.CHANNEL);
+                    await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, this.hub.member.admin_user_id, Station.CHANNEL);
                 }
             }
         }
@@ -227,7 +227,7 @@ export class Station extends EventEmitter implements P2PInterface {
         if (this.p2p_session) {
             if (this.p2p_session.isConnected()) {
                 this.log.debug(`Station.getCameraInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
-                await this.p2p_session.sendCommandWithInt(CommandType.CMD_CAMERA_INFO, Station.CHANNEL);
+                await this.p2p_session.sendCommandWithInt(CommandType.CMD_CAMERA_INFO, 255, this.hub.member.admin_user_id, Station.CHANNEL);
             }
         }
     }
@@ -242,7 +242,7 @@ export class Station extends EventEmitter implements P2PInterface {
             if (this.p2p_session.isConnected()) {
                 this.log.debug(`Station.getStorageInfo(): P2P connection to station ${this.getSerial()} present, get camera info.`);
                 //TODO: Verify channel! Should be 255...
-                await this.p2p_session.sendCommandWithIntString(CommandType.CMD_SDINFO_EX, 0);
+                await this.p2p_session.sendCommandWithIntString(CommandType.CMD_SDINFO_EX, 0, this.hub.member.admin_user_id);
             }
         }
     }

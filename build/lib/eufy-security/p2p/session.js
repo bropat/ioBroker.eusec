@@ -16,7 +16,7 @@ const types_1 = require("./types");
 const types_2 = require("../http/types");
 const events_1 = require("events");
 class EufyP2PClientProtocol extends events_1.EventEmitter {
-    constructor(p2p_did, dsk_key, actor, log) {
+    constructor(p2p_did, dsk_key, log) {
         super();
         this.MAX_RETRIES = 5;
         this.MAX_COMMAND_RESULT_WAIT = 15 * 1000;
@@ -49,7 +49,6 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
         this.current_address = 0;
         this.p2p_did = p2p_did;
         this.dsk_key = dsk_key;
-        this.actor = actor;
         this.log = log;
         this.socket = dgram_1.createSocket("udp4");
         this.socket.on("message", (msg, rinfo) => this.handleMsg(msg, rinfo));
@@ -138,19 +137,18 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
         }
         utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.PING);
     }
-    sendCommandWithIntString(commandType, value, channel = 0) {
+    sendCommandWithIntString(commandType, value, admin_user_id, channel = 0) {
         // SET_COMMAND_WITH_INT_STRING_TYPE = msgTypeID == 10
-        const payload = utils_1.buildIntStringCommandPayload(value, this.actor, channel);
+        const payload = utils_1.buildIntStringCommandPayload(value, admin_user_id, channel);
         this.sendCommand(commandType, payload, channel);
     }
-    sendCommandWithInt(commandType, value, channel = 255) {
+    sendCommandWithInt(commandType, value, admin_user_id, channel = 255) {
         // SET_COMMAND_WITH_INT_TYPE = msgTypeID == 4
-        const payload = utils_1.buildIntCommandPayload(value, this.actor, channel);
+        const payload = utils_1.buildIntCommandPayload(value, admin_user_id, channel);
         this.sendCommand(commandType, payload, channel);
     }
     sendCommandWithString(commandType, value, channel = 0) {
         // SET_COMMAND_WITH_STRING_TYPE = msgTypeID == 6
-        //const payload = buildStringTypeCommandPayload(value, this.actor);
         const payload = utils_1.buildCommandWithStringTypePayload(value, channel);
         let nested_commandType = undefined;
         if (commandType == types_1.CommandType.CMD_SET_PAYLOAD) {

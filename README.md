@@ -118,6 +118,11 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.1.2 (202x-xx-xx)
+* (bropat) Fixed p2p issue passing wrong user id (action_user_id instead of admin_user_id)
+* (bropat) Revised push notification to properly support doorbell notifications
+* (bropat) Updated versions of the package dependencies
+
 ### 0.1.1 (2020-12-29)
 * (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.eufy-security/issues/37)
 * (bropat) Fixed version numbering
