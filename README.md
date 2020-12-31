@@ -119,6 +119,7 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 ## Changelog
 
 ### 0.1.2 (202x-xx-xx)
+* (bropat) Revised captured_pic_url state (renamed to last_captured_pic_url and added last_captured_pic_html)
 * (bropat) Fixed p2p issue passing wrong user id (action_user_id instead of admin_user_id)
 * (bropat) Revised push notification to properly support doorbell notifications
 * (bropat) Updated versions of the package dependencies

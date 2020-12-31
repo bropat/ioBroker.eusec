@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveImage = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
+exports.saveImageStates = exports.saveImage = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
 const read_bigint_1 = require("read-bigint");
 const axios_1 = __importDefault(require("axios"));
@@ -92,7 +92,7 @@ const getImage = function (url) {
     });
 };
 exports.getImage = getImage;
-const saveImage = function (adapter, url, device) {
+const saveImage = function (adapter, url, filename_without_extension) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = {
             image_url: "",
@@ -100,7 +100,7 @@ const saveImage = function (adapter, url, device) {
         };
         if (url) {
             const data = yield exports.getImage(url);
-            const filename = `${device.getSerial()}.jpg`;
+            const filename = `${filename_without_extension}.jpg`;
             yield adapter.writeFileAsync(`${adapter.name}.${adapter.instance}`, filename, data).then(() => {
                 result.image_url = `/${adapter.name}.${adapter.instance}/${filename}`;
                 result.image_html = `<img src="data:image/jpg;base64,${data.toString("base64")}" style="width: auto ;height: 100%;" />`;
@@ -112,3 +112,47 @@ const saveImage = function (adapter, url, device) {
     });
 };
 exports.saveImage = saveImage;
+const saveImageStates = function (adapter, url, serial_number, url_state_id, html_state_id, prefix_common_name, filename_prefix = "") {
+    return __awaiter(this, void 0, void 0, function* () {
+        const obj = yield adapter.getObjectAsync(url_state_id);
+        if (obj) {
+            if ((obj.native.url && obj.native.url.split("?")[0] !== url.split("?")[0]) || (!obj.native.url && url && url !== "")) {
+                obj.native.url = url;
+                const image_data = yield exports.saveImage(adapter, obj.native.url, `${filename_prefix}${serial_number}`);
+                yield adapter.setStateAsync(url_state_id, { val: image_data.image_url, ack: true });
+                yield adapter.setStateAsync(html_state_id, { val: image_data.image_html, ack: true });
+                yield adapter.setObject(url_state_id, obj);
+            }
+        }
+        else {
+            const image_data = yield exports.saveImage(adapter, url, `${filename_prefix}${serial_number}`);
+            yield adapter.setObjectNotExistsAsync(url_state_id, {
+                type: "state",
+                common: {
+                    name: `${prefix_common_name} URL`,
+                    type: "string",
+                    role: "text",
+                    read: true,
+                    write: false,
+                },
+                native: {
+                    url: url
+                },
+            });
+            yield adapter.setStateAsync(url_state_id, { val: image_data.image_url, ack: true });
+            yield adapter.setObjectNotExistsAsync(html_state_id, {
+                type: "state",
+                common: {
+                    name: `${prefix_common_name} HTML image`,
+                    type: "string",
+                    role: "text",
+                    read: true,
+                    write: false,
+                },
+                native: {},
+            });
+            yield adapter.setStateAsync(html_state_id, { val: image_data.image_html, ack: true });
+        }
+    });
+};
+exports.saveImageStates = saveImageStates;

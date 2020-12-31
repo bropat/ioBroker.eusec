@@ -150,8 +150,9 @@ export const CameraStateID = {
     WIFI_RSSI: "wifi_rssi",
     MOTION_DETECTED: "motion_detected",
     PERSON_DETECTED: "person_detected",
-    PERSON_IDENTIFIED: "person_identified",
-    CAPTURED_PIC_URL: "captured_pic_url",
+    LAST_PERSON_IDENTIFIED: "last_person_identified",
+    LAST_CAPTURED_PIC_URL: "last_captured_pic_url",
+    LAST_CAPTURED_PIC_HTML: "last_captured_pic_html",
 }
 
 export const StationStateID = {
