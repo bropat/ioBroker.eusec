@@ -12,7 +12,7 @@ import * as Interface from "./lib/eufy-security/interfaces"
 import { Devices, Stations } from "./lib/eufy-security/http/interfaces";
 import { CameraStateID, DeviceStateID, DoorbellStateID, EntrySensorStateID, GuardMode, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, ParamType, StationStateID/*, VerfyCodeTypes*/ } from "./lib/eufy-security/http/types";
 import { decrypt, generateSerialnumber, generateUDID, isEmpty, md5, saveImage, setStateChangedAsync } from "./lib/eufy-security/utils";
-import { PushMessage, Credentials, IndoorPushData, CusPushData } from "./lib/eufy-security/push/models";
+import { PushMessage, Credentials, IndoorPushData, CusPushData, DoorbellPushData } from "./lib/eufy-security/push/models";
 import { DoorbellPushEvent, IndoorPushEvent, CusPushEvent, ServerPushEvent } from "./lib/eufy-security/push/types";
 import { PersistentData } from "./lib/eufy-security/interfaces";
 import { Station } from "./lib/eufy-security/http/station";
@@ -1195,7 +1195,7 @@ export class EufySecurity extends utils.Adapter {
                 if (type == ServerPushEvent.VERIFICATION) {
                     this.log.debug(`handlePushNotifications(): Received push verification event: ${JSON.stringify(push_msg.payload)}`);
                 } else if (Device.isDoorbell(type)) {
-                    const push_data = push_msg.payload.doorbell;
+                    const push_data:DoorbellPushData = JSON.parse(push_msg.payload.doorbell);
                     const device = this.eufy.getDevice(push_data.device_sn);
 
                     switch (push_data.event_type) {

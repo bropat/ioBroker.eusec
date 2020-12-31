@@ -1117,7 +1117,7 @@ class EufySecurity extends utils.Adapter {
                         this.log.debug(`handlePushNotifications(): Received push verification event: ${JSON.stringify(push_msg.payload)}`);
                     }
                     else if (device_1.Device.isDoorbell(type)) {
-                        const push_data = push_msg.payload.doorbell;
+                        const push_data = JSON.parse(push_msg.payload.doorbell);
                         const device = this.eufy.getDevice(push_data.device_sn);
                         switch (push_data.event_type) {
                             case types_2.DoorbellPushEvent.MOTION_DETECTION:

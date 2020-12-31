@@ -50,7 +50,7 @@ export interface EufyPushMessage {
     station_sn: string;
     title: string;
     type: number;
-    doorbell: DoorbellPushData;
+    doorbell: string;
     "google.c.sender.id": string;
 }
 

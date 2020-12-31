@@ -466,7 +466,10 @@ export class EufyP2PClientProtocol extends EventEmitter implements P2PInterface 
             if (this.connected)
                 await sendMessage(this.socket, this.addresses[this.current_address], RequestMessageType.END);
             else
-                this.socket.close();
+                try {
+                    this.socket.close();
+                } catch(error) {
+                }
         }
     }
 

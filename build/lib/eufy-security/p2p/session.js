@@ -441,7 +441,11 @@ class EufyP2PClientProtocol extends events_1.EventEmitter {
                 if (this.connected)
                     yield utils_1.sendMessage(this.socket, this.addresses[this.current_address], types_1.RequestMessageType.END);
                 else
-                    this.socket.close();
+                    try {
+                        this.socket.close();
+                    }
+                    catch (error) {
+                    }
             }
         });
     }
