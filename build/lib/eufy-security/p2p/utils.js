@@ -196,14 +196,14 @@ exports.buildCommandHeader = buildCommandHeader;
 const buildCommandWithStringTypePayload = (value, channel = 0) => {
     // type = 6
     //setCommandWithString()
-    const headerBuffer = Buffer.from([0x80, 0x00]);
+    const headerBuffer = Buffer.allocUnsafe(4);
+    headerBuffer.writeInt32LE(value.length, 0);
     const emptyBuffer = Buffer.from([0x00, 0x00]);
     const magicBuffer = Buffer.from([0x01, 0x00]);
     const channelBuffer = Buffer.from([channel, 0x00]);
     const jsonBuffer = Buffer.from(value);
     return Buffer.concat([
         headerBuffer,
-        emptyBuffer,
         magicBuffer,
         channelBuffer,
         emptyBuffer,

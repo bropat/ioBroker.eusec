@@ -118,6 +118,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.1.3 (2021-01-02)
+* (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.eufy-security/issues/37) and [#41](https://github.com/bropat/ioBroker.eufy-security/issues/41)
+* (bropat) Updated versions of the package dependencies
+
 ### 0.1.2 (2021-01-02)
 * (bropat) Revised captured_pic_url state (renamed to last_captured_pic_url and added last_captured_pic_html)
 * (bropat) Fixed p2p issue passing wrong user id (action_user_id instead of admin_user_id)
