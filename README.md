@@ -118,6 +118,11 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.1.4 (2021-01-05)
+* (bropat) Fixed: Accept only valid modes for station guard mode (for invalid mode, an error is logged)
+* (bropat) Fixed reset of an event (motion, ringing, etc.)
+* (bropat) Updated versions of the package dependencies
+
 ### 0.1.3 (2021-01-02)
 * (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.eufy-security/issues/37) and [#41](https://github.com/bropat/ioBroker.eufy-security/issues/41)
 * (bropat) Updated versions of the package dependencies

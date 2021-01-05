@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.1.3",
+        "version": "0.1.4",
         "news": {
+            "0.1.4": {
+                "en": "Some fixes and updated dependencies",
+                "de": "Einige Korrekturen und aktualisierte Abhängigkeiten",
+                "ru": "Некоторые исправления и обновленные зависимости",
+                "pt": "Algumas reparações e actualizações de dependências",
+                "nl": "Enkele fixes en bijgewerkte afhankelijkheden",
+                "fr": "Quelques corrections et mises à jour des dépendances",
+                "it": "Alcune correzioni e aggiornato le dipendenze",
+                "es": "Algunos arreglos y dependencias actualizadas",
+                "pl": "Niektóre poprawki i zaktualizowane zależności",
+                "zh-cn": "一些修复和更新的依赖性"
+            },
             "0.1.3": {
                 "en": "Fixed issue #37 and #41",
                 "de": "Problem #37 und #41 behoben",

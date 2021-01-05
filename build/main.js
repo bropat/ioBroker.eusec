@@ -171,6 +171,13 @@ class EufySecurity extends utils.Adapter {
             catch (error) {
             }
             // End
+            // Reset event states if necessary (for example because of an unclean exit)
+            yield this.initializeEvents(types_1.CameraStateID.PERSON_DETECTED);
+            yield this.initializeEvents(types_1.CameraStateID.MOTION_DETECTED);
+            yield this.initializeEvents(types_1.DoorbellStateID.RINGING);
+            yield this.initializeEvents(types_1.IndoorCameraStateID.CRYING_DETECTED);
+            yield this.initializeEvents(types_1.IndoorCameraStateID.SOUND_DETECTED);
+            yield this.initializeEvents(types_1.IndoorCameraStateID.PET_DETECTED);
             try {
                 if (fs.statSync(this.persistentFile).isFile()) {
                     const fileContent = fs.readFileSync(this.persistentFile, "utf8");
@@ -250,47 +257,53 @@ class EufySecurity extends utils.Adapter {
             }
         });
     }
+    initializeEvents(state) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const states = yield this.getStatesAsync(`*.${state}`);
+            for (const id of Object.keys(states)) {
+                const state = states[id];
+                if (state.val === true) {
+                    yield this.setStateAsync(id, { val: false, ack: true });
+                }
+            }
+        });
+    }
+    clearEvents(events, state) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const serialnr of Object.keys(events)) {
+                clearTimeout(events[serialnr]);
+                const states = yield this.getStatesAsync(`*.${serialnr}.${state}`);
+                for (const id of Object.keys(states)) {
+                    yield this.setStateAsync(id, { val: false, ack: true });
+                }
+            }
+        });
+    }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
     onUnload(callback) {
-        try {
-            if (this.eufy)
-                this.setPushPersistentIds(this.eufy.getPushPersistentIds());
-            this.writePersistentData();
-            if (this.refreshTimeout)
-                clearTimeout(this.refreshTimeout);
-            if (Object.keys(this.personDetected).length > 0)
-                Object.values(this.personDetected).forEach(element => {
-                    clearTimeout(element);
-                });
-            if (Object.keys(this.motionDetected).length > 0)
-                Object.values(this.motionDetected).forEach(element => {
-                    clearTimeout(element);
-                });
-            if (Object.keys(this.ringing).length > 0)
-                Object.values(this.ringing).forEach(element => {
-                    clearTimeout(element);
-                });
-            if (Object.keys(this.cryingDetected).length > 0)
-                Object.values(this.cryingDetected).forEach(element => {
-                    clearTimeout(element);
-                });
-            if (Object.keys(this.soundDetected).length > 0)
-                Object.values(this.soundDetected).forEach(element => {
-                    clearTimeout(element);
-                });
-            if (Object.keys(this.petDetected).length > 0)
-                Object.values(this.petDetected).forEach(element => {
-                    clearTimeout(element);
-                });
-            if (this.eufy)
-                this.eufy.close();
-            callback();
-        }
-        catch (e) {
-            callback();
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (this.eufy)
+                    this.setPushPersistentIds(this.eufy.getPushPersistentIds());
+                this.writePersistentData();
+                if (this.refreshTimeout)
+                    clearTimeout(this.refreshTimeout);
+                yield this.clearEvents(this.personDetected, types_1.CameraStateID.PERSON_DETECTED);
+                yield this.clearEvents(this.motionDetected, types_1.CameraStateID.MOTION_DETECTED);
+                yield this.clearEvents(this.ringing, types_1.DoorbellStateID.RINGING);
+                yield this.clearEvents(this.cryingDetected, types_1.IndoorCameraStateID.CRYING_DETECTED);
+                yield this.clearEvents(this.soundDetected, types_1.IndoorCameraStateID.SOUND_DETECTED);
+                yield this.clearEvents(this.petDetected, types_1.IndoorCameraStateID.PET_DETECTED);
+                if (this.eufy)
+                    this.eufy.close();
+                callback();
+            }
+            catch (e) {
+                callback();
+            }
+        });
     }
     // If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
     // You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
@@ -330,12 +343,12 @@ class EufySecurity extends utils.Adapter {
                     /*} else if (station_sn == "test_button") {
                         //TODO: Test to remove!
                         this.log.debug("TEST button pressed");
-                        if (this.eufy)
+                        if (this.eufy) {
                             //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
                             //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
-                            await this.eufy.getApi().setParameters("T8010P23201721F8", "T8010P23201721F8", [{ param_type: ParamType.GUARD_MODE, param_value: 1 }]);
                             //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
-                            //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();*/
+                            //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();
+                        }*/
                 }
                 else if (device_type == "cameras") {
                     const device_sn = values[4];

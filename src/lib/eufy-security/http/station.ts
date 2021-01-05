@@ -191,30 +191,34 @@ export class Station extends EventEmitter implements P2PInterface {
 
     public async setGuardMode(mode: GuardMode): Promise<void> {
         this.log.silly("Station.setGuardMode(): ");
-        if (!this.p2p_session || !this.p2p_session.isConnected()) {
-            this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
-            await this.connect();
-        }
-        if (this.p2p_session) {
-            if (this.p2p_session.isConnected()) {
-                this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
+        if (mode in GuardMode) {
+            if (!this.p2p_session || !this.p2p_session.isConnected()) {
+                this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} not present, establish it.`);
+                await this.connect();
+            }
+            if (this.p2p_session) {
+                if (this.p2p_session.isConnected()) {
+                    this.log.debug(`Station.setGuardMode(): P2P connection to station ${this.getSerial()} present, send command mode: ${mode}.`);
 
-                if ((isGreaterMinVersion("2.0.7.9", this.getSoftwareVersion()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
-                    this.log.debug(`Station.setGuardMode(): Using CMD_SET_PAYLOAD... (main_sw_version: ${this.getSoftwareVersion()})`);
-                    await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
-                        "account_id": this.hub.member.admin_user_id,
-                        "cmd": CommandType.CMD_SET_ARMING,
-                        "mValue3": 0,
-                        "payload": {
-                            "mode_type": mode,
-                            "user_name": this.hub.member.nick_name
-                        }
-                    }), Station.CHANNEL);
-                } else {
-                    this.log.debug("Station.setGuardMode(): Using CMD_SET_ARMING...");
-                    await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, this.hub.member.admin_user_id, Station.CHANNEL);
+                    if ((isGreaterMinVersion("2.0.7.9", this.getSoftwareVersion()) && !Device.isIntegratedDeviceBySn(this.getSerial())) || Device.isSoloCameraBySn(this.getSerial())) {
+                        this.log.debug(`Station.setGuardMode(): Using CMD_SET_PAYLOAD... (main_sw_version: ${this.getSoftwareVersion()})`);
+                        await this.p2p_session.sendCommandWithString(CommandType.CMD_SET_PAYLOAD, JSON.stringify({
+                            "account_id": this.hub.member.admin_user_id,
+                            "cmd": CommandType.CMD_SET_ARMING,
+                            "mValue3": 0,
+                            "payload": {
+                                "mode_type": mode,
+                                "user_name": this.hub.member.nick_name
+                            }
+                        }), Station.CHANNEL);
+                    } else {
+                        this.log.debug("Station.setGuardMode(): Using CMD_SET_ARMING...");
+                        await this.p2p_session.sendCommandWithInt(CommandType.CMD_SET_ARMING, mode, this.hub.member.admin_user_id, Station.CHANNEL);
+                    }
                 }
             }
+        } else {
+            this.log.error(`Station.setGuardMode(): Trying to set unsupported guard mode: ${mode}`);
         }
     }
 
