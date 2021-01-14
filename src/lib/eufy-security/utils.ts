@@ -63,13 +63,16 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
         image_html: ""
     };
     if (url) {
-        const data = await getImage(url);
+        const data = await getImage(url).catch(error => {
+            adapter.log.error(`saveImage(): getImage Error: ${error} - url: ${url}`);
+            return Buffer.from([]);
+        });
         const filename = `${filename_without_extension}.jpg`;
         await adapter.writeFileAsync(`${adapter.name}.${adapter.instance}`, filename, data).then(() => {
             result.image_url = `/${adapter.name}.${adapter.instance}/${filename}`;
             result.image_html = `<img src="data:image/jpg;base64,${data.toString("base64")}" style="width: auto ;height: 100%;" />`;
         }).catch(error => {
-            adapter.log.error(`saveImage(): Error: ${JSON.stringify(error)}`);
+            adapter.log.error(`saveImage(): writeFile Error: ${error} - url: ${url}`);
         });
     }
     return result;
@@ -80,7 +83,7 @@ export const saveImageStates = async function(adapter: ioBroker.Adapter, url: st
     if (obj) {
         if ((obj.native.url && obj.native.url.split("?")[0] !== url.split("?")[0]) || (!obj.native.url && url && url !== "")) {
             obj.native.url = url;
-            const image_data = await saveImage(adapter, obj.native.url, `${filename_prefix}${serial_number}`);
+            const image_data = await saveImage(adapter, url, `${filename_prefix}${serial_number}`);
 
             await adapter.setStateAsync(url_state_id, { val: image_data.image_url, ack: true });
             await adapter.setStateAsync(html_state_id, { val: image_data.image_html, ack: true });

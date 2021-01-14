@@ -158,7 +158,9 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         const stations_sns: string[] = Object.keys(this.stations);
         for (const hub of Object.values(hubs)) {
             if (stations_sns.includes(hub.station_sn)) {
-                this.updateStation(hub);
+                if (!this.getStation(hub.station_sn).isConnected())
+                    //TODO: Verify better!!! SCHEDULE_MODE get from HTTP Api has sometimes a wrong value (outdated? delay in refresh in cloud vs local?)
+                    this.updateStation(hub);
             } else {
                 const station = new Station(this.api, hub);
                 station.on("parameter", (station, type, value) => this.stationParameterChanged(station, type, value))
@@ -441,7 +443,7 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
     }
 
     private handleNotConnected(): void {
-        this.emit("not_connected");
+        this.emit("disconnected");
     }
 
     private getCurrentPushRetryDelay(): number {

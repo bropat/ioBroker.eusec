@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.1.4",
+        "version": "0.1.5",
         "news": {
+            "0.1.5": {
+                "en": "Fixed issue #50 and #53",
+                "de": "Problem #50 und #53 behoben",
+                "ru": "Исправлена ошибка № 50 и № 53",
+                "pt": "Edição fixa #50 e #53",
+                "nl": "Vaste uitgave #50 en #53",
+                "fr": "Correction des problèmes n°50 et n°53",
+                "it": "Risolto il malfunzionamento #50 e #53",
+                "es": "Arreglados los números 50 y 53",
+                "pl": "Wydanie stałe #50 i #53",
+                "zh-cn": "修正问题#50和#53"
+            },
             "0.1.4": {
                 "en": "Some fixes and updated dependencies",
                 "de": "Einige Korrekturen und aktualisierte Abhängigkeiten",

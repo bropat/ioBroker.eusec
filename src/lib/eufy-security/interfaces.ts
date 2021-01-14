@@ -8,7 +8,7 @@ interface EufySecurityInterfaceEvents {
     "stations": (stations: Stations) => void;
     "push_notifications": (push_msg: PushMessage) => void;
     "connected": () => void;
-    "not_connected": () => void;
+    "disconnected": () => void;
     "device_parameter": (device: Device, param_type: number, param_value: string) => void;
     "station_parameter": (station: Station, param_type: number, param_value: string) => void;
 }

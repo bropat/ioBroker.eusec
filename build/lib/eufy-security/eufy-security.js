@@ -136,7 +136,9 @@ class EufySecurity extends events_1.EventEmitter {
         const stations_sns = Object.keys(this.stations);
         for (const hub of Object.values(hubs)) {
             if (stations_sns.includes(hub.station_sn)) {
-                this.updateStation(hub);
+                if (!this.getStation(hub.station_sn).isConnected())
+                    //TODO: Verify better!!! SCHEDULE_MODE get from HTTP Api has sometimes a wrong value (outdated? delay in refresh in cloud vs local?)
+                    this.updateStation(hub);
             }
             else {
                 const station = new station_1.Station(this.api, hub);
@@ -416,7 +418,7 @@ class EufySecurity extends events_1.EventEmitter {
         this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value}`);
     }
     handleNotConnected() {
-        this.emit("not_connected");
+        this.emit("disconnected");
     }
     getCurrentPushRetryDelay() {
         const delay = this.pushRetryDelay == 0 ? 5000 : this.pushRetryDelay;

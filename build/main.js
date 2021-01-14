@@ -41,6 +41,7 @@ const utils_1 = require("./lib/eufy-security/utils");
 const types_2 = require("./lib/eufy-security/push/types");
 const types_3 = require("./lib/eufy-security/p2p/types");
 const device_1 = require("./lib/eufy-security/http/device");
+const utils_2 = require("./lib/eufy-security/p2p/utils");
 class EufySecurity extends utils.Adapter {
     constructor(options = {}) {
         super(Object.assign(Object.assign({}, options), { name: "eufy-security" }));
@@ -207,7 +208,7 @@ class EufySecurity extends utils.Adapter {
             this.eufy.on("devices", (devices) => this.handleDevices(devices));
             this.eufy.on("push_notifications", (messages) => this.handlePushNotifications(messages));
             this.eufy.on("connected", () => this.onConnect());
-            this.eufy.on("not_connected", () => this.onNotConnected());
+            this.eufy.on("disconnected", () => this.onDisconnect());
             const api = this.eufy.getApi();
             if (this.persistentData.api_base && this.persistentData.api_base != "") {
                 this.log.debug(`onReady(): Load previous api_base: ${this.persistentData.api_base}`);
@@ -517,7 +518,9 @@ class EufySecurity extends utils.Adapter {
                     });
                     yield utils_1.setStateChangedAsync(this, camera.getStateID(types_1.CameraStateID.MAC_ADDRESS), camera.getMACAddress());
                     // Last event picture
-                    yield utils_1.saveImageStates(this, camera.getLastCameraImageURL(), camera.getSerial(), camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL), camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture");
+                    yield utils_1.saveImageStates(this, camera.getLastCameraImageURL(), camera.getSerial(), camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_URL), camera.getStateID(types_1.CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture").catch(() => {
+                        this.log.error(`handleDevices(): State LAST_EVENT_PICTURE_URL of device ${camera.getSerial()} - saveImageStates(): url ${camera.getLastCameraImageURL()}`);
+                    });
                     // Start Stream
                     yield this.setObjectNotExistsAsync(camera.getStateID(types_1.CameraStateID.START_STREAM), {
                         type: "state",
@@ -1048,7 +1051,9 @@ class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.LAN_IP_ADDRESS), station.getParameter(types_3.CommandType.CMD_GET_HUB_LAN_IP));
+                const lan_ip_address = station.getParameter(types_3.CommandType.CMD_GET_HUB_LAN_IP);
+                if (utils_2.isPrivateIp(lan_ip_address))
+                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.LAN_IP_ADDRESS), lan_ip_address);
                 // Station Paramters
                 // Guard Mode
                 yield this.setObjectNotExistsAsync(station.getStateID(types_1.StationStateID.GUARD_MODE), {
@@ -1072,8 +1077,9 @@ class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
+                const guard_mode = station.getParameter(types_1.ParamType.GUARD_MODE);
                 try {
-                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.GUARD_MODE), Number.parseInt(station.getParameter(types_1.ParamType.GUARD_MODE)));
+                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.GUARD_MODE), Number.parseInt(guard_mode));
                 }
                 catch (error) {
                     this.log.error(`handleStations(): GUARD_MODE - Error: ${error}`);
@@ -1097,7 +1103,7 @@ class EufySecurity extends utils.Adapter {
                 });
                 //APP_CMD_GET_ALARM_MODE = 1151
                 try {
-                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.CURRENT_MODE), Number.parseInt(station.getParameter(types_1.ParamType.SCHEDULE_MODE)));
+                    yield utils_1.setStateChangedAsync(this, station.getStateID(types_1.StationStateID.CURRENT_MODE), guard_mode === "2" ? Number.parseInt(station.getParameter(types_1.ParamType.SCHEDULE_MODE)) : Number.parseInt(guard_mode));
                 }
                 catch (error) {
                     this.log.error(`handleStations(): CURRENT_MODE - Error: ${error}`);
@@ -1137,7 +1143,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): DoorbellPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     if (this.motionDetected[device.getSerial()])
                                         clearTimeout(this.motionDetected[device.getSerial()]);
                                     this.motionDetected[device.getSerial()] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
@@ -1157,7 +1165,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.DoorbellStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): DoorbellPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     yield this.setStateAsync(device.getStateID(types_1.DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
                                     if (this.personDetected[device.getSerial()])
                                         clearTimeout(this.personDetected[device.getSerial()]);
@@ -1196,7 +1206,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): IndoorPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     if (this.motionDetected[device.getSerial()])
                                         clearTimeout(this.motionDetected[device.getSerial()]);
                                     this.motionDetected[device.getSerial()] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
@@ -1216,7 +1228,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): IndoorPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     yield this.setStateAsync(device.getStateID(types_1.IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
                                     if (this.personDetected[device.getSerial()])
                                         clearTimeout(this.personDetected[device.getSerial()]);
@@ -1238,7 +1252,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): IndoorPushEvent.CRYIG_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     if (this.cryingDetected[device.getSerial()])
                                         clearTimeout(this.cryingDetected[device.getSerial()]);
                                     this.cryingDetected[device.getSerial()] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
@@ -1258,7 +1274,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): IndoorPushEvent.SOUND_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     if (this.soundDetected[device.getSerial()])
                                         clearTimeout(this.soundDetected[device.getSerial()]);
                                     this.soundDetected[device.getSerial()] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
@@ -1278,7 +1296,9 @@ class EufySecurity extends utils.Adapter {
                                 if (!utils_1.isEmpty(push_data.pic_url)) {
                                     yield this.setStateAsync(device.getStateID(types_1.IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
                                     if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                        yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                            this.log.error(`handlePushNotifications(): IndoorPushEvent.PET_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                        });
                                     if (this.petDetected[device.getSerial()])
                                         clearTimeout(this.petDetected[device.getSerial()]);
                                     this.petDetected[device.getSerial()] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
@@ -1309,7 +1329,9 @@ class EufySecurity extends utils.Adapter {
                                     if (!utils_1.isEmpty(push_data.i)) {
                                         if (!utils_1.isEmpty(push_data.pic_url)) {
                                             if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                                yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.CameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_");
+                                                yield utils_1.saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(types_1.CameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                                    this.log.error(`handlePushNotifications(): CusPushEvent.SECURITY of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                                });
                                             if (utils_1.isEmpty(push_data.f)) {
                                                 // Someone spotted
                                                 yield this.setStateAsync(device.getStateID(types_1.CameraStateID.PERSON_DETECTED), { val: true, ack: true });
@@ -1438,9 +1460,9 @@ class EufySecurity extends utils.Adapter {
             });
         });
     }
-    onNotConnected() {
+    onDisconnect() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log.silly(`onNotConnected(): `);
+            this.log.silly(`onDisconnect(): `);
             yield this.setStateAsync("info.connection", { val: false, ack: true });
         });
     }
