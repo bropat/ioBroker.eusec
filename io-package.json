@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.1.5",
+        "version": "0.2.0",
         "news": {
+            "0.2.0": {
+                "en": "P2P livestream over HLS",
+                "de": "P2P-Livestream über HLS",
+                "ru": "P2P прямая трансляция через HLS",
+                "pt": "Transmissão ao vivo P2P por HLS",
+                "nl": "P2P livestream via HLS",
+                "fr": "Diffusion en direct P2P sur HLS",
+                "it": "Livestream P2P su HLS",
+                "es": "Transmisión en vivo P2P a través de HLS",
+                "pl": "Transmisja na żywo P2P przez HLS",
+                "zh-cn": "通过HLS进行P2P直播"
+            },
             "0.1.5": {
                 "en": "Fixed issue #50 and #53",
                 "de": "Problem #50 und #53 behoben",
@@ -221,9 +233,11 @@
         "connectionType": "cloud",
         "dataSource": "poll",
         "materialize": true,
+        "webExtension": "build/lib/web.js",
         "dependencies": [
             {
-                "js-controller": ">=1.4.2"
+                "js-controller": ">=3.1.4",
+                "web": ">=2.0.0"
             }
         ],
         "dataFolder": "eufy-security.%INSTANCE%"
@@ -240,18 +254,9 @@
         "pollingInterval": 10,
         "maxLivestreamDuration": 30,
         "verificationMethod": 2,
-        "eventDuration": 15
+        "eventDuration": 15,
+        "webInstance": ""
     },
     "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "",
-            "type": "meta",
-            "common": {
-              "name": "User files for eufy-security",
-              "type": "meta.user"
-            },
-            "native": {}
-        }
-    ]
+    "instanceObjects": []
 }

@@ -49,6 +49,7 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * LAN ip address
     * Actions:
         * Change guard mode
+        * Reboot station
     * Events:
         * Alarm mode change
 * Camera:
@@ -68,8 +69,13 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * Total events since last charge
         * Used days since last charge
     * Actions:
-        * Start livestream (rtmp)
-        * Stop livestream (rtmp)
+        * Start livestream (hls; supports also local livestream)
+        * Stop livestream (hls)
+        * Enable/disable device
+        * Enable/disable auto night vision 
+        * Enable/disable led (only camera 2 products, indoor cameras, floodlight camera and solo cameras)
+        * Enable/disable anti-theft detection (only camera 2 products)
+        * Change video watermark setting
     * Events:
         * Motion detected
         * Person detected
@@ -103,10 +109,26 @@ See [here](./docs/en/README.md)
 
 ## Known working devices
 
+* HomeBase (T8001)
+* HomeBase E (T8002)
 * HomeBase 2 (T8010)
+* eufyCam (T8111)
+* eufyCam E (T8112)
 * eufyCam 2 (T8114)
-* eufyCam2C (T8113)
-* Eufy Battery Doorbell (T8210)
+* eufyCam 2C (T8113)
+* eufyCam 2 Pro (T8140)
+* eufyCam 2C Pro (T8141)
+* Floodlight (T8420)
+* Wired Doorbell 2k (T8200)
+* Wired Doorbell 1080p (T8201)
+* Battery Doorbell 2K (T8210)
+* Battery Doorbell 1080p (T8222)
+* Entry Sensor (T8900)
+* Motion sensor (T8910)
+* Indoor Cam Pan&Tilt 2K (T8410)
+* Indoor Cam 2K (T8400)
+* Indoor Cam Pan&Tilt 1080p (T8411)
+* Indoor Cam 1080p (T8401)
 
 If more devices work (or also not) please report them by opening a GitHub issue.
 
@@ -117,6 +139,17 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.2.0 (2021-02-14)
+* (bropat) Implemented P2P livestream over HLS
+* (bropat) Last livestream is always saved and is still available later
+* (bropat) Implemented device and station parameter refresh over P2P
+* (bropat) Revised push notification implementation
+* (bropat) Fixed issue [#71](https://github.com/bropat/ioBroker.eufy-security/issues/71) by implementing retry mechanism on HTTP error 404 (max. 5 retries with increasing delay) 
+* (bropat) Fixed issue [#12](https://github.com/bropat/ioBroker.eufy-security/issues/12)
+* (bropat) Eufy client library extracted as standalone library and adapters ported to new shared library: [eufy-security-client](https://www.npmjs.com/package/eufy-security-client)
+* (bropat) Removed following states: last_captured_pic_url, last_captured_pic_html
+* (bropat) Updated versions of the package dependencies
 
 ### 0.1.5 (2021-01-14)
 * (bropat) Fixed issue [#50](https://github.com/bropat/ioBroker.eufy-security/issues/50) and [#53](https://github.com/bropat/ioBroker.eufy-security/issues/53)

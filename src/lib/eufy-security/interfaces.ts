@@ -1,28 +1,15 @@
-import { Device } from "./http/device";
-import { Devices, Stations } from "./http/interfaces";
-import { Station } from "./http/station";
-import { Credentials, PushMessage } from "./push/models";
+import { Device, Devices, Station, Stations, Credentials, PushMessage } from "eufy-security-client";
 
-interface EufySecurityInterfaceEvents {
+export interface EufySecurityEvents {
     "devices": (devices: Devices) => void;
     "stations": (stations: Stations) => void;
-    "push_notifications": (push_msg: PushMessage) => void;
-    "connected": () => void;
-    "disconnected": () => void;
+    "push_notification": (push_msg: PushMessage) => void;
+    "connect": () => void;
+    "disconnect": () => void;
     "device_parameter": (device: Device, param_type: number, param_value: string) => void;
     "station_parameter": (station: Station, param_type: number, param_value: string) => void;
-}
-
-export declare interface EufySecurityInterface {
-
-    on<U extends keyof EufySecurityInterfaceEvents>(
-        event: U, listener: EufySecurityInterfaceEvents[U]
-    ): this;
-
-    emit<U extends keyof EufySecurityInterfaceEvents>(
-        event: U, ...args: Parameters<EufySecurityInterfaceEvents[U]>
-    ): boolean;
-
+    "start_livestream": (station: Station, device: Device, url: string) => void;
+    "stop_livestream": (station: Station, device: Device) => void;
 }
 
 export interface AdapterConfig {
@@ -47,6 +34,8 @@ export interface PersistentData {
 
 
 export interface ImageResponse {
-    image_url: string;
-    image_html: string;
+    status: number;
+    statusText: string;
+    imageUrl: string;
+    imageHtml: string;
 }

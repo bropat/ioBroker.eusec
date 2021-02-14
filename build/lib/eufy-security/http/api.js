@@ -30,9 +30,9 @@ class API extends events_1.EventEmitter {
         this.devices = {};
         this.hubs = {};
         this.headers = {
-            app_version: "v2.3.0_792",
+            app_version: "v2.5.0_833",
             os_type: "android",
-            os_version: "29",
+            os_version: "30",
             phone_model: "ONEPLUS A3003",
             //phone_model: "ioBroker",
             country: "DE",
@@ -458,6 +458,48 @@ class API extends events_1.EventEmitter {
                 this.log.error(`API.setParameters(): error: ${error}`);
             }
             return false;
+        });
+    }
+    getCiphers(cipher_ids, user_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.request("post", "app/cipher/get_ciphers", {
+                    cipher_ids: cipher_ids,
+                    user_id: user_id,
+                    transaction: `${new Date().getTime().toString()}`
+                }, this.headers).catch(error => {
+                    this.log.error(`API.getCiphers(): error: ${JSON.stringify(error)}`);
+                    return error;
+                });
+                this.log.debug(`API.getCiphers(): Response:  ${JSON.stringify(response.data)}`);
+                if (response.status == 200) {
+                    const result = response.data;
+                    if (result.code == types_1.ResponseErrorCode.CODE_WHATEVER_ERROR) {
+                        if (result.data) {
+                            const ciphers = {};
+                            result.data.forEach((cipher) => {
+                                ciphers[cipher.cipher_id] = cipher;
+                            });
+                            return ciphers;
+                        }
+                    }
+                    else {
+                        this.log.error(`API.getCiphers(): Response code not ok (code: ${result.code} msg: ${result.msg})`);
+                    }
+                }
+                else {
+                    this.log.error(`API.getCiphers(): Status return code not 200 (status: ${response.status} text: ${response.statusText}`);
+                }
+            }
+            catch (error) {
+                this.log.error(`API.getCiphers(): error: ${error}`);
+            }
+            return {};
+        });
+    }
+    getCipher(cipher_id, user_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return (yield this.getCiphers([cipher_id], user_id))[cipher_id];
         });
     }
     getLog() {

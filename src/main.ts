@@ -7,18 +7,13 @@ import * as utils from "@iobroker/adapter-core";
 import { strict } from "assert";
 import * as path from "path";
 import * as fs from "fs";
+import { Camera, Device, EntrySensor, Keypad, MotionSensor, Devices, Station, Stations, CommandType, isPrivateIp, PushMessage, Credentials, DoorbellPushEvent, IndoorPushEvent, CusPushEvent, ServerPushEvent, ParamType, GuardMode, DeviceType } from "eufy-security-client";
+
 import * as EufySecurityAPI from "./lib/eufy-security/eufy-security";
 import * as Interface from "./lib/eufy-security/interfaces"
-import { Devices, Stations } from "./lib/eufy-security/http/interfaces";
-import { CameraStateID, DeviceStateID, DoorbellStateID, EntrySensorStateID, GuardMode, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, ParamType, StationStateID/*, VerfyCodeTypes*/ } from "./lib/eufy-security/http/types";
-import { decrypt, generateSerialnumber, generateUDID, isEmpty, md5, saveImageStates, setStateChangedAsync } from "./lib/eufy-security/utils";
-import { PushMessage, Credentials, IndoorPushData, CusPushData, DoorbellPushData } from "./lib/eufy-security/push/models";
-import { DoorbellPushEvent, IndoorPushEvent, CusPushEvent, ServerPushEvent } from "./lib/eufy-security/push/types";
+import { CameraStateID, DeviceStateID, DoorbellStateID, EntrySensorStateID, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, StationStateID } from "./lib/eufy-security/types";
+import { decrypt, generateSerialnumber, generateUDID, isEmpty, md5, saveImageStates, setStateChangedAsync, setStateChangedWithTimestamp } from "./lib/eufy-security/utils";
 import { PersistentData } from "./lib/eufy-security/interfaces";
-import { Station } from "./lib/eufy-security/http/station";
-import { CommandType } from "./lib/eufy-security/p2p/types";
-import { Camera, Device, EntrySensor, Keypad, MotionSensor } from "./lib/eufy-security/http/device";
-import { isPrivateIp } from "./lib/eufy-security/p2p/utils";
 
 // Augment the adapter.config object with the actual types
 // TODO: delete this in the next version
@@ -125,7 +120,7 @@ export class EufySecurity extends utils.Adapter {
         await this.setObjectNotExistsAsync("info.connection", {
             type: "state",
             common: {
-                name: "Cloud connection",
+                name: "Global connection",
                 type: "boolean",
                 role: "indicator.connection",
                 read: true,
@@ -183,6 +178,20 @@ export class EufySecurity extends utils.Adapter {
             });
         } catch (error) {
         }
+        try {
+            const last_captured_pic_url = await this.getStatesAsync("*.last_captured_pic_url");
+            Object.keys(last_captured_pic_url).forEach(async id => {
+                await this.delObjectAsync(id);
+            });
+        } catch (error) {
+        }
+        try {
+            const last_captured_pic_html = await this.getStatesAsync("*.last_captured_pic_html");
+            Object.keys(last_captured_pic_html).forEach(async id => {
+                await this.delObjectAsync(id);
+            });
+        } catch (error) {
+        }
         // End
 
         // Reset event states if necessary (for example because of an unclean exit)
@@ -214,7 +223,19 @@ export class EufySecurity extends utils.Adapter {
             },
             native: {},
         });
-        this.subscribeStates("test_button");*/
+        this.subscribeStates("test_button");
+        await this.setObjectNotExistsAsync("test_button2", {
+            type: "state",
+            common: {
+                name: "Test button2",
+                type: "boolean",
+                role: "button",
+                read: false,
+                write: true,
+            },
+            native: {},
+        });
+        this.subscribeStates("test_button2");*/
         // END
 
         this.subscribeStates("verify_code");
@@ -222,9 +243,11 @@ export class EufySecurity extends utils.Adapter {
         this.eufy = new EufySecurityAPI.EufySecurity(this);
         this.eufy.on("stations", (stations) => this.handleStations(stations));
         this.eufy.on("devices", (devices) => this.handleDevices(devices));
-        this.eufy.on("push_notifications", (messages) => this.handlePushNotifications(messages));
-        this.eufy.on("connected", () => this.onConnect());
-        this.eufy.on("disconnected", () => this.onDisconnect());
+        this.eufy.on("push_notification", (messages) => this.handlePushNotification(messages));
+        this.eufy.on("connect", () => this.onConnect());
+        this.eufy.on("disconnect", () => this.onDisconnect());
+        this.eufy.on("start_livestream", (station, device, url) => this.onStartLivestream(station, device, url));
+        this.eufy.on("stop_livestream", (station, device) => this.onStopLivestream(station, device));
 
         const api = this.eufy.getApi();
         if (this.persistentData.api_base && this.persistentData.api_base != "") {
@@ -347,13 +370,13 @@ export class EufySecurity extends utils.Adapter {
      */
     private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
         if (state) {
-            // The state was changed
-            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
             // don't do anything if the state is acked
             if (!id || state.ack) {
+                this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack}) was already acknowledged, ignore it...`);
                 return;
             }
+            this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
             const values = id.split(".");
             const station_sn = values[2];
@@ -365,43 +388,106 @@ export class EufySecurity extends utils.Adapter {
                     this.eufy.logon(state.val as number);
                     await this.delStateAsync(id);
                 }
-            /*} else if (station_sn == "test_button") {
+            } else if (station_sn == "test_button") {
                 //TODO: Test to remove!
                 this.log.debug("TEST button pressed");
                 if (this.eufy) {
+                    //await this.eufy.getStation("T8010P23201721F8").rebootHUB();
+                    //await this.eufy.getStation("T8010P23201721F8").setStatusLed(this.eufy.getDevice("T8114P022022261F"), true);
+                    //await this.eufy.getStation("T8010P23201721F8").startLivestream(this.eufy.getDevice("T8114P022022261F"));
+
+                    //await this.eufy.getStation("T8010P23201721F8").startLivestream(this.eufy.getDevice("T8114P0220223A5A"));
+                    //await this.eufy.getStation("T8010P23201721F8").startDownload("/media/mmcblk0p1/Camera00/20201231171631.dat");
+
+                    /*const device = this.eufy.getDevice("T8114P0220223A5A");
+                    await this.eufy.getStation("T8010P23201721F8").cancelDownload(device);*/
+
                     //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                    //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                    await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
                     //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                     //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();
-                }*/
-            } else if (device_type == "cameras") {
-                const device_sn = values[4];
-                const device_state_name = values[5];
+                }
+            } else if (station_sn == "test_button2") {
+                //TODO: Test to remove!
+                this.log.debug("TEST button2 pressed");
                 if (this.eufy) {
-                    switch(device_state_name) {
-                        case CameraStateID.START_STREAM:
-                            await this.setStateAsync(`${station_sn}.${device_type}.${device_sn}.${CameraStateID.LIVESTREAM}`, { val: await this.eufy.startCameraStream(device_sn), ack: true });
-                            break;
-
-                        case CameraStateID.STOP_STREAM:
-                            await this.eufy.stopCameraStream(device_sn);
-                            break;
+                    try {
+                        const device = this.eufy.getDevice("T8114P0220223A5A");
+                        if (device)
+                            //this._startDownload("T8010P23201721F8", device.getStoragePath("20201008191909"), 92);
+                            this._startDownload("T8010P23201721F8", "/media/mmcblk0p1/Camera00/20210213171152.dat", 92);
+                        //await this.eufy.getStation("T8010P23201721F8").startDownload(`/media/mmcblk0p1/Camera00/${20201008191909}.dat`, cipher.private_key);
+                    } catch (error) {
+                        this.log.error(error);
                     }
+                    //await this.eufy.getStation("T8010P23201721F8").startDownload("/media/mmcblk0p1/Camera01/20210111071357.dat");
+                    //await this.eufy.getStation("T8010P23201721F8").setStatusLed(this.eufy.getDevice("T8114P022022261F"), false);
+                    //await this.eufy.getStation("T8010P23201721F8").stopLivestream(this.eufy.getDevice("T8114P022022261F"));
+                    //await this.eufy.getStation("T8010P23201721F8").stopLivestream(this.eufy.getDevice("T8114P0220223A5A"));
+                }
+            } else if (device_type == "cameras") {
+                try {
+                    const device_sn = values[4];
+                    const device_state_name = values[5];
+                    const station = this.eufy.getStation(station_sn);
+                    const device = this.eufy.getDevice(device_sn);
+
+                    if (this.eufy) {
+                        switch(device_state_name) {
+                            case CameraStateID.START_STREAM:
+                                this.eufy.startLivestream(device_sn);
+                                break;
+
+                            case CameraStateID.STOP_STREAM:
+                                this.eufy.stopLivestream(device_sn);
+                                break;
+
+                            case CameraStateID.LED_STATUS:
+                                if (device && state.val !== null)
+                                    station.setStatusLed(device, state.val as boolean);
+                                break;
+
+                            case CameraStateID.ENABLED:
+                                if (device && state.val !== null)
+                                    station.enableDevice(device, state.val as boolean);
+                                break;
+
+                            case CameraStateID.ANTITHEFT_DETECTION:
+                                if (device && state.val !== null)
+                                    station.setAntiTheftDetection(device, state.val as boolean);
+                                break;
+
+                            case CameraStateID.AUTO_NIGHTVISION:
+                                if (device && state.val !== null)
+                                    station.setAutoNightVision(device, state.val as boolean);
+                                break;
+
+                            case CameraStateID.WATERMARK:
+                                if (device && state.val !== null)
+                                    station.setWatermark(device, state.val as number);
+                                break;
+                        }
+                    }
+                } catch (error) {
+                    this.log.error(`onStateChange(): cameras - Error: ${error}`);
                 }
             } else if (device_type == "station") {
                 const station_state_name = values[4];
                 if (this.eufy) {
+                    const station = this.eufy.getStation(station_sn);
                     switch(station_state_name) {
                         case StationStateID.GUARD_MODE:
-                            await this.eufy.getStation(station_sn).setGuardMode(<GuardMode>state.val);
-                            //await this.setStateAsync(`${station_sn}.${device_type}.${station_state_name}`, {...state, ack: true });
+                            await station.setGuardMode(<GuardMode>state.val);
+                            break;
+                        case StationStateID.REBOOT:
+                            await station.rebootHUB();
                             break;
                     }
                 }
             }
         } else {
             // The state was deleted
-            this.log.info(`state ${id} deleted`);
+            this.log.debug(`state ${id} deleted`);
         }
     }
 
@@ -537,7 +623,10 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, camera.getStateID(CameraStateID.STATE), camera.getState());
+                try {
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.STATE), Number.parseInt(camera.getParameter(CommandType.CMD_GET_DEV_STATUS).value), camera.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
+                } catch(error) {
+                }
 
                 // Mac address
                 await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.MAC_ADDRESS), {
@@ -554,9 +643,24 @@ export class EufySecurity extends utils.Adapter {
                 await setStateChangedAsync(this, camera.getStateID(CameraStateID.MAC_ADDRESS), camera.getMACAddress());
 
                 // Last event picture
-                await saveImageStates(this, camera.getLastCameraImageURL(), camera.getSerial(), camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL),camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture").catch(() => {
+                await saveImageStates(this, camera.getLastCameraImageURL(), camera.getLastCameraImageTimestamp(), camera.getSerial(), camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL),camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture").catch(() => {
                     this.log.error(`handleDevices(): State LAST_EVENT_PICTURE_URL of device ${camera.getSerial()} - saveImageStates(): url ${camera.getLastCameraImageURL()}`);
                 });
+
+                //TODO: As soon as we release the p2p download of videos, unlock this
+                // Last event video URL
+                /*await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), {
+                    type: "state",
+                    common: {
+                        name: "Last captured video URL",
+                        type: "string",
+                        role: "state",
+                        read: true,
+                        write: false,
+                        def: ""
+                    },
+                    native: {},
+                });*/
 
                 // Start Stream
                 await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.START_STREAM), {
@@ -596,6 +700,148 @@ export class EufySecurity extends utils.Adapter {
                     native: {},
                 });
 
+                // Last livestream video URL
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_VIDEO_URL), {
+                    type: "state",
+                    common: {
+                        name: "Last livestream video URL",
+                        type: "string",
+                        role: "state",
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+
+                // Last livestream picture URL
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), {
+                    type: "state",
+                    common: {
+                        name: "Last livestream picture URL",
+                        type: "string",
+                        role: "state",
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+
+                // Last livestream picture HTML
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_HTML), {
+                    type: "state",
+                    common: {
+                        name: "Last livestream picture HTML image",
+                        type: "string",
+                        role: "state",
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+
+                // Device enabled
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.ENABLED), {
+                    type: "state",
+                    common: {
+                        name: "Device enabled",
+                        type: "boolean",
+                        role: "state",
+                        read: true,
+                        write: true,
+                    },
+                    native: {},
+                });
+                await setStateChangedAsync(this, camera.getStateID(CameraStateID.ENABLED), camera.isEnabled());
+
+                // Watermark
+                let watermark_state: Record<string, string> = {
+                    0: "OFF",
+                    1: "TIMESTAMP",
+                    2: "TIMESTAMP_AND_LOGO"
+                };
+                if (camera.getDeviceType() === DeviceType.DOORBELL || camera.isSoloCameras()) {
+                    watermark_state = {
+                        0: "OFF",
+                        1: "TIMESTAMP"
+                    };
+                } else if (camera.isBatteryDoorbell() || camera.isBatteryDoorbell2() || camera.getDeviceType() === DeviceType.CAMERA || camera.getDeviceType() === DeviceType.CAMERA_E) {
+                    watermark_state = {
+                        1: "ON",
+                        2: "OFF"
+                    };
+                }
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.WATERMARK), {
+                    type: "state",
+                    common: {
+                        name: "Watermark",
+                        type: "number",
+                        role: "state",
+                        read: true,
+                        write: true,
+                        states: watermark_state
+                    },
+                    native: {},
+                });
+                try {
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.WATERMARK), Number.parseInt(camera.getParameter(CommandType.CMD_SET_DEVS_OSD).value), camera.getParameter(CommandType.CMD_SET_DEVS_OSD).modified);
+                } catch (error) {
+                }
+
+                if (camera.isCamera2Product()) {
+                    // Antitheft detection
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.ANTITHEFT_DETECTION), {
+                        type: "state",
+                        common: {
+                            name: "Antitheft detection",
+                            type: "boolean",
+                            role: "state",
+                            read: true,
+                            write: true
+                        },
+                        native: {},
+                    });
+                    try {
+                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.ANTITHEFT_DETECTION), camera.getParameter(CommandType.CMD_EAS_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_EAS_SWITCH).modified);
+                    } catch (error) {
+                    }
+                }
+
+                // Auto Nightvision
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.AUTO_NIGHTVISION), {
+                    type: "state",
+                    common: {
+                        name: "Auto nightvision",
+                        type: "boolean",
+                        role: "state",
+                        read: true,
+                        write: true
+                    },
+                    native: {},
+                });
+                try {
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.AUTO_NIGHTVISION), camera.getParameter(CommandType.CMD_IRCUT_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_IRCUT_SWITCH).modified);
+                } catch (error) {
+                }
+
+                if (camera.isCamera2Product() || camera.isIndoorCamera() || camera.isSoloCameras() || camera.isFloodLight()) {
+                    // LED Status
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LED_STATUS), {
+                        type: "state",
+                        common: {
+                            name: "LED status",
+                            type: "boolean",
+                            role: "state",
+                            read: true,
+                            write: true
+                        },
+                        native: {},
+                    });
+                    try {
+                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.LED_STATUS), camera.getParameter(CommandType.CMD_DEV_LED_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_DEV_LED_SWITCH).modified);
+                    } catch (error) {
+                    }
+                }
+
                 // Battery
                 if (camera.hasBattery()) {
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.BATTERY), {
@@ -612,7 +858,10 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    await setStateChangedAsync(this, camera.getStateID(CameraStateID.BATTERY), camera.getBatteryValue());
+                    try {
+                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.BATTERY), Number.parseInt(camera.getParameter(CommandType.CMD_GET_BATTERY).value), camera.getParameter(CommandType.CMD_GET_BATTERY).modified);
+                    } catch (error) {
+                    }
 
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.BATTERY_TEMPERATURE), {
                         type: "state",
@@ -626,7 +875,10 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    await setStateChangedAsync(this, camera.getStateID(CameraStateID.BATTERY_TEMPERATURE), camera.getBatteryTemperature());
+                    try {
+                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.BATTERY_TEMPERATURE), Number.parseInt(camera.getParameter(CommandType.CMD_GET_BATTERY_TEMP).value), camera.getParameter(CommandType.CMD_GET_BATTERY_TEMP).modified);
+                    } catch (error) {
+                    }
 
                     // Last Charge Used Days
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_CHARGE_USED_DAYS), {
@@ -697,7 +949,10 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, camera.getStateID(CameraStateID.WIFI_RSSI), camera.getWifiRssi());
+                try {
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.WIFI_RSSI), Number.parseInt(camera.getParameter(CommandType.CMD_GET_WIFI_RSSI).value), camera.getParameter(CommandType.CMD_GET_WIFI_RSSI).modified);
+                } catch (error) {
+                }
 
                 // Motion detected
                 await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.MOTION_DETECTED), {
@@ -732,34 +987,6 @@ export class EufySecurity extends utils.Adapter {
                     type: "state",
                     common: {
                         name: "Last person identified",
-                        type: "string",
-                        role: "state",
-                        read: true,
-                        write: false,
-                        def: ""
-                    },
-                    native: {},
-                });
-
-                // Captured picture url (movement detected, person detected, human detected)
-                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_CAPTURED_PIC_URL), {
-                    type: "state",
-                    common: {
-                        name: "Last captured picture URL",
-                        type: "string",
-                        role: "state",
-                        read: true,
-                        write: false,
-                        def: ""
-                    },
-                    native: {},
-                });
-
-                // Captured picture html (movement detected, person detected, human detected)
-                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_CAPTURED_PIC_HTML), {
-                    type: "state",
-                    common: {
-                        name: "Last captured picture HTML image",
                         type: "string",
                         role: "state",
                         read: true,
@@ -849,7 +1076,10 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, sensor.getStateID(EntrySensorStateID.STATE), sensor.getState());
+                try {
+                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.STATE), Number.parseInt(sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).value), sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
+                } catch (error) {
+                }
 
                 // Sensor Open
                 await this.setObjectNotExistsAsync(sensor.getStateID(EntrySensorStateID.SENSOR_OPEN), {
@@ -863,7 +1093,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, sensor.getStateID(EntrySensorStateID.SENSOR_OPEN), sensor.isSensorOpen());
+                if (sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS))
+                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.SENSOR_OPEN), sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS).value === "1", sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS).modified);
 
                 // Low Battery
                 await this.setObjectNotExistsAsync(sensor.getStateID(EntrySensorStateID.LOW_BATTERY), {
@@ -877,7 +1108,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, sensor.getStateID(EntrySensorStateID.LOW_BATTERY), sensor.isBatteryLow());
+                if (sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE))
+                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.LOW_BATTERY), sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE).value === "1", sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE).modified);
 
                 // Sensor change time
                 await this.setObjectNotExistsAsync(sensor.getStateID(EntrySensorStateID.SENSOR_CHANGE_TIME), {
@@ -891,7 +1123,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, sensor.getStateID(EntrySensorStateID.SENSOR_CHANGE_TIME), sensor.getSensorChangeTime());
+                if (sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME))
+                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.SENSOR_CHANGE_TIME), sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME).value, sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME).modified);
 
             } else if (device.isMotionSensor()) {
                 const sensor = device as MotionSensor;
@@ -916,7 +1149,10 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, sensor.getStateID(MotionSensorStateID.STATE), sensor.getState());
+                try {
+                    await setStateChangedWithTimestamp(this, sensor.getStateID(MotionSensorStateID.STATE), Number.parseInt(sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).value), sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
+                } catch (error) {
+                }
 
                 // Low Battery
                 await this.setObjectNotExistsAsync(sensor.getStateID(MotionSensorStateID.LOW_BATTERY), {
@@ -930,7 +1166,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, sensor.getStateID(MotionSensorStateID.LOW_BATTERY), sensor.isBatteryLow());
+                if (sensor.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE))
+                    await setStateChangedWithTimestamp(this, sensor.getStateID(MotionSensorStateID.LOW_BATTERY), sensor.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE).value === "1", sensor.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE).modified);
 
                 // Motion detected
                 await this.setObjectNotExistsAsync(sensor.getStateID(MotionSensorStateID.MOTION_DETECTED), {
@@ -968,7 +1205,10 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, keypad.getStateID(KeyPadStateID.STATE), keypad.getState());
+                try {
+                    await setStateChangedWithTimestamp(this, keypad.getStateID(KeyPadStateID.STATE), Number.parseInt(keypad.getParameter(CommandType.CMD_GET_DEV_STATUS).value), keypad.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
+                } catch (error) {
+                }
 
                 // Low Battery
                 await this.setObjectNotExistsAsync(keypad.getStateID(KeyPadStateID.LOW_BATTERY), {
@@ -982,7 +1222,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, keypad.getStateID(KeyPadStateID.LOW_BATTERY), keypad.isBatteryLow());
+                if (keypad.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE))
+                    await setStateChangedWithTimestamp(this, keypad.getStateID(KeyPadStateID.LOW_BATTERY), keypad.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE).value === "1", keypad.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE).modified);
             }
         });
     }
@@ -1080,20 +1321,6 @@ export class EufySecurity extends utils.Adapter {
             });
             await setStateChangedAsync(this, station.getStateID(StationStateID.HARDWARE_VERSION), station.getHardwareVersion());
 
-            // IP Address
-            await this.setObjectNotExistsAsync(station.getStateID(StationStateID.LAN_IP_ADDRESS), {
-                type: "state",
-                common: {
-                    name: "IP Address",
-                    type: "string",
-                    role: "text",
-                    read: true,
-                    write: false,
-                },
-                native: {},
-            });
-            await setStateChangedAsync(this, station.getStateID(StationStateID.LAN_IP_ADDRESS), station.getIPAddress());
-
             // MAC Address
             await this.setObjectNotExistsAsync(station.getStateID(StationStateID.MAC_ADDRESS), {
                 type: "state",
@@ -1120,9 +1347,10 @@ export class EufySecurity extends utils.Adapter {
                 },
                 native: {},
             });
+            //TODO: Change this implementation!
             const lan_ip_address = station.getParameter(CommandType.CMD_GET_HUB_LAN_IP);
-            if (isPrivateIp(lan_ip_address))
-                await setStateChangedAsync(this, station.getStateID(StationStateID.LAN_IP_ADDRESS), lan_ip_address);
+            if (lan_ip_address && isPrivateIp(lan_ip_address.value))
+                await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.LAN_IP_ADDRESS), lan_ip_address.value, lan_ip_address.modified);
 
             // Station Paramters
             // Guard Mode
@@ -1149,7 +1377,7 @@ export class EufySecurity extends utils.Adapter {
             });
             const guard_mode = station.getParameter(ParamType.GUARD_MODE);
             try {
-                await setStateChangedAsync(this, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(guard_mode));
+                await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(guard_mode.value), guard_mode.modified);
             } catch (error) {
                 this.log.error(`handleStations(): GUARD_MODE - Error: ${error}`);
             }
@@ -1173,311 +1401,345 @@ export class EufySecurity extends utils.Adapter {
             });
             //APP_CMD_GET_ALARM_MODE = 1151
             try {
-                await setStateChangedAsync(this, station.getStateID(StationStateID.CURRENT_MODE), guard_mode === "2" ? Number.parseInt(station.getParameter(ParamType.SCHEDULE_MODE)) : Number.parseInt(guard_mode));
+                const schedule_mode = station.getParameter(ParamType.SCHEDULE_MODE);
+                if (schedule_mode && guard_mode)
+                    await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.CURRENT_MODE), guard_mode.value === "2" ? Number.parseInt(schedule_mode.value) : Number.parseInt(guard_mode.value), guard_mode.value === "2" ? station.getParameter(ParamType.SCHEDULE_MODE).modified : guard_mode.modified);
             } catch (error) {
                 this.log.error(`handleStations(): CURRENT_MODE - Error: ${error}`);
             }
 
+            // Reboot station
+            await this.setObjectNotExistsAsync(station.getStateID(StationStateID.REBOOT), {
+                type: "state",
+                common: {
+                    name: "Reboot station",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+
         });
     }
 
-    private async handlePushNotifications(push_msg: PushMessage): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private _startDownload(station_sn: string, full_path: string | undefined, cipher_id: number | undefined): void {
+        /*TODO: Directly downloading the video when receiving the push notification results
+                in receiving a very short video (about 2 sec.). Start the download after a
+                delay that depends on the configured power mode of the device
+                in the meantime this feature was switched off
+        */
+        /*const station = this.eufy.getStation(station_sn);
+        if (station && !isEmpty(full_path) && cipher_id !== undefined) {
+            station.startDownload(full_path!, cipher_id);
+        }*/
+    }
+
+    private async handlePushNotification(push_msg: PushMessage): Promise<void> {
         try {
             this.log.debug(`handlePushNotifications(): push_msg: ${JSON.stringify(push_msg)}`);
-            let type = -1; //Unknown
 
-            if (push_msg.payload.doorbell) {
-                type = 5;
-            } else if (push_msg.payload.type) {
-                type = push_msg.payload.type;
-            }
+            if (push_msg.type) {
+                if (push_msg.type == ServerPushEvent.VERIFICATION) {
+                    this.log.debug(`handlePushNotifications(): Received push verification event: ${JSON.stringify(push_msg)}`);
+                } else if (Device.isDoorbell(push_msg.type)) {
+                    const device: Device | null = this.eufy.getDevice(push_msg.device_sn);
+                    if (device) {
+                        switch (push_msg.event_type) {
+                            case DoorbellPushEvent.MOTION_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_URL), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): DoorbellPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
+                                    });
 
-            if (type) {
-                if (type == ServerPushEvent.VERIFICATION) {
-                    this.log.debug(`handlePushNotifications(): Received push verification event: ${JSON.stringify(push_msg.payload)}`);
-                } else if (Device.isDoorbell(type)) {
-                    let push_data: DoorbellPushData | CusPushData;
-                    let device: Device;
+                                    if (this.motionDetected[device.getSerial()])
+                                        clearTimeout(this.motionDetected[device.getSerial()]);
+                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
+                                    if (this.motionDetected[device.getSerial()])
+                                        clearTimeout(this.motionDetected[device.getSerial()]);
+                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            case DoorbellPushEvent.FACE_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_URL), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): DoorbellPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
+                                    });
 
-                    if (push_msg.payload.doorbell) {
-                        push_data = JSON.parse(push_msg.payload.doorbell) as DoorbellPushData;
-                        device = this.eufy.getDevice(push_data.device_sn);
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                    if (this.personDetected[device.getSerial()])
+                                        clearTimeout(this.personDetected[device.getSerial()]);
+                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                    if (this.personDetected[device.getSerial()])
+                                        clearTimeout(this.personDetected[device.getSerial()]);
+                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            case DoorbellPushEvent.PRESS_DOORBELL:
+                                await this.setStateAsync(device.getStateID(DoorbellStateID.RINGING), { val: true, ack: true });
+                                if (this.ringing[device.getSerial()])
+                                    clearTimeout(this.ringing[device.getSerial()]);
+                                this.ringing[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.RINGING), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
+                                break;
+                            default:
+                                this.log.debug(`handlePushNotifications(): Unhandled doorbell push event: ${JSON.stringify(push_msg)}`);
+                                break;
+                        }
                     } else {
-                        push_data = push_msg.payload.payload as CusPushData;
-                        device = this.eufy.getDevice(push_msg.payload.device_sn);
+                        this.log.debug(`handlePushNotifications(): DoorbellPushEvent - Device not found: ${push_msg.device_sn}`);
                     }
+                } else if (Device.isIndoorCamera(push_msg.type)) {
+                    const device = this.eufy.getDevice(push_msg.device_sn);
 
-                    switch (push_data.event_type) {
-                        case DoorbellPushEvent.MOTION_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(DoorbellStateID.LAST_CAPTURED_PIC_URL), device.getStateID(DoorbellStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): DoorbellPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                    if (device) {
+                        switch (push_msg.event_type) {
+                            case IndoorPushEvent.MOTION_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-
-                                if (this.motionDetected[device.getSerial()])
-                                    clearTimeout(this.motionDetected[device.getSerial()]);
-                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
-                                if (this.motionDetected[device.getSerial()])
-                                    clearTimeout(this.motionDetected[device.getSerial()]);
-                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        case DoorbellPushEvent.FACE_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(DoorbellStateID.LAST_CAPTURED_PIC_URL), device.getStateID(DoorbellStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): DoorbellPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                    if (this.motionDetected[device.getSerial()])
+                                        clearTimeout(this.motionDetected[device.getSerial()]);
+                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
+                                    if (this.motionDetected[device.getSerial()])
+                                        clearTimeout(this.motionDetected[device.getSerial()]);
+                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            case IndoorPushEvent.FACE_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                if (this.personDetected[device.getSerial()])
-                                    clearTimeout(this.personDetected[device.getSerial()]);
-                                this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                if (this.personDetected[device.getSerial()])
-                                    clearTimeout(this.personDetected[device.getSerial()]);
-                                this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        case DoorbellPushEvent.PRESS_DOORBELL:
-                            await this.setStateAsync(device.getStateID(DoorbellStateID.RINGING), { val: true, ack: true });
-                            if (this.ringing[device.getSerial()])
-                                clearTimeout(this.ringing[device.getSerial()]);
-                            this.ringing[device.getSerial()] = setTimeout(async () => {
-                                await this.setStateAsync(device.getStateID(DoorbellStateID.RINGING), { val: false, ack: true });
-                            }, this.config.eventDuration * 1000);
-                            break;
-                        default:
-                            this.log.debug(`handlePushNotifications(): Unhandled doorbell push event: ${JSON.stringify(push_msg.payload)}`);
-                            break;
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                    if (this.personDetected[device.getSerial()])
+                                        clearTimeout(this.personDetected[device.getSerial()]);
+                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                    if (this.personDetected[device.getSerial()])
+                                        clearTimeout(this.personDetected[device.getSerial()]);
+                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            case IndoorPushEvent.CRYIG_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.CRYIG_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
+                                    });
+                                    if (this.cryingDetected[device.getSerial()])
+                                        clearTimeout(this.cryingDetected[device.getSerial()]);
+                                    this.cryingDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
+                                    if (this.cryingDetected[device.getSerial()])
+                                        clearTimeout(this.cryingDetected[device.getSerial()]);
+                                    this.cryingDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            case IndoorPushEvent.SOUND_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.SOUND_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
+                                    });
+                                    if (this.soundDetected[device.getSerial()])
+                                        clearTimeout(this.soundDetected[device.getSerial()]);
+                                    this.soundDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
+                                    if (this.soundDetected[device.getSerial()])
+                                        clearTimeout(this.soundDetected[device.getSerial()]);
+                                    this.soundDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            case IndoorPushEvent.PET_DETECTION:
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.PET_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
+                                    });
+                                    if (this.petDetected[device.getSerial()])
+                                        clearTimeout(this.petDetected[device.getSerial()]);
+                                    this.petDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                } else {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
+                                    if (this.petDetected[device.getSerial()])
+                                        clearTimeout(this.petDetected[device.getSerial()]);
+                                    this.petDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
+                                    }, this.config.eventDuration * 1000);
+                                }
+                                if (push_msg.push_count === 1)
+                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                break;
+                            default:
+                                this.log.debug(`handlePushNotifications(): Unhandled indoor camera push event: ${JSON.stringify(push_msg)}`);
+                                break;
+                        }
+                    } else {
+                        this.log.debug(`handlePushNotifications(): IndoorPushEvent - Device not found: ${push_msg.device_sn}`);
                     }
-                } else if (Device.isIndoorCamera(type)) {
-                    const push_data: IndoorPushData = push_msg.payload.payload as IndoorPushData;
-                    const device = this.eufy.getDevice(push_data.device_sn);
-
-                    switch (push_data.event_type) {
-                        case IndoorPushEvent.MOTION_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
-                                    });
-                                if (this.motionDetected[device.getSerial()])
-                                    clearTimeout(this.motionDetected[device.getSerial()]);
-                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
-                                if (this.motionDetected[device.getSerial()])
-                                    clearTimeout(this.motionDetected[device.getSerial()]);
-                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        case IndoorPushEvent.FACE_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
-                                    });
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                if (this.personDetected[device.getSerial()])
-                                    clearTimeout(this.personDetected[device.getSerial()]);
-                                this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                if (this.personDetected[device.getSerial()])
-                                    clearTimeout(this.personDetected[device.getSerial()]);
-                                this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        case IndoorPushEvent.CRYIG_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.CRYIG_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
-                                    });
-                                if (this.cryingDetected[device.getSerial()])
-                                    clearTimeout(this.cryingDetected[device.getSerial()]);
-                                this.cryingDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
-                                if (this.cryingDetected[device.getSerial()])
-                                    clearTimeout(this.cryingDetected[device.getSerial()]);
-                                this.cryingDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        case IndoorPushEvent.SOUND_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.SOUND_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
-                                    });
-                                if (this.soundDetected[device.getSerial()])
-                                    clearTimeout(this.soundDetected[device.getSerial()]);
-                                this.soundDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
-                                if (this.soundDetected[device.getSerial()])
-                                    clearTimeout(this.soundDetected[device.getSerial()]);
-                                this.soundDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        case IndoorPushEvent.PET_DETECTION:
-                            if (!isEmpty(push_data.pic_url)) {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
-                                if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                    await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(IndoorCameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                        this.log.error(`handlePushNotifications(): IndoorPushEvent.PET_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
-                                    });
-                                if (this.petDetected[device.getSerial()])
-                                    clearTimeout(this.petDetected[device.getSerial()]);
-                                this.petDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            } else {
-                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
-                                if (this.petDetected[device.getSerial()])
-                                    clearTimeout(this.petDetected[device.getSerial()]);
-                                this.petDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
-                                }, this.config.eventDuration * 1000);
-                            }
-                            break;
-                        default:
-                            this.log.debug(`handlePushNotifications(): Unhandled indoor camera push event: ${JSON.stringify(push_msg.payload)}`);
-                            break;
-                    }
-                } else if (type !== -1) {
-                    const push_data: CusPushData = push_msg.payload.payload as CusPushData;
-
-                    if (push_data.a) {
-                        let device: Device;
-                        switch (push_data.a) {
+                } else if (push_msg.type) {
+                    if (push_msg.event_type) {
+                        let device: Device | null;
+                        switch (push_msg.event_type) {
                             case CusPushEvent.SECURITY: // Cam movement detected event
-                                device = this.eufy.getDevice(push_msg.payload.device_sn);
+                                device = this.eufy.getDevice(push_msg.device_sn);
 
-                                if (!isEmpty(push_data.i)) {
-                                    if (!isEmpty(push_data.pic_url)) {
-                                        if (push_data.pic_url !== undefined && push_data.pic_url !== null && push_data.pic_url !== "")
-                                            await saveImageStates(this, push_data.pic_url, device.getSerial(), device.getStateID(CameraStateID.LAST_CAPTURED_PIC_URL), device.getStateID(CameraStateID.LAST_CAPTURED_PIC_HTML), "Last captured picture", "last_captured_").catch(() => {
-                                                this.log.error(`handlePushNotifications(): CusPushEvent.SECURITY of device ${device.getSerial()} - saveImageStates(): url ${push_data.pic_url}`);
+                                if (device) {
+                                    if (push_msg.fetch_id) {
+                                        if (!isEmpty(push_msg.pic_url)) {
+                                            await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getSerial(), device.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture", "last_captured_").catch(() => {
+                                                this.log.error(`handlePushNotifications(): CusPushEvent.SECURITY of device ${device!.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                             });
-                                        if (isEmpty(push_data.f)) {
+                                            if (isEmpty(push_msg.person_name)) {
+                                                // Someone spotted
+                                                await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: true, ack: true });
+                                                await this.setStateAsync(device.getStateID(CameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                                if (this.personDetected[device.getSerial()])
+                                                    clearTimeout(this.personDetected[device.getSerial()]);
+                                                this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                                    await this.setStateAsync(device!.getStateID(CameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                                }, this.config.eventDuration * 1000);
+                                            } else {
+                                                // Person identified
+                                                await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: true, ack: true });
+                                                await this.setStateAsync(device.getStateID(CameraStateID.LAST_PERSON_IDENTIFIED), { val: !isEmpty(push_msg.person_name) ? push_msg.person_name! : "Unknown", ack: true });
+                                                if (this.personDetected[device.getSerial()])
+                                                    clearTimeout(this.personDetected[device.getSerial()]);
+                                                this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                                    await this.setStateAsync(device!.getStateID(CameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                                }, this.config.eventDuration * 1000);
+                                            }
+                                        } else {
                                             // Someone spotted
                                             await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: true, ack: true });
                                             await this.setStateAsync(device.getStateID(CameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
                                             if (this.personDetected[device.getSerial()])
                                                 clearTimeout(this.personDetected[device.getSerial()]);
                                             this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                                await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: false, ack: true });
-                                            }, this.config.eventDuration * 1000);
-                                        } else {
-                                            // Person identified
-                                            await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: true, ack: true });
-                                            await this.setStateAsync(device.getStateID(CameraStateID.LAST_PERSON_IDENTIFIED), { val: push_data.f !== undefined && push_data.f !== null ? push_data.f : "Unknown", ack: true });
-                                            if (this.personDetected[device.getSerial()])
-                                                clearTimeout(this.personDetected[device.getSerial()]);
-                                            this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                                await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                                await this.setStateAsync(device!.getStateID(CameraStateID.PERSON_DETECTED), { val: false, ack: true });
                                             }, this.config.eventDuration * 1000);
                                         }
                                     } else {
-                                        // Someone spotted
-                                        await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: true, ack: true });
-                                        await this.setStateAsync(device.getStateID(CameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                        if (this.personDetected[device.getSerial()])
-                                            clearTimeout(this.personDetected[device.getSerial()]);
-                                        this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                            await this.setStateAsync(device.getStateID(CameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                        // Motion detected
+                                        await this.setStateAsync(device.getStateID(CameraStateID.MOTION_DETECTED), { val: true, ack: true });
+                                        if (this.motionDetected[device.getSerial()])
+                                            clearTimeout(this.motionDetected[device.getSerial()]);
+                                        this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                            await this.setStateAsync(device!.getStateID(CameraStateID.MOTION_DETECTED), { val: false, ack: true });
                                         }, this.config.eventDuration * 1000);
                                     }
+                                    if (push_msg.push_count === 1)
+                                        this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 } else {
-                                    // Motion detected
-                                    await this.setStateAsync(device.getStateID(CameraStateID.MOTION_DETECTED), { val: true, ack: true });
-                                    if (this.motionDetected[device.getSerial()])
-                                        clearTimeout(this.motionDetected[device.getSerial()]);
-                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(CameraStateID.MOTION_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
+                                    this.log.debug(`handlePushNotifications(): CusPushEvent.SECURITY - Device not found: ${push_msg.device_sn}`);
                                 }
                                 break;
 
                             case CusPushEvent.MODE_SWITCH: // Changing Guard mode event
-                                this.log.info(`Received push notification for changing guard mode (guard_mode: ${push_data.arming} current_mode: ${push_data.mode}) for station ${push_data.s}}.`);
-                                const station = this.eufy?.getStation(push_data.s);
+                                this.log.info(`Received push notification for changing guard mode (guard_mode: ${push_msg.station_guard_mode} current_mode: ${push_msg.station_current_mode}) for station ${push_msg.station_sn}}.`);
+                                const station = this.eufy.getStation(push_msg.station_sn);
                                 if (station) {
-                                    if (push_data.arming && push_data.mode) {
-                                        await this.setStateAsync(station.getStateID(StationStateID.GUARD_MODE), { val: push_data.arming, ack: true });
-                                        await this.setStateAsync(station.getStateID(StationStateID.CURRENT_MODE), { val: push_data.mode, ack: true });
+                                    if (push_msg.station_guard_mode !== undefined && push_msg.station_current_mode !== undefined) {
+                                        await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.GUARD_MODE), push_msg.station_guard_mode, push_msg.event_time);
+                                        await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.CURRENT_MODE), push_msg.station_current_mode, push_msg.event_time);
                                     } else {
-                                        this.log.warn(`handlePushNotifications(): Station MODE_SWITCH event (${push_data.a}): Missing required data to handle event: ${JSON.stringify(push_msg.payload)}`);
+                                        this.log.warn(`handlePushNotifications(): Station MODE_SWITCH event (${push_msg.event_type}): Missing required data to handle event: ${JSON.stringify(push_msg)}`);
                                     }
                                 } else {
-                                    this.log.warn(`handlePushNotifications(): Station MODE_SWITCH event (${push_data.a}): Station Unknown: ${push_data.s}`);
+                                    this.log.warn(`handlePushNotifications(): Station MODE_SWITCH event (${push_msg.event_type}): Station Unknown: ${push_msg.station_sn}`);
                                 }
                                 break;
 
                             case CusPushEvent.DOOR_SENSOR: // EntrySensor open/close change event
-                                device = this.eufy.getDevice(push_msg.payload.device_sn);
-
-                                await setStateChangedAsync(this, device.getStateID(EntrySensorStateID.SENSOR_OPEN), push_data.e === "1" ? true : false);
+                                device = this.eufy.getDevice(push_msg.device_sn);
+                                if (device) {
+                                    await setStateChangedAsync(this, device.getStateID(EntrySensorStateID.SENSOR_OPEN), push_msg.sensor_open ? push_msg.sensor_open : false);
+                                } else {
+                                    this.log.debug(`handlePushNotifications(): CusPushEvent.DOOR_SENSOR - Device not found: ${push_msg.device_sn}`);
+                                }
                                 break;
 
                             case CusPushEvent.MOTION_SENSOR_PIR: // MotionSensor movement detected event
-                                device = this.eufy.getDevice(push_msg.payload.device_sn);
-
-                                await this.setStateAsync(device.getStateID(MotionSensorStateID.MOTION_DETECTED), { val: true, ack: true });
-                                if (this.motionDetected[device.getSerial()])
-                                    clearTimeout(this.motionDetected[device.getSerial()]);
-                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                    await this.setStateAsync(device.getStateID(MotionSensorStateID.MOTION_DETECTED), { val: false, ack: true });
-                                }, MotionSensor.MOTION_COOLDOWN_MS);
+                                device = this.eufy.getDevice(push_msg.device_sn);
+                                if (device) {
+                                    await this.setStateAsync(device.getStateID(MotionSensorStateID.MOTION_DETECTED), { val: true, ack: true });
+                                    if (this.motionDetected[device.getSerial()])
+                                        clearTimeout(this.motionDetected[device.getSerial()]);
+                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                        await this.setStateAsync(device!.getStateID(MotionSensorStateID.MOTION_DETECTED), { val: false, ack: true });
+                                    }, MotionSensor.MOTION_COOLDOWN_MS);
+                                } else {
+                                    this.log.debug(`handlePushNotifications(): CusPushEvent.MOTION_SENSOR_PIR - Device not found: ${push_msg.device_sn}`);
+                                }
                                 break;
 
                             default:
-                                this.log.debug(`handlePushNotifications(): Unhandled push event: ${JSON.stringify(push_msg.payload)}`);
+                                this.log.debug(`handlePushNotifications(): Unhandled push event: ${JSON.stringify(push_msg)}`);
                                 break;
                         }
                     } else {
-                        this.log.warn(`handlePushNotifications(): Cus unknown push data: ${JSON.stringify(push_msg.payload)}`);
+                        this.log.warn(`handlePushNotifications(): Cus unknown push data: ${JSON.stringify(push_msg)}`);
                     }
                 } else {
-                    this.log.warn(`handlePushNotifications(): Unhandled push event - data: ${JSON.stringify(push_msg.payload)}`);
+                    this.log.warn(`handlePushNotifications(): Unhandled push event - data: ${JSON.stringify(push_msg)}`);
                 }
             }
         } catch (error) {
@@ -1520,7 +1782,7 @@ export class EufySecurity extends utils.Adapter {
             this.setCloudToken(token, token_expiration);
         }
 
-        this.eufy.registerPushNotifications(this.getPersistentData().push_persistentIds);
+        this.eufy.registerPushNotifications(this.getPersistentData().push_credentials, this.getPersistentData().push_persistentIds);
         Object.values(this.eufy.getStations()).forEach(function (station: Station) {
             station.connect();
         });
@@ -1554,6 +1816,16 @@ export class EufySecurity extends utils.Adapter {
     public setPushPersistentIds(persistentIds: string[]): void {
         this.persistentData.push_persistentIds = persistentIds;
         //this.writePersistentData();
+    }
+
+    private async onStartLivestream(station: Station, device: Device, url: string): Promise<void> {
+        this.log.silly(`onStartLivestream(): station: ${station.getSerial()} device: ${device.getSerial()} url: ${url}`);
+        this.setStateAsync(device.getStateID(CameraStateID.LIVESTREAM), { val: url, ack: true });
+    }
+
+    private async onStopLivestream(station: Station, device: Device): Promise<void> {
+        this.log.silly(`onStopLivestream(): station: ${station.getSerial()} device: ${device.getSerial()}`);
+        this.delStateAsync(device.getStateID(CameraStateID.LIVESTREAM));
     }
 
 }

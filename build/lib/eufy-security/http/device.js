@@ -291,6 +291,12 @@ class Device extends events_1.EventEmitter {
     getWifiRssi() {
         return Number.parseInt(this.getParameter(types_2.CommandType.CMD_GET_WIFI_RSSI));
     }
+    getStoragePath(filename) {
+        if (this.isFloodLight()) {
+            return `/mnt/data/Camera${String(this.device.device_channel).padStart(2, "0")}/${filename}.dat`;
+        }
+        return `/media/mmcblk0p1/Camera${String(this.device.device_channel).padStart(2, "0")}/${filename}.dat`;
+    }
 }
 exports.Device = Device;
 class Camera extends Device {

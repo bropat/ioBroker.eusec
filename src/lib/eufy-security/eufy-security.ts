@@ -1,44 +1,34 @@
-import { EventEmitter} from "events";
-import { API } from "./http/api";
-import { Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice } from "./http/device";
-import { ApiInterface, Devices, FullDevices, Hubs, Stations } from "./http/interfaces";
-import { CameraStateID, ParamType, StationStateID } from "./http/types";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { HTTPApi, Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice, Devices, FullDevices, Hubs, Station, Stations, ParamType, FullDeviceResponse, HubResponse, Credentials, PushMessage, CommandResult, CommandType, ErrorCode, StreamMetadata, PushNotificationService, ParameterArray } from "eufy-security-client";
+import { Readable } from "stream";
+import fse from "fs-extra";
 
-import { Station } from "./http/station";
-import { FullDeviceResponse, HubResponse } from "./http/models";
-
-import { PushRegisterService } from "./push/register"
-import { PushClient } from "./push/client"
-import { Credentials, PushMessage } from "./push/models";
+import { CameraStateID, StationStateID } from "./types";
+import { EufySecurityEvents } from "./interfaces";
 import { EufySecurity as EufySecurityAdapter } from "./../../main";
-import { getState, setStateChangedAsync } from "./utils";
-import { CommandResult } from "./p2p/models";
-import { CommandType, ErrorCode } from "./p2p/types";
+import { getDataFilePath, getImageAsHTML, getState, moveFiles, removeFiles, setStateChangedWithTimestamp, setStateWithTimestamp } from "./utils";
+import { ffmpegPreviewImage, ffmpegRTMPToHls, ffmpegStreamToHls } from "./video";
+import { DataLocation, IMAGE_FILE_JPEG_EXT, STREAM_FILE_NAME_EXT } from "./types";
+import { ioBrokerLogger } from "./log";
 
-export class EufySecurity extends EventEmitter implements ApiInterface {
+export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
 
     private adapter: EufySecurityAdapter;
 
     private username: string;
     private password: string;
 
-    private log: ioBroker.Logger;
+    private log: ioBrokerLogger;
 
-    private api: API;
+    private api: HTTPApi;
 
     private stations: Stations = {};
     private devices: Devices = {};
 
     private camera_max_livestream_seconds = 30;
-    private camera_livestream_timeout: {
-        [index: string]: NodeJS.Timeout;
-    } = {};
+    private camera_livestream_timeout: Map<string, NodeJS.Timeout> = new Map<string, NodeJS.Timeout>();
 
-    private pushService;
-    private pushClient?: PushClient;
-    private pushCredentialsTimeout?: NodeJS.Timeout;
-    private pushRetryTimeout?: NodeJS.Timeout;
-    private pushRetryDelay = 0;
+    private pushService: PushNotificationService;
 
     constructor(adapter: EufySecurityAdapter) {
         super();
@@ -47,12 +37,32 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         this.username = this.adapter.config.username;
         this.password = this.adapter.config.password;
         this.camera_max_livestream_seconds = this.adapter.config.maxLivestreamDuration;
-        this.log = this.adapter.log;
-        this.api = new API(this.username, this.password, this.log);
+        this.log = new ioBrokerLogger(this.adapter.log);
+        this.api = new HTTPApi(this.username, this.password, this.log);
         this.api.on("hubs", (hubs) => this.handleHubs(hubs));
         this.api.on("devices", (devices) => this.handleDevices(devices));
         this.api.on("not_connected", () => this.handleNotConnected());
-        this.pushService = new PushRegisterService(this.log);
+        this.pushService = new PushNotificationService(this.log);
+        this.pushService.on("connect", async (token: string) => {
+            const registered = await this.api.registerPushToken(token);
+            const checked = await this.api.checkPushToken();
+
+            if (registered && checked) {
+                this.log.info("Push notification connection successfully established.");
+                await this.adapter.setStateAsync("info.push_connection", { val: true, ack: true });
+            } else {
+                await this.adapter.setStateAsync("info.push_connection", { val: false, ack: true });
+            }
+        });
+        this.pushService.on("credential", (credentials: Credentials) => {
+            this.adapter.setPushCredentials(credentials);
+        });
+        /*this.pushService.on("raw_message", (message: PushMessage) => {
+            this.emit("push_notification", message);
+        });*/
+        this.pushService.on("message", (message: PushMessage) => {
+            this.emit("push_notification", message);
+        })
     }
 
     public addStation(station: Station): void {
@@ -89,18 +99,18 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         return this.devices;
     }
 
-    public getDevice(device_sn: string): Device {
+    public getDevice(device_sn: string): Device | null {
         if (Object.keys(this.devices).includes(device_sn))
             return this.devices[device_sn];
-        throw new Error(`No device with this serial number: ${device_sn}!`);
+        return null;
     }
 
     public getStationDevice(station_sn: string, channel: number): Device {
-        Object.values(this.devices).forEach((device: Device) => {
+        for (const device of Object.values(this.devices)) {
             if (device.getStationSerial() === station_sn && device.getChannel() === channel) {
                 return device;
             }
-        });
+        }
         throw new Error(`No device with channel ${channel} found on station with serial number: ${station_sn}!`);
     }
 
@@ -114,36 +124,8 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         throw new Error(`No station with this serial number: ${station_sn}!`);
     }
 
-    public getApi(): API {
+    public getApi(): HTTPApi {
         return this.api;
-    }
-
-    public async startCameraStream(device_sn: string): Promise<string> {
-        if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
-            const camera = this.devices[device_sn] as Camera;
-            const url = camera.startStream();
-            this.camera_livestream_timeout[device_sn] = setTimeout(() => { this.stopCameraStreamCallback(camera, this.adapter); }, this.camera_max_livestream_seconds * 1000);
-            return url;
-        }
-        throw new Error(`No camera device with this serial number: ${device_sn}!`);
-    }
-
-    private async stopCameraStreamCallback(camera: Camera, adapter: EufySecurityAdapter): Promise<void> {
-        camera.stopStream();
-        await adapter.delStateAsync(camera.getStateID(CameraStateID.LIVESTREAM));
-    }
-
-    public async stopCameraStream(device_sn: string): Promise<void> {
-        if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
-            const camera = this.devices[device_sn] as Camera;
-            if (this.camera_livestream_timeout[device_sn]) {
-                clearTimeout(this.camera_livestream_timeout[device_sn]);
-                delete this.camera_livestream_timeout[device_sn];
-            }
-            await this.stopCameraStreamCallback(camera, this.adapter);
-        } else {
-            throw new Error(`No camera device with this serial number: ${device_sn}!`);
-        }
     }
 
     public async connectToStation(station_sn: string): Promise<void> {
@@ -158,13 +140,19 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         const stations_sns: string[] = Object.keys(this.stations);
         for (const hub of Object.values(hubs)) {
             if (stations_sns.includes(hub.station_sn)) {
-                if (!this.getStation(hub.station_sn).isConnected())
-                    //TODO: Verify better!!! SCHEDULE_MODE get from HTTP Api has sometimes a wrong value (outdated? delay in refresh in cloud vs local?)
-                    this.updateStation(hub);
+                this.updateStation(hub);
             } else {
                 const station = new Station(this.api, hub);
-                station.on("parameter", (station, type, value) => this.stationParameterChanged(station, type, value))
-                station.on("p2p_command", (station, result) => this.stationP2PCommandResult(station, result))
+                station.on("connect", (station: Station) => this.onConnect(station));
+                station.on("close", (station: Station) => this.onClose(station));
+                station.on("device_parameter", (device_sn: string, params: ParameterArray) => this.updateDeviceParameter(device_sn, params));
+                station.on("parameter", (station: Station, type: number, value: string, modified: number) => this.stationParameterChanged(station, type, value, modified));
+                station.on("p2p_command", (station: Station, result: CommandResult) => this.stationP2PCommandResult(station, result));
+                station.on("start_download", (station: Station, channel: number, metadata: StreamMetadata, videoStream: Readable, audioStream: Readable) => this.onStartDownload(station, channel, metadata, videoStream, audioStream));
+                station.on("finish_download", (station: Station, channel: number) => this.onFinishDownload(station, channel));
+                station.on("start_livestream", (station: Station, channel: number, metadata: StreamMetadata, videoStream: Readable, audioStream: Readable) => this.onStartLivestream(station, channel, metadata, videoStream, audioStream));
+                station.on("stop_livestream", (station: Station, channel: number) => this.onStopLivestream(station, channel));
+                station.update(hub, true);
                 this.addStation(station);
             }
         }
@@ -175,8 +163,16 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
             this.emit("stations", this.stations);
         }
     }
+
+    private onConnect(station: Station): void {
+        station.getCameraInfo();
+    }
+
+    private onClose(_station: Station): void {
+        //TODO: Do something?
+    }
+
     private async stationP2PCommandResult(station: Station, result: CommandResult): Promise<void> {
-        //TODO: Finish implementation!!!!
         if (result.return_code === 0) {
             const state_name = getState(result.command_type);
             if (state_name) {
@@ -216,6 +212,7 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         for (const device of Object.values(devices)) {
 
             if (device_sns.includes(device.device_sn)) {
+                //if (!this.getStation(device.station_sn).isConnected())
                 this.updateDevice(device);
             } else {
                 let new_device: Device;
@@ -234,7 +231,8 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
                     new_device = new UnknownDevice(this.api, device);
                 }
 
-                new_device.on("parameter", (device, type, value) => this.deviceParameterChanged(device, type, value))
+                new_device.on("parameter", (device: Device, type: number, value: string, modified: number) => this.deviceParameterChanged(device, type, value, modified))
+                new_device.update(device, true);
                 this.addDevice(new_device);
             }
         }
@@ -247,35 +245,22 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
 
     public async refreshData(): Promise<void> {
         await this.api.updateDeviceInfo();
+        Object.values(this.stations).forEach(async (station: Station) => {
+            if (station.isConnected())
+                await station.getCameraInfo();
+        });
     }
 
     public close(): void {
 
         // if there is a camera with livestream running stop it (incl. timeout)
-        for (const device of Object.values(this.getDevices())) {
-            if (device && device.isCamera()) {
-                if ((device as Camera).isStreaming()) {
-                    const serial = device.getSerial();
-                    if (serial)
-                        this.stopCameraStream(serial);
-                }
-            }
+        for (const device_sn of this.camera_livestream_timeout.keys()) {
+            this.stopLivestream(device_sn);
         }
 
         Object.values(this.stations).forEach(station => {
             station.close();
         });
-
-        if (this.pushCredentialsTimeout) {
-            clearTimeout(this.pushCredentialsTimeout);
-            this.pushCredentialsTimeout = undefined;
-        }
-
-        if (this.pushRetryTimeout) {
-            clearTimeout(this.pushRetryTimeout);
-            this.pushRetryTimeout = undefined;
-            this.pushRetryDelay = 0;
-        }
     }
 
     public setCameraMaxLivestreamDuration(seconds: number): void {
@@ -286,113 +271,20 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
         return this.camera_max_livestream_seconds;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    private async _registerPushNotifications(credentials: Credentials | undefined, persistentIds?: string[], renew: boolean = false): Promise<Credentials | undefined> {
-        if (renew && credentials) {
-            credentials = await this.pushService.renewPushCredentials(credentials).catch(error => {
-                this.log.error(`EufySecurity._registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
-                return undefined;
-            });
-            this.adapter.setPushCredentials(credentials);
-        }
+    public async registerPushNotifications(credentials?: Credentials, persistentIds?: string[]): Promise<void> {
+        if (credentials)
+            this.pushService.setCredentials(credentials);
+        if (persistentIds)
+            this.pushService.setPersistentIds(persistentIds);
 
-        if (credentials) {
-            if (this.pushCredentialsTimeout)
-                clearTimeout(this.pushCredentialsTimeout);
-
-            this.pushCredentialsTimeout = setTimeout(async () => {
-                this.log.info("Push notification token is expiring, renew it.");
-                await this._registerPushNotifications(credentials, persistentIds, true);
-            }, credentials.fidResponse.authToken.expiresAt - new Date().getTime());
-
-            if (this.pushClient) {
-                this.pushClient.removeAllListeners();
-            }
-
-            this.pushClient = await PushClient.init(this.log, {
-                androidId: credentials.checkinResponse.androidId,
-                securityToken: credentials.checkinResponse.securityToken,
-            });
-            if (persistentIds)
-                this.pushClient.setPersistentIds(persistentIds);
-
-            this.pushClient.connect((msg: PushMessage) => {
-                this.emit("push_notifications", msg, this);
-            });
-
-            // Register generated token
-            const fcmToken = credentials.gcmResponse.token;
-            const registered = await this.api.registerPushToken(fcmToken);
-            const checked = await this.api.checkPushToken();
-
-            if (registered && checked) {
-                this.log.info("Push notification connection successfully established.");
-                await this.adapter.setStateAsync("info.push_connection", { val: true, ack: true });
-            } else {
-                await this.adapter.setStateAsync("info.push_connection", { val: false, ack: true });
-            }
-        } else {
-            await this.adapter.setStateAsync("info.push_connection", { val: false, ack: true });
-            this.log.error("Push notifications are disabled, because the registration failed!");
-        }
-
-        return credentials;
-    }
-
-    public async registerPushNotifications(persistentIds?: string[]): Promise<Credentials | undefined> {
-        let credentials: Credentials | undefined = this.adapter.getPersistentData().push_credentials;
-
-        if (!credentials || Object.keys(credentials).length === 0) {
-            this.log.debug("EufySecurity.registerPushNotifications(): create new push credentials...");
-            credentials = await this.pushService.createPushCredentials().catch(error => {
-                this.log.error(`EufySecurity.registerPushNotifications(): createPushCredentials() - error: ${JSON.stringify(error)}`);
-                return undefined;
-            });
-            this.adapter.setPushCredentials(credentials);
-        } else if (new Date().getTime() >= credentials.fidResponse.authToken.expiresAt) {
-            this.log.debug("EufySecurity.registerPushNotifications(): Renew push credentials...");
-            credentials = await this.pushService.renewPushCredentials(credentials).catch(error => {
-                this.log.error(`EufySecurity.registerPushNotifications(): renewPushCredentials() - error: ${JSON.stringify(error)}`);
-                return undefined;
-            });
-            this.adapter.setPushCredentials(credentials);
-        } else {
-            this.log.debug(`EufySecurity.registerPushNotifications(): Login with previous push credentials... (${JSON.stringify(credentials)})`);
-            credentials = await this.pushService.loginPushCredentials(credentials).catch(error => {
-                this.log.error(`EufySecurity.registerPushNotifications(): loginPushCredentials() - error: ${JSON.stringify(error)}`);
-                return undefined;
-            });
-            this.adapter.setPushCredentials(credentials);
-        }
-
-        credentials = await this._registerPushNotifications(credentials, persistentIds);
-
-        if (!credentials) {
-            if (this.pushRetryTimeout)
-                clearTimeout(this.pushRetryTimeout);
-
-            const delay = this.getCurrentPushRetryDelay();
-            this.log.info(`Retry to register/login for push notification in ${delay / 1000} seconds...`);
-            this.pushRetryTimeout = setTimeout(async () => {
-                this.log.info(`Retry to register/login for push notification`);
-                await this.registerPushNotifications(persistentIds);
-            }, delay);
-        } else {
-            this.pushRetryDelay = 0;
-            if (this.pushRetryTimeout) {
-                clearTimeout(this.pushRetryTimeout);
-                this.pushRetryTimeout = undefined;
-            }
-        }
-
-        return credentials;
+        this.pushService.open();
     }
 
     public async logon(verify_code?:number|null): Promise<void> {
         if (verify_code) {
             await this.api.addTrustDevice(verify_code).then(result => {
                 if (result)
-                    this.emit("connected");
+                    this.emit("connect");
             });
         } else {
             switch (await this.api.authenticate()) {
@@ -402,60 +294,271 @@ export class EufySecurity extends EventEmitter implements ApiInterface {
                     this.log.debug("EufySecurity.logon(): renew token");
                     const result = await this.api.authenticate();
                     if (result == "ok") {
-                        this.emit("connected");
+                        this.emit("connect");
                     }
                     break;
                 case "error":
                     this.log.error("EufySecurity.logon(): token error");
                     break;
                 case "ok":
-                    this.emit("connected");
+                    this.emit("connect");
                     break;
             }
         }
     }
 
     public getPushPersistentIds(): string[] {
-        if (this.pushClient)
-            return this.pushClient.getPersistentIds();
-        return [];
+        return this.pushService.getPersistentIds();
     }
 
-    private stationParameterChanged(station: Station, type: number, value: string): void {
-        this.log.debug(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} type: ${type} value: ${value}`);
-        if (type == ParamType.GUARD_MODE)
-        //TODO: if configured guard mode was changed to SCHEDULE (2) we get the correct current mode, but we change the effective guard mode on next http data refresh... Get it asap!
+    private stationParameterChanged(station: Station, type: number, value: string, modified: number): void {
+        //this.log.debug(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} type: ${type} value: ${value} modified: ${modified}`);
+        if (type == ParamType.GUARD_MODE) {
             try {
-                setStateChangedAsync(this.adapter, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(value));
+                setStateChangedWithTimestamp(this.adapter, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(value), modified);
             } catch (error) {
                 this.log.error(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} GUARD_MODE Error: ${error}`);
             }
-        else if (type == ParamType.SCHEDULE_MODE)
+        } else if (type == ParamType.SCHEDULE_MODE) {
             try {
-                setStateChangedAsync(this.adapter, station.getStateID(StationStateID.CURRENT_MODE), Number.parseInt(value));
+                setStateChangedWithTimestamp(this.adapter, station.getStateID(StationStateID.CURRENT_MODE), Number.parseInt(value), modified);
             } catch (error) {
                 this.log.error(`EufySecurity.stationParameterChanged(): station: ${station.getSerial()} CURRENT_MODE Error: ${error}`);
             }
+        }
     }
 
-    private deviceParameterChanged(device: Device, type: number, value: string): void {
-        this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value}`);
+    private updateDeviceParameter(device_sn: string, params: ParameterArray): void {
+        this.log.debug(`EufySecurity.updateDeviceParameter(): device: ${device_sn} params: ${JSON.stringify(params)}`);
+        const device = this.getDevice(device_sn);
+        if (device)
+            device.updateParameters(params);
+    }
+
+    private deviceParameterChanged(device: Device, type: number, value: string, modified: number): void {
+        //this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value} modified: ${modified}`);
+        if (type == CommandType.CMD_GET_BATTERY) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.BATTERY), Number.parseInt(value), modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} BATTERY Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_GET_BATTERY_TEMP) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.BATTERY_TEMPERATURE), Number.parseInt(value), modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} BATTERY_TEMP Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_GET_WIFI_RSSI) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.WIFI_RSSI), Number.parseInt(value), modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} WIFI_RSSI Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_DEVS_SWITCH || type == 99904) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.ENABLED), value === "1" ? true : false, modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} ENABLED Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_SET_DEVS_OSD) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.WATERMARK), Number.parseInt(value), modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} WATERMARK Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_EAS_SWITCH) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.ANTITHEFT_DETECTION), value === "1" ? true : false, modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} ANTITHEFT_DETECTION Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_IRCUT_SWITCH) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.AUTO_NIGHTVISION), value === "1" ? true : false, modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} AUTO_NIGHTVISION Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_DEV_LED_SWITCH) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.LED_STATUS), value === "1" ? true : false, modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} LED_STATUS Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_GET_DEV_STATUS) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.STATE), Number.parseInt(value), modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} STATE Error: ${error}`);
+            }
+        }
     }
 
     private handleNotConnected(): void {
-        this.emit("disconnected");
+        this.emit("disconnect");
     }
 
-    private getCurrentPushRetryDelay(): number {
-        const delay = this.pushRetryDelay == 0 ? 5000 : this.pushRetryDelay;
+    private async onFinishDownload(station: Station, channel: number): Promise<void> {
+        this.log.trace(`EufySecurity.onFinishDownload(): station: ${station.getSerial()} channel: ${channel}`);
+    }
 
-        if (this.pushRetryDelay < 60000)
-            this.pushRetryDelay += 10000;
+    private async onStartDownload(station: Station, channel: number, metadata: StreamMetadata, videostream: Readable, audiostream: Readable): Promise<void> {
+        this.log.trace(`EufySecurity.onStartDownload(): station: ${station.getSerial()} channel: ${channel}`);
+        try {
+            const device = this.getStationDevice(station.getSerial(), channel);
+            try {
+                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, device.getSerial());
+                const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
 
-        if (this.pushRetryDelay >= 60000 && this.pushRetryDelay < 600000)
-            this.pushRetryDelay += 60000;
+                ffmpegStreamToHls(this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
+                    .then(() => {
+                        return removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
+                    })
+                    .then(() => {
+                        return moveFiles(this.adapter.namespace, station.getSerial(), device.getSerial(), DataLocation.TEMP, DataLocation.LAST_EVENT);
+                    })
+                    .then(() => {
+                        const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
+                        setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                        ffmpegPreviewImage(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
+                            .then(() => {
+                                setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), "Last event picture URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`);
+                                try {
+                                    const image_data = getImageAsHTML(fse.readFileSync(`${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`));
+                                    setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture HTML image", image_data);
+                                } catch (error) {
+                                    this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
+                                }
+                            });
+                    });
+                /*.catch(() => {
 
-        return delay;
+                });*/
+            } catch(error) {
+                this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - Cancelling download...`);
+                station.cancelDownload(device);
+            }
+        } catch(error) {
+            this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - ffmpeg conversion couldn't start. HLS Stream not available.`);
+        }
+    }
+
+    private onStopLivestream(station: Station, channel: number): void {
+        this.log.trace(`EufySecurity.onStopLivestream(): station: ${station.getSerial()} channel: ${channel}`);
+        try {
+            const device = this.getStationDevice(station.getSerial(), channel);
+            this.emit("stop_livestream", station, device);
+        } catch(error) {
+            this.log.error(`EufySecurity.onStopLivestream(): station: ${station.getSerial()} channel: ${channel} - Error: ${error}`);
+        }
+    }
+
+    private async onStartLivestream(station: Station, channel: number, metadata: StreamMetadata, videostream: Readable, audiostream: Readable): Promise<void> {
+        this.log.trace(`EufySecurity.onStartLivestream(): station: ${station.getSerial()} channel: ${channel}`);
+        try {
+            const device = this.getStationDevice(station.getSerial(), channel);
+            try {
+                const device = this.getStationDevice(station.getSerial(), channel);
+                const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial());
+                ffmpegStreamToHls(this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
+                    .then(() => {
+                        return removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
+                    })
+                    .then(() => {
+                        return moveFiles(this.adapter.namespace, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+                    })
+                    .then(() => {
+                        const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
+                        this.adapter.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_VIDEO_URL), { val: `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, ack: true });
+                        ffmpegPreviewImage(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
+                            .then(() => {
+                                this.adapter.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`, ack: true });
+                                try {
+                                    this.adapter.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: getImageAsHTML(fse.readFileSync(`${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`)), ack: true });
+                                } catch (error) {
+                                    this.log.error(`EufySecurity.onStartLivestream(): station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
+                                }
+                            });
+                    });
+                this.emit("start_livestream", station, device, `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
+            } catch(error) {
+                this.log.error(`EufySecurity.onStartLivestream(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - Stopping livestream...`);
+                station.stopLivestream(device);
+            }
+        } catch(error) {
+            this.log.error(`EufySecurity.onStartLivestream(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - ffmpeg conversion couldn't start. HLS Stream not available.`);
+        }
+    }
+
+    public async startLivestream(device_sn: string): Promise<void> {
+        if (!this.camera_livestream_timeout.get(device_sn)) {
+            if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
+                const camera = this.devices[device_sn] as Camera;
+                const station = this.stations[camera.getStationSerial()];
+
+                if (station.isConnected()) {
+                    if (!station.isLiveStreaming(camera))
+                        station.startLivestream(camera);
+                } else {
+                    const url = await camera.startStream();
+                    const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                    ffmpegRTMPToHls(url, file_path, this.log)
+                        .then(() => {
+                            return removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
+                        })
+                        .then(() => {
+                            return moveFiles(this.adapter.namespace, station.getSerial(), camera.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+                        })
+                        .then(() => {
+                            const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
+                            ffmpegPreviewImage(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
+                                .then(() => {
+                                    this.adapter.setStateAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${camera.getSerial()}${IMAGE_FILE_JPEG_EXT}`, ack: true });
+                                    try {
+                                        this.adapter.setStateAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: getImageAsHTML(fse.readFileSync(`${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`)), ack: true });
+                                    } catch (error) {
+                                        this.log.error(`EufySecurity.startLivestream(): station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error}`);
+                                    }
+                                });
+                        });
+                    this.emit("start_livestream", station, camera, `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                }
+                this.camera_livestream_timeout.set(device_sn, setTimeout(() => {
+                    this.stopLivestream(device_sn);
+                }, this.camera_max_livestream_seconds * 1000));
+            } else {
+                throw new Error(`No camera device with this serial number: ${device_sn}!`);
+            }
+        } else {
+            this.log.warn(`The stream for the device ${device_sn} cannot be started, because it is already streaming!`);
+        }
+    }
+
+    public async stopLivestream(device_sn: string): Promise<void> {
+        if (this.camera_livestream_timeout.get(device_sn)) {
+            if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
+                const camera = this.devices[device_sn] as Camera;
+                const station = this.stations[camera.getStationSerial()];
+
+                if (station.isConnected() && station.isLiveStreaming(camera)) {
+                    await station.stopLivestream(camera);
+                } else {
+                    await camera.stopStream();
+                    this.emit("stop_livestream", station, camera);
+                }
+
+                const timeout = this.camera_livestream_timeout.get(device_sn);
+                if (timeout) {
+                    clearTimeout(timeout);
+                    this.camera_livestream_timeout.delete(device_sn);
+                }
+            } else {
+                throw new Error(`No camera device with this serial number: ${device_sn}!`);
+            }
+        } else {
+            this.log.warn(`The stream for the device ${device_sn} cannot be stopped, because it isn't streaming!`);
+        }
     }
 
 }

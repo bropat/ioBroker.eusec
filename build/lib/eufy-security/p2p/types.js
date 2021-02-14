@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ControlResponse = exports.ErrorCode = exports.MessageType = exports.CommandType = exports.EufyP2PDataType = exports.ResponseMessageType = exports.RequestMessageType = void 0;
+exports.AudioCodec = exports.VideoCodec = exports.WatermarkSetting = exports.ControlResponse = exports.ErrorCode = exports.MessageType = exports.CommandType = exports.EufyP2PDataTypeHeader = exports.EufyP2PDataType = exports.ResponseMessageType = exports.RequestMessageType = void 0;
 exports.RequestMessageType = {
     STUN: Buffer.from([0xF1, 0x00]),
     LOOKUP: Buffer.from([0xF1, 0x20]),
@@ -25,11 +25,19 @@ exports.ResponseMessageType = {
     ACK: Buffer.from([0xF1, 0xD1]),
     DATA: Buffer.from([0xF1, 0xD0])
 };
-exports.EufyP2PDataType = {
-    DATA: Buffer.from([0xD1, 0x00]),
-    VIDEO: Buffer.from([0xD1, 0x01]),
-    CONTROL: Buffer.from([0xD1, 0x02]),
-    BINARY: Buffer.from([0xd1, 0x03])
+var EufyP2PDataType;
+(function (EufyP2PDataType) {
+    EufyP2PDataType[EufyP2PDataType["UNKNOWN"] = -1] = "UNKNOWN";
+    EufyP2PDataType[EufyP2PDataType["DATA"] = 0] = "DATA";
+    EufyP2PDataType[EufyP2PDataType["VIDEO"] = 1] = "VIDEO";
+    EufyP2PDataType[EufyP2PDataType["CONTROL"] = 2] = "CONTROL";
+    EufyP2PDataType[EufyP2PDataType["BINARY"] = 3] = "BINARY";
+})(EufyP2PDataType = exports.EufyP2PDataType || (exports.EufyP2PDataType = {}));
+exports.EufyP2PDataTypeHeader = {
+    DATA: Buffer.from([0xD1, EufyP2PDataType.DATA]),
+    VIDEO: Buffer.from([0xD1, EufyP2PDataType.VIDEO]),
+    CONTROL: Buffer.from([0xD1, EufyP2PDataType.CONTROL]),
+    BINARY: Buffer.from([0xD1, EufyP2PDataType.BINARY])
 };
 var CommandType;
 (function (CommandType) {
@@ -88,7 +96,7 @@ var CommandType;
     CommandType[CommandType["CMD_DEV_RECORD_AUTOSTOP"] = 1251] = "CMD_DEV_RECORD_AUTOSTOP";
     CommandType[CommandType["CMD_DEV_RECORD_INTERVAL"] = 1250] = "CMD_DEV_RECORD_INTERVAL";
     CommandType[CommandType["CMD_DEV_RECORD_TIMEOUT"] = 1249] = "CMD_DEV_RECORD_TIMEOUT";
-    CommandType[CommandType["CMD_DOENLOAD_FINISH"] = 1304] = "CMD_DOENLOAD_FINISH";
+    CommandType[CommandType["CMD_DOWNLOAD_FINISH"] = 1304] = "CMD_DOWNLOAD_FINISH";
     CommandType[CommandType["CMD_DOORBELL_NOTIFY_PAYLOAD"] = 1701] = "CMD_DOORBELL_NOTIFY_PAYLOAD";
     CommandType[CommandType["CMD_DOORBELL_SET_PAYLOAD"] = 1700] = "CMD_DOORBELL_SET_PAYLOAD";
     CommandType[CommandType["CMD_DOOR_SENSOR_ALARM_ENABLE"] = 1506] = "CMD_DOOR_SENSOR_ALARM_ENABLE";
@@ -463,6 +471,7 @@ var ErrorCode;
     ErrorCode[ErrorCode["ERROR_XM_WIFI_DISCONNECT"] = -203] = "ERROR_XM_WIFI_DISCONNECT";
     ErrorCode[ErrorCode["ERROR_XM_WIFI_TIMEOUT"] = -205] = "ERROR_XM_WIFI_TIMEOUT";
     ErrorCode[ErrorCode["ERROR_XM_WIFI_WAKEUP_FAIL"] = -204] = "ERROR_XM_WIFI_WAKEUP_FAIL";
+    ErrorCode[ErrorCode["ERROR_FAILED_TO_REQUEST"] = 503] = "ERROR_FAILED_TO_REQUEST";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
 var ControlResponse;
 (function (ControlResponse) {
@@ -484,3 +493,20 @@ var ControlResponse;
     ControlResponse[ControlResponse["ALARM_HUB_STOP_BY_APP"] = 16] = "ALARM_HUB_STOP_BY_APP";
     ControlResponse[ControlResponse["ALARM_HUB_STOP_BY_HAND"] = 17] = "ALARM_HUB_STOP_BY_HAND";
 })(ControlResponse = exports.ControlResponse || (exports.ControlResponse = {}));
+var WatermarkSetting;
+(function (WatermarkSetting) {
+    WatermarkSetting[WatermarkSetting["OFF"] = 0] = "OFF";
+    WatermarkSetting[WatermarkSetting["TIMESTAMP"] = 1] = "TIMESTAMP";
+    WatermarkSetting[WatermarkSetting["TIMESTAMP_AND_LOGO"] = 2] = "TIMESTAMP_AND_LOGO";
+})(WatermarkSetting = exports.WatermarkSetting || (exports.WatermarkSetting = {}));
+var VideoCodec;
+(function (VideoCodec) {
+    VideoCodec[VideoCodec["UNKNOWN"] = 0] = "UNKNOWN";
+    VideoCodec[VideoCodec["H264"] = 1] = "H264";
+    VideoCodec[VideoCodec["H265"] = 2] = "H265";
+})(VideoCodec = exports.VideoCodec || (exports.VideoCodec = {}));
+var AudioCodec;
+(function (AudioCodec) {
+    AudioCodec[AudioCodec["UNKNOWN"] = -1] = "UNKNOWN";
+    AudioCodec[AudioCodec["AAC"] = 0] = "AAC";
+})(AudioCodec = exports.AudioCodec || (exports.AudioCodec = {}));
