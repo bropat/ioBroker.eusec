@@ -366,7 +366,7 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
             }
         } else if (type == CommandType.CMD_DEVS_SWITCH || type == 99904) {
             try {
-                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.ENABLED), value === "1" ? true : false, modified);
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.ENABLED), device.isEnabled(), modified);
             } catch (error) {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} ENABLED Error: ${error}`);
             }
