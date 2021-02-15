@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.2.0",
+        "version": "0.2.1",
         "news": {
+            "0.2.1": {
+                "en": "Fixed battery doorbell start livestream over p2p",
+                "de": "Problem, bei dem die Türklingel der Batterie über p2p gestartet wurde - gefixt",
+                "ru": "Фиксированный дверной звонок батареи запускает прямую трансляцию через p2p",
+                "pt": "A campainha da bateria foi corrigida para iniciar a transmissão ao vivo em p2p",
+                "nl": "Vaste batterij deurbel start livestream via P2P",
+                "fr": "La sonnette à batterie fixe démarre la diffusion en direct sur p2p",
+                "it": "Risolto il problema con il campanello della batteria che avvia il live streaming su p2p",
+                "es": "Timbre de batería fijo inicia transmisión en vivo a través de p2p",
+                "pl": "Naprawiono dzwonek do drzwi baterii rozpoczynający transmisję na żywo przez P2P",
+                "zh-cn": "固定电池门铃通过p2p启动直播"
+            },
             "0.2.0": {
                 "en": "P2P livestream over HLS",
                 "de": "P2P-Livestream über HLS",
@@ -258,5 +270,15 @@
         "webInstance": ""
     },
     "objects": [],
-    "instanceObjects": []
+    "instanceObjects": [
+        {
+            "_id": "",
+            "type": "meta",
+            "common": {
+              "name": "User files for eufy-security",
+              "type": "meta.user"
+            },
+            "native": {}
+        }
+    ]
 }

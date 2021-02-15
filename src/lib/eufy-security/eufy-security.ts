@@ -201,6 +201,15 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
             } else {
                 this.log.debug(`EufySecurity.stationP2PCommandResult(): No mapping for state <> command_type - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
             }
+        } else if (result.return_code !== 0 && result.command_type === CommandType.CMD_START_REALTIME_MEDIA) {
+            this.log.debug(`EufySecurity.stationP2PCommandResult(): Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
+            try {
+                const device = this.getStationDevice(station.getSerial(), result.channel);
+                if (device.isCamera())
+                    this._startRtmpLivestream(station, device as Camera);
+            } catch (error) {
+                this.log.error(`EufySecurity.stationP2PCommandResult(): Station: ${station.getSerial()} command ${CommandType[result.command_type]} RTMP fallback failed - Error ${error}`);
+            }
         } else {
             this.log.error(`EufySecurity.stationP2PCommandResult(): Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code})`);
         }
@@ -498,41 +507,50 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
                 const station = this.stations[camera.getStationSerial()];
 
                 if (station.isConnected()) {
-                    if (!station.isLiveStreaming(camera))
+                    if (!station.isLiveStreaming(camera)) {
                         station.startLivestream(camera);
-                } else {
-                    const url = await camera.startStream();
-                    const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
-                    ffmpegRTMPToHls(url, file_path, this.log)
-                        .then(() => {
-                            return removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
-                        })
-                        .then(() => {
-                            return moveFiles(this.adapter.namespace, station.getSerial(), camera.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
-                        })
-                        .then(() => {
-                            const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
-                            ffmpegPreviewImage(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
-                                .then(() => {
-                                    this.adapter.setStateAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${camera.getSerial()}${IMAGE_FILE_JPEG_EXT}`, ack: true });
-                                    try {
-                                        this.adapter.setStateAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: getImageAsHTML(fse.readFileSync(`${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`)), ack: true });
-                                    } catch (error) {
-                                        this.log.error(`EufySecurity.startLivestream(): station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error}`);
-                                    }
-                                });
-                        });
-                    this.emit("start_livestream", station, camera, `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
+
+                        this.camera_livestream_timeout.set(device_sn, setTimeout(() => {
+                            this.stopLivestream(device_sn);
+                        }, this.camera_max_livestream_seconds * 1000));
+                    }
+                } else if (!camera.isStreaming()) {
+                    this._startRtmpLivestream(station, camera);
                 }
-                this.camera_livestream_timeout.set(device_sn, setTimeout(() => {
-                    this.stopLivestream(device_sn);
-                }, this.camera_max_livestream_seconds * 1000));
             } else {
                 throw new Error(`No camera device with this serial number: ${device_sn}!`);
             }
         } else {
             this.log.warn(`The stream for the device ${device_sn} cannot be started, because it is already streaming!`);
         }
+    }
+
+    private async _startRtmpLivestream(station: Station, camera: Camera): Promise<void> {
+        const url = await camera.startStream();
+        const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
+        ffmpegRTMPToHls(url, file_path, this.log)
+            .then(() => {
+                return removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
+            })
+            .then(() => {
+                return moveFiles(this.adapter.namespace, station.getSerial(), camera.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+            })
+            .then(() => {
+                const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
+                ffmpegPreviewImage(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
+                    .then(() => {
+                        this.adapter.setStateAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${camera.getSerial()}${IMAGE_FILE_JPEG_EXT}`, ack: true });
+                        try {
+                            this.adapter.setStateAsync(camera.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: getImageAsHTML(fse.readFileSync(`${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`)), ack: true });
+                        } catch (error) {
+                            this.log.error(`EufySecurity.startLivestream(): station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error}`);
+                        }
+                    });
+            });
+        this.emit("start_livestream", station, camera, `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
+        this.camera_livestream_timeout.set(camera.getSerial(), setTimeout(() => {
+            this.stopLivestream(camera.getSerial());
+        }, this.camera_max_livestream_seconds * 1000));
     }
 
     public async stopLivestream(device_sn: string): Promise<void> {
@@ -543,7 +561,7 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
 
                 if (station.isConnected() && station.isLiveStreaming(camera)) {
                     await station.stopLivestream(camera);
-                } else {
+                } else if (camera.isStreaming()) {
                     await camera.stopStream();
                     this.emit("stop_livestream", station, camera);
                 }
