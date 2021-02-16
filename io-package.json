@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.2.1",
+        "version": "0.2.2",
         "news": {
+            "0.2.2": {
+                "en": "Fixed web extension settings for serving videos and pictures",
+                "de": "Die Einstellungen für die Web-Erweiterung zum Bereitstellen von Videos und Bildern wurden korrigiert",
+                "ru": "Исправлены настройки веб-расширения для обслуживания видео и изображений",
+                "pt": "Configurações de extensão da web corrigidas para veicular vídeos e fotos",
+                "nl": "Vaste instellingen voor webextensies voor het weergeven van video's en afbeeldingen",
+                "fr": "Correction des paramètres d'extension Web pour la diffusion de vidéos et d'images",
+                "it": "Risolte le impostazioni dell'estensione web per la pubblicazione di video e immagini",
+                "es": "Configuración de extensión web fija para servir videos e imágenes",
+                "pl": "Naprawiono ustawienia rozszerzeń internetowych dotyczące udostępniania filmów i zdjęć",
+                "zh-cn": "修复了用于投放视频和图片的Web扩展程序设置"
+            },
             "0.2.1": {
                 "en": "Fixed battery doorbell start livestream over p2p",
                 "de": "Problem, bei dem die Türklingel der Batterie über p2p gestartet wurde - gefixt",
@@ -267,7 +279,7 @@
         "maxLivestreamDuration": 30,
         "verificationMethod": 2,
         "eventDuration": 15,
-        "webInstance": ""
+        "webInstance": "*"
     },
     "objects": [],
     "instanceObjects": [
