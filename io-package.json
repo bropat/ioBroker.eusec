@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.2.2",
+        "version": "0.2.3",
         "news": {
+            "0.2.3": {
+                "en": "Fixed wired doorbell p2p livestream and push notifications",
+                "de": "Feste kabelgebundene Türklingel p2p Livestream- und Push-Benachrichtigungen behoben",
+                "ru": "Фиксированный проводной дверной звонок p2p livestream и push-уведомления",
+                "pt": "Correção da transmissão ao vivo P2P da campainha com fio e notificações push",
+                "nl": "Vaste bedrade deurbel p2p livestream en pushmeldingen",
+                "fr": "Sonnette filaire fixe p2p livestream et notifications push",
+                "it": "Risolto il problema con il livestream p2p del campanello cablato e le notifiche push",
+                "es": "Timbre fijo con cable p2p transmisión en vivo y notificaciones push",
+                "pl": "Naprawiono transmisję na żywo i powiadomienia push z dzwonka do drzwi przewodowego",
+                "zh-cn": "固定有线门铃p2p直播和推送通知"
+            },
             "0.2.2": {
                 "en": "Fixed web extension settings for serving videos and pictures",
                 "de": "Die Einstellungen für die Web-Erweiterung zum Bereitstellen von Videos und Bildern wurden korrigiert",

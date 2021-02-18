@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.getDataFilePath = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
+exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
 const read_bigint_1 = require("read-bigint");
 const axios_1 = __importDefault(require("axios"));
@@ -114,7 +114,16 @@ const getImageAsHTML = function (data) {
     return "";
 };
 exports.getImageAsHTML = getImageAsHTML;
-const saveImage = function (adapter, url, filename_without_extension) {
+const getDataFilePath = function (namespace, stationSerial, folderName, fileName) {
+    const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path_1.default.sep}${namespace}`;
+    const dir_path = `${root_path}${path_1.default.sep}${stationSerial}${path_1.default.sep}${folderName}`;
+    if (!fs_extra_1.default.existsSync(dir_path)) {
+        fs_extra_1.default.mkdirSync(dir_path, { mode: 0o775, recursive: true });
+    }
+    return `${dir_path}${path_1.default.sep}${fileName}`;
+};
+exports.getDataFilePath = getDataFilePath;
+const saveImage = function (adapter, url, station_sn, device_sn, location) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = {
             status: 0,
@@ -128,10 +137,9 @@ const saveImage = function (adapter, url, filename_without_extension) {
                 result.status = response.status;
                 result.statusText = response.statusText;
                 if (response.status === 200) {
-                    const filename = `${filename_without_extension}.jpg`;
                     const data = Buffer.from(response.data);
-                    yield adapter.writeFileAsync(`${adapter.name}.${adapter.instance}`, filename, data).then(() => {
-                        result.imageUrl = `/${adapter.name}.${adapter.instance}/${filename}`;
+                    yield adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`, data).then(() => {
+                        result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`;
                         result.imageHtml = exports.getImageAsHTML(data);
                     }).catch(error => {
                         adapter.log.error(`saveImage(): writeFile Error: ${error} - url: ${url}`);
@@ -189,14 +197,14 @@ const setStateWithTimestamp = function (adapter, state_id, common_name, value, t
     });
 };
 exports.setStateWithTimestamp = setStateWithTimestamp;
-const saveImageStates = function (adapter, url, timestamp, serial_number, url_state_id, html_state_id, prefix_common_name, filename_prefix = "", retry = 1) {
+const saveImageStates = function (adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, retry = 1) {
     return __awaiter(this, void 0, void 0, function* () {
-        const image_data = yield exports.saveImage(adapter, url, `${filename_prefix}${serial_number}`);
+        const image_data = yield exports.saveImage(adapter, url, station_sn, device_sn, location);
         if (image_data.status === 404) {
             if (retry < 6) {
                 adapter.log.info(`Retry get image in ${5 * retry} seconds from url: ${url} (retry_count: ${retry} error: ${image_data.statusText} message: ${image_data.statusText})...`);
                 setTimeout(() => {
-                    exports.saveImageStates(adapter, url, timestamp, serial_number, url_state_id, html_state_id, prefix_common_name, filename_prefix, ++retry);
+                    exports.saveImageStates(adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
                 }, 5 * 1000 * retry);
             }
             else {
@@ -209,15 +217,6 @@ const saveImageStates = function (adapter, url, timestamp, serial_number, url_st
     });
 };
 exports.saveImageStates = saveImageStates;
-const getDataFilePath = function (namespace, stationSerial, folderName, fileName) {
-    const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path_1.default.sep}${namespace}`;
-    const dir_path = `${root_path}${path_1.default.sep}${stationSerial}${path_1.default.sep}${folderName}`;
-    if (!fs_extra_1.default.existsSync(dir_path)) {
-        fs_extra_1.default.mkdirSync(dir_path, { mode: 0o775, recursive: true });
-    }
-    return `${dir_path}${path_1.default.sep}${fileName}`;
-};
-exports.getDataFilePath = getDataFilePath;
 const removeFiles = function (namespace, stationSerial, folderName, device_sn) {
     return new Promise((resolve, reject) => {
         try {

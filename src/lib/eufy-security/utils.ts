@@ -6,7 +6,7 @@ import path from "path";
 import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
 
-import { CameraStateID, StationStateID } from "./types";
+import { CameraStateID, IMAGE_FILE_JPEG_EXT, StationStateID } from "./types";
 import { ImageResponse } from "./interfaces";
 
 export const decrypt = (key: string, value: string): string => {
@@ -80,7 +80,16 @@ export const getImageAsHTML = function(data: Buffer): string {
     return "";
 }
 
-export const saveImage = async function(adapter: ioBroker.Adapter, url: string, filename_without_extension: string): Promise<ImageResponse> {
+export const getDataFilePath = function(namespace: string, stationSerial: string, folderName: string, fileName: string): string {
+    const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path.sep}${namespace}`
+    const dir_path = `${root_path}${path.sep}${stationSerial}${path.sep}${folderName}`;
+    if (!fse.existsSync(dir_path)) {
+        fse.mkdirSync(dir_path, {mode: 0o775, recursive: true});
+    }
+    return `${dir_path}${path.sep}${fileName}`;
+}
+
+export const saveImage = async function(adapter: ioBroker.Adapter, url: string, station_sn: string, device_sn: string, location: string): Promise<ImageResponse> {
     const result: ImageResponse = {
         status: 0,
         statusText: "",
@@ -93,10 +102,9 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
             result.status = response.status;
             result.statusText = response.statusText;
             if (response.status === 200) {
-                const filename = `${filename_without_extension}.jpg`;
                 const data = Buffer.from(response.data);
-                await adapter.writeFileAsync(`${adapter.name}.${adapter.instance}`, filename, data).then(() => {
-                    result.imageUrl = `/${adapter.name}.${adapter.instance}/${filename}`;
+                await adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`, data).then(() => {
+                    result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`;
                     result.imageHtml = getImageAsHTML(data);
                 }).catch(error => {
                     adapter.log.error(`saveImage(): writeFile Error: ${error} - url: ${url}`);
@@ -149,13 +157,13 @@ export const setStateWithTimestamp = async function(adapter: ioBroker.Adapter, s
     }
 }
 
-export const saveImageStates = async function(adapter: ioBroker.Adapter, url: string, timestamp:number, serial_number: string, url_state_id: string, html_state_id: string, prefix_common_name: string, filename_prefix = "", retry = 1): Promise<void> {
-    const image_data = await saveImage(adapter, url, `${filename_prefix}${serial_number}`);
+export const saveImageStates = async function(adapter: ioBroker.Adapter, url: string, timestamp:number, station_sn: string, device_sn: string, location: string, url_state_id: string, html_state_id: string, prefix_common_name: string, retry = 1): Promise<void> {
+    const image_data = await saveImage(adapter, url, station_sn, device_sn, location);
     if (image_data.status === 404) {
         if (retry < 6) {
             adapter.log.info(`Retry get image in ${5 * retry} seconds from url: ${url} (retry_count: ${retry} error: ${image_data.statusText} message: ${image_data.statusText})...`);
             setTimeout(() => {
-                saveImageStates(adapter, url, timestamp, serial_number, url_state_id, html_state_id, prefix_common_name, filename_prefix, ++retry);
+                saveImageStates(adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
             }, 5 * 1000 * retry);
         } else {
             adapter.log.warn(`Could not download the image within 5 attempts from url: ${url} (error: ${image_data.statusText} message: ${image_data.statusText})`);
@@ -164,15 +172,6 @@ export const saveImageStates = async function(adapter: ioBroker.Adapter, url: st
     }
     setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp);
     setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp);
-}
-
-export const getDataFilePath = function(namespace: string, stationSerial: string, folderName: string, fileName: string): string {
-    const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path.sep}${namespace}`
-    const dir_path = `${root_path}${path.sep}${stationSerial}${path.sep}${folderName}`;
-    if (!fse.existsSync(dir_path)) {
-        fse.mkdirSync(dir_path, {mode: 0o775, recursive: true});
-    }
-    return `${dir_path}${path.sep}${fileName}`;
 }
 
 export const removeFiles = function(namespace: string, stationSerial: string, folderName: string, device_sn: string): Promise<void> {

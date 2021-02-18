@@ -140,6 +140,12 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.2.3 (2021-02-17)
+* (bropat) Fixed wired doorbell p2p livestream (should fix also indoor, floodlight and solo cameras)
+* (bropat) Fixed issue that treats known push notifications as unknown
+* (bropat) Fixed relative path for state last_event_pic_url
+* (bropat) Updated versions of the package dependencies
+
 ### 0.2.2 (2021-02-16)
 * (bropat) Fixed web extension settings for serving videos and pictures (issue [#79](https://github.com/bropat/ioBroker.eufy-security/issues/78))
 

@@ -107,7 +107,7 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
 
     public getStationDevice(station_sn: string, channel: number): Device {
         for (const device of Object.values(this.devices)) {
-            if (device.getStationSerial() === station_sn && device.getChannel() === channel) {
+            if ((device.getStationSerial() === station_sn && device.getChannel() === channel) || (device.getStationSerial() === station_sn && device.getSerial() === station_sn)) {
                 return device;
             }
         }
@@ -416,7 +416,7 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         try {
             const device = this.getStationDevice(station.getSerial(), channel);
             try {
-                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, device.getSerial());
+                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, device.getSerial()).catch();
                 const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
 
                 ffmpegStreamToHls(this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
@@ -467,9 +467,8 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         try {
             const device = this.getStationDevice(station.getSerial(), channel);
             try {
-                const device = this.getStationDevice(station.getSerial(), channel);
                 const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
-                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial());
+                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial()).catch();
                 ffmpegStreamToHls(this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
                     .then(() => {
                         return removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());

@@ -95,7 +95,7 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
     }
     getStationDevice(station_sn, channel) {
         for (const device of Object.values(this.devices)) {
-            if (device.getStationSerial() === station_sn && device.getChannel() === channel) {
+            if ((device.getStationSerial() === station_sn && device.getChannel() === channel) || (device.getStationSerial() === station_sn && device.getSerial() === station_sn)) {
                 return device;
             }
         }
@@ -423,7 +423,7 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
             try {
                 const device = this.getStationDevice(station.getSerial(), channel);
                 try {
-                    yield utils_1.removeFiles(this.adapter.namespace, station.getSerial(), types_2.DataLocation.TEMP, device.getSerial());
+                    yield utils_1.removeFiles(this.adapter.namespace, station.getSerial(), types_2.DataLocation.TEMP, device.getSerial()).catch();
                     const file_path = utils_1.getDataFilePath(this.adapter.namespace, station.getSerial(), types_2.DataLocation.TEMP, `${device.getSerial()}${types_2.STREAM_FILE_NAME_EXT}`);
                     video_1.ffmpegStreamToHls(this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
                         .then(() => {
@@ -477,9 +477,8 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
             try {
                 const device = this.getStationDevice(station.getSerial(), channel);
                 try {
-                    const device = this.getStationDevice(station.getSerial(), channel);
                     const file_path = utils_1.getDataFilePath(this.adapter.namespace, station.getSerial(), types_2.DataLocation.LIVESTREAM, `${device.getSerial()}${types_2.STREAM_FILE_NAME_EXT}`);
-                    yield utils_1.removeFiles(this.adapter.namespace, station.getSerial(), types_2.DataLocation.LIVESTREAM, device.getSerial());
+                    yield utils_1.removeFiles(this.adapter.namespace, station.getSerial(), types_2.DataLocation.LIVESTREAM, device.getSerial()).catch();
                     video_1.ffmpegStreamToHls(this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
                         .then(() => {
                         return utils_1.removeFiles(this.adapter.namespace, station.getSerial(), types_2.DataLocation.LAST_LIVESTREAM, device.getSerial());
