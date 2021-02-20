@@ -202,7 +202,7 @@ class EufySecurity extends utils.Adapter {
                 this.log.debug("No stored data from last exit found.");
             }
             //TODO: Temporary Test to be removed!
-            /*await this.setObjectNotExistsAsync("test_button", {
+            yield this.setObjectNotExistsAsync("test_button", {
                 type: "state",
                 common: {
                     name: "Test button",
@@ -214,7 +214,7 @@ class EufySecurity extends utils.Adapter {
                 native: {},
             });
             this.subscribeStates("test_button");
-            await this.setObjectNotExistsAsync("test_button2", {
+            yield this.setObjectNotExistsAsync("test_button2", {
                 type: "state",
                 common: {
                     name: "Test button2",
@@ -225,7 +225,7 @@ class EufySecurity extends utils.Adapter {
                 },
                 native: {},
             });
-            this.subscribeStates("test_button2");*/
+            this.subscribeStates("test_button2");
             // END
             this.subscribeStates("verify_code");
             this.eufy = new EufySecurityAPI.EufySecurity(this);
@@ -378,10 +378,10 @@ class EufySecurity extends utils.Adapter {
                         //await this.eufy.getStation("T8010P23201721F8").startLivestream(this.eufy.getDevice("T8114P022022261F"));
                         //await this.eufy.getStation("T8010P23201721F8").startLivestream(this.eufy.getDevice("T8114P0220223A5A"));
                         //await this.eufy.getStation("T8010P23201721F8").startDownload("/media/mmcblk0p1/Camera00/20201231171631.dat");
-                        /*const device = this.eufy.getDevice("T8114P0220223A5A");
-                        await this.eufy.getStation("T8010P23201721F8").cancelDownload(device);*/
+                        const device = this.eufy.getDevice("T8114P0220223A5A");
+                        yield this.eufy.getStation("T8010P23201721F8").cancelDownload(device);
                         //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                        yield this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                        //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
                         //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                         //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();
                     }
@@ -1365,10 +1365,10 @@ class EufySecurity extends utils.Adapter {
                 delay that depends on the configured power mode of the device
                 in the meantime this feature was switched off
         */
-        /*const station = this.eufy.getStation(station_sn);
-        if (station && !isEmpty(full_path) && cipher_id !== undefined) {
-            station.startDownload(full_path!, cipher_id);
-        }*/
+        const station = this.eufy.getStation(station_sn);
+        if (station && !utils_1.isEmpty(full_path) && cipher_id !== undefined) {
+            station.startDownload(full_path, cipher_id);
+        }
     }
     handlePushNotification(push_msg) {
         return __awaiter(this, void 0, void 0, function* () {

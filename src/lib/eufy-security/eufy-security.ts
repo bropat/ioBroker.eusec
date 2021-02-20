@@ -41,7 +41,8 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         this.api = new HTTPApi(this.username, this.password, this.log);
         this.api.on("hubs", (hubs) => this.handleHubs(hubs));
         this.api.on("devices", (devices) => this.handleDevices(devices));
-        this.api.on("not_connected", () => this.handleNotConnected());
+        this.api.on("close", () => this.onAPIClose());
+        //this.api.on("connect", () => this.onAPIConnect());
         this.pushService = new PushNotificationService(this.log);
         this.pushService.on("connect", async (token: string) => {
             const registered = await this.api.registerPushToken(token);
@@ -403,8 +404,12 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         }
     }
 
-    private handleNotConnected(): void {
+    private onAPIClose(): void {
         this.emit("disconnect");
+    }
+
+    private onAPIConnect(): void {
+        this.emit("connect");
     }
 
     private async onFinishDownload(station: Station, channel: number): Promise<void> {

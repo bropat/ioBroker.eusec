@@ -140,6 +140,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.2.5 (2021-02-20)
+* (bropat) Fixed possible race condition that brokes sometime the livestream
+* (bropat) Updated versions of the package dependencies
+
 ### 0.2.4 (2021-02-20)
 * (bropat) Fixed issue [#86](https://github.com/bropat/ioBroker.eufy-security/issues/86)
 * (bropat) Fixed not correctly identifying if the livestream is still active or not

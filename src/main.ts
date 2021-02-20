@@ -399,11 +399,11 @@ export class EufySecurity extends utils.Adapter {
                     //await this.eufy.getStation("T8010P23201721F8").startLivestream(this.eufy.getDevice("T8114P0220223A5A"));
                     //await this.eufy.getStation("T8010P23201721F8").startDownload("/media/mmcblk0p1/Camera00/20201231171631.dat");
 
-                    /*const device = this.eufy.getDevice("T8114P0220223A5A");
-                    await this.eufy.getStation("T8010P23201721F8").cancelDownload(device);*/
+                    const device = this.eufy.getDevice("T8114P0220223A5A");
+                    await this.eufy.getStation("T8010P23201721F8").cancelDownload(device!);
 
                     //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
-                    await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
+                    //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
                     //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
                     //await this.eufy.getStation("T8010P23201721F8").getStorageInfo();
                 }

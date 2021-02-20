@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.2.4",
+        "version": "0.2.5",
         "news": {
+            "0.2.5": {
+                "en": "Fixed possible race condition that brokes sometime the livestream",
+                "de": "Möglicher Rennzustand behoben, der irgendwann den Livestream bricht",
+                "ru": "Исправлено возможное состояние гонки, которое иногда прерывает прямую трансляцию",
+                "pt": "Corrigida possível condição de corrida que interrompe em algum momento da transmissão ao vivo",
+                "nl": "Mogelijke raceconditie opgelost die de livestream soms verbrak",
+                "fr": "Correction d'une condition de course possible qui cassait parfois le livestream",
+                "it": "Risolta la possibile condizione di gara che a volte interrompeva il live streaming",
+                "es": "Se corrigió una posible condición de carrera que interrumpía en algún momento la transmisión en vivo.",
+                "pl": "Naprawiono możliwy stan wyścigu, który czasami przerywał transmisję na żywo",
+                "zh-cn": "修复了可能导致直播中断的比赛条件"
+            },
             "0.2.4": {
                 "en": "Fixed issue #86",
                 "de": "Problem Nr. 86 behoben",

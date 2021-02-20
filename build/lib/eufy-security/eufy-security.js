@@ -36,7 +36,8 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
         this.api = new eufy_security_client_1.HTTPApi(this.username, this.password, this.log);
         this.api.on("hubs", (hubs) => this.handleHubs(hubs));
         this.api.on("devices", (devices) => this.handleDevices(devices));
-        this.api.on("not_connected", () => this.handleNotConnected());
+        this.api.on("close", () => this.onAPIClose());
+        //this.api.on("connect", () => this.onAPIConnect());
         this.pushService = new eufy_security_client_1.PushNotificationService(this.log);
         this.pushService.on("connect", (token) => __awaiter(this, void 0, void 0, function* () {
             const registered = yield this.api.registerPushToken(token);
@@ -409,8 +410,11 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
             }
         }
     }
-    handleNotConnected() {
+    onAPIClose() {
         this.emit("disconnect");
+    }
+    onAPIConnect() {
+        this.emit("connect");
     }
     onFinishDownload(station, channel) {
         return __awaiter(this, void 0, void 0, function* () {
