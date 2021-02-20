@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.2.3",
+        "version": "0.2.4",
         "news": {
+            "0.2.4": {
+                "en": "Fixed issue #86",
+                "de": "Problem Nr. 86 behoben",
+                "ru": "Исправленная проблема # 86",
+                "pt": "Problema nº 86 corrigido",
+                "nl": "Probleem # 86 opgelost",
+                "fr": "Problème résolu n ° 86",
+                "it": "Risolto il problema # 86",
+                "es": "Problema solucionado # 86",
+                "pl": "Naprawiono problem nr 86",
+                "zh-cn": "已修复问题86"
+            },
             "0.2.3": {
                 "en": "Fixed wired doorbell p2p livestream and push notifications",
                 "de": "Feste kabelgebundene Türklingel p2p Livestream- und Push-Benachrichtigungen behoben",

@@ -140,6 +140,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.2.4 (2021-02-20)
+* (bropat) Fixed issue [#86](https://github.com/bropat/ioBroker.eufy-security/issues/86)
+* (bropat) Fixed not correctly identifying if the livestream is still active or not
+
 ### 0.2.3 (2021-02-17)
 * (bropat) Fixed wired doorbell p2p livestream (should fix also indoor, floodlight and solo cameras)
 * (bropat) Fixed issue that treats known push notifications as unknown

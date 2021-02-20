@@ -1449,49 +1449,32 @@ export class EufySecurity extends utils.Adapter {
                     if (device) {
                         switch (push_msg.event_type) {
                             case DoorbellPushEvent.MOTION_DETECTION:
+                                await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
+                                if (this.motionDetected[device.getSerial()])
+                                    clearTimeout(this.motionDetected[device.getSerial()]);
+                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_URL), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): DoorbellPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-
-                                    if (this.motionDetected[device.getSerial()])
-                                        clearTimeout(this.motionDetected[device.getSerial()]);
-                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: true, ack: true });
-                                    if (this.motionDetected[device.getSerial()])
-                                        clearTimeout(this.motionDetected[device.getSerial()]);
-                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(DoorbellStateID.MOTION_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case DoorbellPushEvent.FACE_DETECTION:
+                                await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
+                                await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                if (this.personDetected[device.getSerial()])
+                                    clearTimeout(this.personDetected[device.getSerial()]);
+                                this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_URL), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): DoorbellPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                    if (this.personDetected[device.getSerial()])
-                                        clearTimeout(this.personDetected[device.getSerial()]);
-                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
-                                    await this.setStateAsync(device.getStateID(DoorbellStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                    if (this.personDetected[device.getSerial()])
-                                        clearTimeout(this.personDetected[device.getSerial()]);
-                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
@@ -1503,6 +1486,11 @@ export class EufySecurity extends utils.Adapter {
                                 this.ringing[device.getSerial()] = setTimeout(async () => {
                                     await this.setStateAsync(device.getStateID(DoorbellStateID.RINGING), { val: false, ack: true });
                                 }, this.config.eventDuration * 1000);
+                                if (!isEmpty(push_msg.pic_url)) {
+                                    await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_URL), device.getStateID(DoorbellStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
+                                        this.log.error(`handlePushNotifications(): DoorbellPushEvent.PRESS_DOORBELL of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
+                                    });
+                                }
                                 break;
                             default:
                                 this.log.debug(`handlePushNotifications(): Unhandled doorbell push event: ${JSON.stringify(push_msg)}`);
@@ -1517,113 +1505,77 @@ export class EufySecurity extends utils.Adapter {
                     if (device) {
                         switch (push_msg.event_type) {
                             case IndoorPushEvent.MOTION_DETECTION:
+                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
+                                if (this.motionDetected[device.getSerial()])
+                                    clearTimeout(this.motionDetected[device.getSerial()]);
+                                this.motionDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-                                    if (this.motionDetected[device.getSerial()])
-                                        clearTimeout(this.motionDetected[device.getSerial()]);
-                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: true, ack: true });
-                                    if (this.motionDetected[device.getSerial()])
-                                        clearTimeout(this.motionDetected[device.getSerial()]);
-                                    this.motionDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.MOTION_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.FACE_DETECTION:
+                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
+                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
+                                if (this.personDetected[device.getSerial()])
+                                    clearTimeout(this.personDetected[device.getSerial()]);
+                                this.personDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                    if (this.personDetected[device.getSerial()])
-                                        clearTimeout(this.personDetected[device.getSerial()]);
-                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.LAST_PERSON_IDENTIFIED), { val: "Unknown", ack: true });
-                                    if (this.personDetected[device.getSerial()])
-                                        clearTimeout(this.personDetected[device.getSerial()]);
-                                    this.personDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.CRYIG_DETECTION:
+                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
+                                if (this.cryingDetected[device.getSerial()])
+                                    clearTimeout(this.cryingDetected[device.getSerial()]);
+                                this.cryingDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.CRYIG_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-                                    if (this.cryingDetected[device.getSerial()])
-                                        clearTimeout(this.cryingDetected[device.getSerial()]);
-                                    this.cryingDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
-                                    if (this.cryingDetected[device.getSerial()])
-                                        clearTimeout(this.cryingDetected[device.getSerial()]);
-                                    this.cryingDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.SOUND_DETECTION:
+                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
+                                if (this.soundDetected[device.getSerial()])
+                                    clearTimeout(this.soundDetected[device.getSerial()]);
+                                this.soundDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.SOUND_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-                                    if (this.soundDetected[device.getSerial()])
-                                        clearTimeout(this.soundDetected[device.getSerial()]);
-                                    this.soundDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
-                                    if (this.soundDetected[device.getSerial()])
-                                        clearTimeout(this.soundDetected[device.getSerial()]);
-                                    this.soundDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.PET_DETECTION:
+                                await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
+                                if (this.petDetected[device.getSerial()])
+                                    clearTimeout(this.petDetected[device.getSerial()]);
+                                this.petDetected[device.getSerial()] = setTimeout(async () => {
+                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
+                                }, this.config.eventDuration * 1000);
                                 if (!isEmpty(push_msg.pic_url)) {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
                                     await saveImageStates(this, push_msg.pic_url!, push_msg.event_time, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_URL), device.getStateID(IndoorCameraStateID.LAST_EVENT_PICTURE_HTML), "Last captured picture").catch(() => {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.PET_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
-                                    if (this.petDetected[device.getSerial()])
-                                        clearTimeout(this.petDetected[device.getSerial()]);
-                                    this.petDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
-                                } else {
-                                    await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
-                                    if (this.petDetected[device.getSerial()])
-                                        clearTimeout(this.petDetected[device.getSerial()]);
-                                    this.petDetected[device.getSerial()] = setTimeout(async () => {
-                                        await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: false, ack: true });
-                                    }, this.config.eventDuration * 1000);
                                 }
                                 if (push_msg.push_count === 1)
                                     this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);

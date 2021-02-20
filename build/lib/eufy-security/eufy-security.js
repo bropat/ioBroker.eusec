@@ -445,11 +445,15 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
                             catch (error) {
                                 this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
                             }
+                        })
+                            .catch((error) => {
+                            this.log.error(`EufySecurity.onStartDownload(): ffmpegPreviewImage - station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
                         });
+                    })
+                        .catch((error) => {
+                        this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - Cancelling download...`);
+                        station.cancelDownload(device);
                     });
-                    /*.catch(() => {
-    
-                    });*/
                 }
                 catch (error) {
                     this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - Cancelling download...`);
@@ -498,7 +502,14 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
                             catch (error) {
                                 this.log.error(`EufySecurity.onStartLivestream(): station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
                             }
+                        })
+                            .catch((error) => {
+                            this.log.error(`EufySecurity.onStartLivestream(): ffmpegPreviewImage - station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
                         });
+                    })
+                        .catch((error) => {
+                        this.log.error(`EufySecurity.onStartLivestream(): station: ${station.getSerial()} channel: ${channel} - Error: ${error} - Stopping livestream...`);
+                        station.stopLivestream(device);
                     });
                     this.emit("start_livestream", station, device, `/${this.adapter.namespace}/${station.getSerial()}/${types_2.DataLocation.LIVESTREAM}/${device.getSerial()}${types_2.STREAM_FILE_NAME_EXT}`);
                 }
@@ -514,28 +525,31 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
     }
     startLivestream(device_sn) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.camera_livestream_timeout.get(device_sn)) {
-                if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
-                    const camera = this.devices[device_sn];
-                    const station = this.stations[camera.getStationSerial()];
-                    if (station.isConnected()) {
-                        if (!station.isLiveStreaming(camera)) {
-                            station.startLivestream(camera);
-                            this.camera_livestream_timeout.set(device_sn, setTimeout(() => {
-                                this.stopLivestream(device_sn);
-                            }, this.camera_max_livestream_seconds * 1000));
-                        }
+            if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
+                const camera = this.devices[device_sn];
+                const station = this.stations[camera.getStationSerial()];
+                if (station.isConnected()) {
+                    if (!station.isLiveStreaming(camera)) {
+                        station.startLivestream(camera);
+                        this.camera_livestream_timeout.set(device_sn, setTimeout(() => {
+                            this.stopLivestream(device_sn);
+                        }, this.camera_max_livestream_seconds * 1000));
                     }
-                    else if (!camera.isStreaming()) {
-                        this._startRtmpLivestream(station, camera);
+                    else {
+                        this.log.warn(`The stream for the device ${device_sn} cannot be started, because it is already streaming!`);
                     }
                 }
                 else {
-                    throw new Error(`No camera device with this serial number: ${device_sn}!`);
+                    if (!camera.isStreaming()) {
+                        this._startRtmpLivestream(station, camera);
+                    }
+                    else {
+                        this.log.warn(`The stream for the device ${device_sn} cannot be started, because it is already streaming!`);
+                    }
                 }
             }
             else {
-                this.log.warn(`The stream for the device ${device_sn} cannot be started, because it is already streaming!`);
+                throw new Error(`No camera device with this serial number: ${device_sn}!`);
             }
         });
     }
@@ -559,9 +573,16 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
                         this.adapter.setStateAsync(camera.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: utils_1.getImageAsHTML(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_2.IMAGE_FILE_JPEG_EXT}`)), ack: true });
                     }
                     catch (error) {
-                        this.log.error(`EufySecurity.startLivestream(): station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error}`);
+                        this.log.error(`EufySecurity._startRtmpLivestream(): station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error}`);
                     }
+                })
+                    .catch((error) => {
+                    this.log.error(`EufySecurity._startRtmpLivestream(): ffmpegPreviewImage - station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error}`);
                 });
+            })
+                .catch((error) => {
+                this.log.error(`EufySecurity._startRtmpLivestream(): station: ${station.getSerial()} device: ${camera.getSerial()} - Error: ${error} - Stopping livestream...`);
+                camera.stopStream();
             });
             this.emit("start_livestream", station, camera, `/${this.adapter.namespace}/${station.getSerial()}/${types_2.DataLocation.LIVESTREAM}/${camera.getSerial()}${types_2.STREAM_FILE_NAME_EXT}`);
             this.camera_livestream_timeout.set(camera.getSerial(), setTimeout(() => {
@@ -571,29 +592,26 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
     }
     stopLivestream(device_sn) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.camera_livestream_timeout.get(device_sn)) {
-                if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
-                    const camera = this.devices[device_sn];
-                    const station = this.stations[camera.getStationSerial()];
-                    if (station.isConnected() && station.isLiveStreaming(camera)) {
-                        yield station.stopLivestream(camera);
-                    }
-                    else if (camera.isStreaming()) {
-                        yield camera.stopStream();
-                        this.emit("stop_livestream", station, camera);
-                    }
-                    const timeout = this.camera_livestream_timeout.get(device_sn);
-                    if (timeout) {
-                        clearTimeout(timeout);
-                        this.camera_livestream_timeout.delete(device_sn);
-                    }
+            if (Object.keys(this.devices).includes(device_sn) && this.devices[device_sn].isCamera()) {
+                const camera = this.devices[device_sn];
+                const station = this.stations[camera.getStationSerial()];
+                if (station.isConnected() && station.isLiveStreaming(camera)) {
+                    yield station.stopLivestream(camera);
+                }
+                else if (camera.isStreaming()) {
+                    yield camera.stopStream();
                 }
                 else {
-                    throw new Error(`No camera device with this serial number: ${device_sn}!`);
+                    this.log.warn(`The stream for the device ${device_sn} cannot be stopped, because it isn't streaming!`);
+                }
+                const timeout = this.camera_livestream_timeout.get(device_sn);
+                if (timeout) {
+                    clearTimeout(timeout);
+                    this.camera_livestream_timeout.delete(device_sn);
                 }
             }
             else {
-                this.log.warn(`The stream for the device ${device_sn} cannot be stopped, because it isn't streaming!`);
+                this.log.warn(`Stream couldn't be stopped as no camera device with serial number ${device_sn} was found!`);
             }
         });
     }
