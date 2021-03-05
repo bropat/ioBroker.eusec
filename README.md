@@ -14,13 +14,7 @@ Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/
 
 [![NPM](https://nodei.co/npm/iobroker.eufy-security.png?downloads=true)](https://nodei.co/npm/iobroker.eufy-security/)
 
-The development of this adapter was only possible thanks to the work of the following people:
-
-* FuzzyMistborn (https://github.com/FuzzyMistborn/python-eufy-security)
-* keshavdv (https://github.com/keshavdv/python-eufy-security)
-* JanLoebel (https://github.com/JanLoebel/eufy-node-client)
-
-Credits goes to them.
+This adapter uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices.
 
 If you appreciate my work and progress and want to support me, you can do it here:
 
@@ -28,14 +22,20 @@ If you appreciate my work and progress and want to support me, you can do it her
 
 ## Description
 
-This adapter allows to control Eufy security devices by connecting to the Eufy cloud servers.
+This adapter allows to control Eufy security devices by connecting to the Eufy cloud servers and local/remote stations.
 
-You need to provide your Cloud login credentials. The adapter connects to your cloud account and polls for all device data via HTTPS. Because of this the devices need to be connected to their cloud. Currently no way is known to control the devices locally.
+You need to provide your Cloud login credentials. The adapter connects to your cloud account and polls for all device data via HTTPS. Now a local or remote P2P connection to the Eufy stations/devices is also supported. However, a connection to the Eufy Cloud is always a prerequisite.
 
 One Adapter instance will show all devices from one Eufy Cloud account and allows to control them.
 
 ## Features
 
+* Supports local and remote p2p connection to station
+* Two factor authentication
+* Livestream as HLS stream (supports all platforms, but introduce a latency)
+* Last HLS live stream is always saved for later viewing
+* Downloads event video when push notification is received (async)
+* Takes jpeg thumbnail of the livestream or downloaded video
 * Base station:
     * States:
         * Configured Guard mode
@@ -75,6 +75,8 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * Enable/disable auto night vision 
         * Enable/disable led (only camera 2 products, indoor cameras, floodlight camera and solo cameras)
         * Enable/disable anti-theft detection (only camera 2 products)
+        * Enable/disable motion detection
+        * Enable/disable RTSP stream (only camera2 products, indoor cameras and solo cameras)
         * Change video watermark setting
     * Events:
         * Motion detected
@@ -100,7 +102,6 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
     * States:
         * Online / offline etc.
         * Low battery
-* Two factor authentication
 * more to come...
 
 ## Configuration
@@ -139,6 +140,16 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.3.0 (2021-03-xx)
+* (bropat) Implemented feature request [#88](https://github.com/bropat/ioBroker.eufy-security/issues/88): Enable/disable motion detection for camera products
+* (bropat) Implemented feature request [#81](https://github.com/bropat/ioBroker.eufy-security/issues/81): Enable/disable RTSP stream (added also RTSP stream url)
+* (bropat) Implemented asynchronous download of event videos when receiving a push notification
+* (bropat) Optimized ffmpeg implementation to only muxing video data to HLS
+* (bropat) Optimized HLS livestream video start delay (10-15 sec.)
+* (bropat) Fixed possible race condition with ffmpeg when using fallback to Eufy RTMP live stream
+* (bropat) Fixed issue with livestream when p2p connection is lost
+* (bropat) Updated versions of the package dependencies
 
 ### 0.2.5 (2021-02-20)
 * (bropat) Fixed possible race condition that brokes sometime the livestream

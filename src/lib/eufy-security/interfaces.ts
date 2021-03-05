@@ -39,3 +39,7 @@ export interface ImageResponse {
     imageUrl: string;
     imageHtml: string;
 }
+
+export interface IStoppablePromise<T> extends Promise<T> {
+    stop: () => void;
+}

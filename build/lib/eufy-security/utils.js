@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
+exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
 const read_bigint_1 = require("read-bigint");
 const axios_1 = __importDefault(require("axios"));
@@ -88,6 +88,10 @@ const getState = function (type) {
             return types_1.CameraStateID.ANTITHEFT_DETECTION;
         case eufy_security_client_1.CommandType.CMD_IRCUT_SWITCH:
             return types_1.CameraStateID.AUTO_NIGHTVISION;
+        case eufy_security_client_1.CommandType.CMD_PIR_SWITCH:
+            return types_1.CameraStateID.MOTION_DETECTION;
+        case eufy_security_client_1.CommandType.CMD_NAS_SWITCH:
+            return types_1.CameraStateID.RTSP_STREAM;
         case eufy_security_client_1.CommandType.CMD_DEV_LED_SWITCH:
             return types_1.CameraStateID.LED_STATUS;
     }
@@ -272,3 +276,41 @@ const lowestUnusedNumber = function (sequence, startingFrom) {
     }, arr.length + startingFrom);
 };
 exports.lowestUnusedNumber = lowestUnusedNumber;
+const sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+});
+exports.sleep = sleep;
+const getVideoClipLength = (device) => {
+    let length = 60;
+    const workingMode = device.getParameter(eufy_security_client_1.CommandType.CMD_SET_PIR_POWERMODE);
+    if (workingMode !== undefined) {
+        switch (workingMode.value) {
+            case "0":
+                if (device.isCamera2Product() || device.isIndoorCamera() || device.isSoloCameras())
+                    length = 20;
+                else if (device.isBatteryDoorbell() || device.isBatteryDoorbell2())
+                    length = 30;
+                break;
+            case "1":
+                // Corrisponds to 60 seconds
+                break;
+            case "2":
+                const customValue = device.getParameter(eufy_security_client_1.CommandType.CMD_DEV_RECORD_TIMEOUT);
+                if (customValue !== undefined) {
+                    try {
+                        length = Number.parseInt(customValue.value);
+                    }
+                    catch (error) {
+                    }
+                }
+                break;
+            case "3":
+                // Corrisponds to 60 seconds?? (this mode exists only for battery doorbells; mode: Optimal Battery Life)
+                break;
+        }
+    }
+    return length;
+};
+exports.getVideoClipLength = getVideoClipLength;

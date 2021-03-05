@@ -8,7 +8,6 @@ const net_1 = __importDefault(require("net"));
 const path_1 = __importDefault(require("path"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 const ffmpeg_static_1 = __importDefault(require("ffmpeg-static"));
-const eufy_security_client_1 = require("eufy-security-client");
 const os_1 = require("os");
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const utils_1 = require("./utils");
@@ -52,13 +51,13 @@ const StreamOutput = function (namespace, stream) {
     return new UniversalStream(namespace, (socket) => socket.pipe(stream, { end: true }));
 };
 exports.StreamOutput = StreamOutput;
-const ffmpegPreviewImage = (input, output, log) => {
+const ffmpegPreviewImage = (config, input, output, log, skip_seconds = 2.0) => {
     return new Promise((resolve, reject) => {
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
             fluent_ffmpeg_1.default()
                 .addOptions([
-                "-ss 2.0",
+                `-ss ${skip_seconds}`,
                 "-frames:v 1"
             ])
                 .input(input)
@@ -84,53 +83,42 @@ const ffmpegPreviewImage = (input, output, log) => {
     });
 };
 exports.ffmpegPreviewImage = ffmpegPreviewImage;
-const ffmpegStreamToHls = (namespace, metadata, videoStream, audioStream, output, log) => {
+const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream, output, log) => {
     return new Promise((resolve, reject) => {
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
             const uVideoStream = exports.StreamInput(namespace, videoStream);
             const uAudioStream = exports.StreamInput(namespace, audioStream);
-            let videoFormat = "h264";
-            let audioFormat = "aac";
             const options = [
-                "-strict -2",
-                "-crf 21",
-                "-pix_fmt yuv420p",
-                "-hls_time 4",
-                "-start_number 1",
+                "-hls_init_time 0",
+                "-hls_time 2",
+                "-hls_segment_type mpegts",
+                "-absf aac_adtstoasc",
+                //"-hls_time 4",
+                //"-start_number 1",
                 "-sc_threshold 0",
                 `-g ${metadata.videoFPS}`,
-                "-preset veryfast",
-                //"-hls_flags single_file",
-                "-hls_playlist_type event",
+                "-fflags genpts+nobuffer+flush_packets",
+                //"-flush_packets 1",
+                "-hls_playlist_type event"
+                //"-hls_flags split_by_time"
             ];
-            switch (metadata.videoCodec) {
-                case eufy_security_client_1.VideoCodec.H264:
-                    videoFormat = "h264";
-                    options.push("-profile:v baseline");
-                    break;
-                case eufy_security_client_1.VideoCodec.H265:
-                    videoFormat = "hevc";
-                    break;
-            }
-            switch (metadata.audioCodec) {
-                case eufy_security_client_1.AudioCodec.AAC:
-                    audioFormat = "aac";
-                    break;
-            }
             fluent_ffmpeg_1.default()
                 .input(uVideoStream.url)
-                .inputFormat(videoFormat)
+                .inputFormat("h264")
                 .inputFps(metadata.videoFPS)
                 .input(uAudioStream.url)
-                .inputFormat(audioFormat)
+                .inputFormat("aac")
+                .videoCodec("copy")
+                .audioCodec("copy")
                 .output(output)
-                .size(`${metadata.videoWidth}x${metadata.videoHeight}`)
                 .addOptions(options)
                 .on("error", function (err, stdout, stderr) {
                 log.error(`ffmpegStreamToHls(): An error occurred: ${err.message}`);
                 log.error(`ffmpegStreamToHls(): ffmpeg output:\n${stdout}`);
                 log.error(`ffmpegStreamToHls(): ffmpeg stderr:\n${stderr}`);
+                uVideoStream.close();
+                uAudioStream.close();
                 reject(err);
             })
                 .on("end", () => {
@@ -148,23 +136,29 @@ const ffmpegStreamToHls = (namespace, metadata, videoStream, audioStream, output
     });
 };
 exports.ffmpegStreamToHls = ffmpegStreamToHls;
-const ffmpegRTMPToHls = (rtmp_url, output, log) => {
-    return new Promise((resolve, reject) => {
+const ffmpegRTMPToHls = (config, rtmp_url, output, log) => {
+    //TODO: Handle graceful stop of ffmpeg process
+    let resolveCb;
+    let ffmpegCommand;
+    const rtmpPromise = new Promise((resolve, reject) => {
+        resolveCb = resolve;
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
-            fluent_ffmpeg_1.default(rtmp_url, { timeout: 30 })
+            //TODO: Timeout option isn't correct, fix it when handling graceful stop of ffmpeg process
+            ffmpegCommand = fluent_ffmpeg_1.default(rtmp_url, { timeout: 180 })
+                .videoCodec("copy")
+                .audioCodec("copy")
+                .output(output)
                 .addOptions([
-                "-c:v libx264",
-                "-c:a aac",
-                "-profile:v baseline",
-                "-strict -2",
-                "-crf 21",
-                "-pix_fmt yuv420p",
-                "-hls_time 4",
-                "-start_number 1",
+                "-hls_init_time 0",
+                "-hls_time 2",
+                "-hls_segment_type mpegts",
+                "-absf aac_adtstoasc",
+                //"-start_number 1",
                 "-sc_threshold 0",
                 "-g 15",
-                "-preset veryfast",
+                "-fflags genpts+nobuffer+flush_packets",
+                //"-flush_packets 1",
                 "-hls_playlist_type event"
             ])
                 .on("error", function (err, stdout, stderr) {
@@ -176,13 +170,19 @@ const ffmpegRTMPToHls = (rtmp_url, output, log) => {
                 .on("end", () => {
                 log.debug("ffmpegRTMPToHls(): Processing finished!");
                 resolve();
-            })
-                .run();
+            });
+            ffmpegCommand.run();
         }
         catch (error) {
             log.error(`ffmpegRTMPToHls(): Error: ${error}`);
             reject(error);
         }
     });
+    rtmpPromise.stop = () => {
+        ffmpegCommand.removeAllListeners();
+        ffmpegCommand.kill("SIGINT");
+        resolveCb();
+    };
+    return rtmpPromise;
 };
 exports.ffmpegRTMPToHls = ffmpegRTMPToHls;

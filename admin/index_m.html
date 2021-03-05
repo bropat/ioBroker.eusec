@@ -112,6 +112,14 @@
             callback(obj);
         }
     </script>
+    <style>
+        .sub-title {
+            margin-top: 2rem!important;
+            padding: 0.5rem;
+            background: #64b5f6;
+            color: white;
+        }
+    </style>
 
 </head>
 
@@ -120,45 +128,57 @@
     <div class="m adapter-container">
 
         <div class="row">
-            <div class="col s12 m4 l2">
-                <img src="eufy-security.png" class="logo">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s2"><a href="#tab-main"  class="translate active">Main settings</a></li>
+                    <li class="tab col s2 live-settings"><a href="#tab-live"    class="translate">Livestream settings</a></li>
+                </ul>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col s6 input-field">
-                <input type="text" class="value" id="username" />
-                <label for="username" class="translate">Username</label>
+        <div id="tab-main" class="col s12 page">
+
+            <div class="row">
+                <div class="col s12 m4 l2">
+                    <img src="eufy-security.png" class="logo">
+                </div>
             </div>
 
-            <div class="col s6 input-field">
-                <input type="password" class="value" id="password" />
-                <label for="password" class="translate">Password</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s6 input-field">
-                <input class="value" min="10" type="number" id="pollingInterval" />
-                <label for="pollingInterval" class="translate">Polling interval (min)</label>
-            </div>
-            <div class="col s6 input-field">
-                <input class="value" min="15" max="60" type="number" id="maxLivestreamDuration" />
-                <label for="maxLivestreamDuration" class="translate">Max camera livestream duration (sec)</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s6 input-field">
-                <input class="value" min="1" max="120" type="number" id="eventDuration" />
-                <label for="eventDuration" class="translate">Time in seconds before event reset</label>
-            </div>
-        </div>
-        <!--<div class="row">
-            <div class="col s6 input-field">
-                <input class="value" type="number" id="verificationCode" />
-                <label for="verificationCode" class="translate">Two factor authentication verification method</label>
-            </div>
-        </div>-->
+            <h6 class="translate sub-title">Authentication settings</h6>
+            <div class="row">
+                <div class="col s6 l3 input-field">
+                    <input type="text" class="value" id="username" />
+                    <label for="username" class="translate">Username</label>
+                </div>
 
+                <div class="col s6 l3 input-field">
+                    <input type="password" class="value" id="password" />
+                    <label for="password" class="translate">Password</label>
+                </div>
+            </div>
+            <h6 class="translate sub-title">Other settings</h6>
+            <div class="row">
+                <div class="col s6 l2 input-field">
+                    <input class="value" min="10" type="number" id="pollingInterval" />
+                    <label for="pollingInterval" class="translate">Polling interval (min)</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s6 l2 input-field">
+                    <input class="value" min="1" max="120" type="number" id="eventDuration" />
+                    <label for="eventDuration" class="translate">Time in seconds before event reset</label>
+                </div>
+            </div>
+        </div>
+        <div id="tab-live" class="col s12 page">
+            <h6 class="translate sub-title">Settings</h6>
+            <div class="row">
+                <div class="input-field col s12 m6 l2">
+                    <input class="value" min="15" max="300" type="number" id="maxLivestreamDuration" />
+                    <label for="maxLivestreamDuration" class="translate">Max camera livestream duration (sec)</label>
+                </div>
+            </div>
+        </div>
     </div>
 
 </body>

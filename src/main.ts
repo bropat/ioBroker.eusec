@@ -8,11 +8,13 @@ import { strict } from "assert";
 import * as path from "path";
 import * as fs from "fs";
 import { Camera, Device, EntrySensor, Keypad, MotionSensor, Devices, Station, Stations, CommandType, isPrivateIp, PushMessage, Credentials, DoorbellPushEvent, IndoorPushEvent, CusPushEvent, ServerPushEvent, ParamType, GuardMode, DeviceType } from "eufy-security-client";
+import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
+import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
 
 import * as EufySecurityAPI from "./lib/eufy-security/eufy-security";
 import * as Interface from "./lib/eufy-security/interfaces"
 import { CameraStateID, DataLocation, DeviceStateID, DoorbellStateID, EntrySensorStateID, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, StationStateID } from "./lib/eufy-security/types";
-import { decrypt, generateSerialnumber, generateUDID, isEmpty, md5, saveImageStates, setStateChangedAsync, setStateChangedWithTimestamp } from "./lib/eufy-security/utils";
+import { decrypt, generateSerialnumber, generateUDID, getVideoClipLength, isEmpty, md5, saveImageStates, setStateChangedAsync, setStateChangedWithTimestamp } from "./lib/eufy-security/utils";
 import { PersistentData } from "./lib/eufy-security/interfaces";
 
 // Augment the adapter.config object with the actual types
@@ -49,6 +51,9 @@ export class EufySecurity extends utils.Adapter {
         [index: string]: NodeJS.Timeout;
     } = {};
     private petDetected: {
+        [index: string]: NodeJS.Timeout;
+    } = {};
+    private downloadEvent: {
         [index: string]: NodeJS.Timeout;
     } = {};
 
@@ -240,7 +245,16 @@ export class EufySecurity extends utils.Adapter {
 
         this.subscribeStates("verify_code");
 
-        this.eufy = new EufySecurityAPI.EufySecurity(this);
+        const systemConfig = await this.getForeignObjectAsync("system.config");
+        let countryCode = undefined;
+        let languageCode = undefined;
+        if (systemConfig) {
+            countryCode = getCountryCode(systemConfig.common.country, "en");
+            if (isValidLanguageCode(systemConfig.common.language))
+                languageCode = systemConfig.common.language;
+        }
+
+        this.eufy = new EufySecurityAPI.EufySecurity(this, countryCode, languageCode);
         this.eufy.on("stations", (stations) => this.handleStations(stations));
         this.eufy.on("devices", (devices) => this.handleDevices(devices));
         this.eufy.on("push_notification", (messages) => this.handlePushNotification(messages));
@@ -311,12 +325,14 @@ export class EufySecurity extends utils.Adapter {
 
     private async clearEvents(events: {
         [index: string]: NodeJS.Timeout;
-    }, state: string): Promise<void> {
+    }, state: string | undefined = undefined): Promise<void> {
         for (const serialnr of Object.keys(events)) {
             clearTimeout(events[serialnr]);
-            const states = await this.getStatesAsync(`*.${serialnr}.${state}`);
-            for (const id of Object.keys(states)) {
-                await this.setStateAsync(id, { val: false, ack: true });
+            if (state !== undefined) {
+                const states = await this.getStatesAsync(`*.${serialnr}.${state}`);
+                for (const id of Object.keys(states)) {
+                    await this.setStateAsync(id, { val: false, ack: true });
+                }
             }
         }
     }
@@ -340,6 +356,7 @@ export class EufySecurity extends utils.Adapter {
             await this.clearEvents(this.cryingDetected, IndoorCameraStateID.CRYING_DETECTED);
             await this.clearEvents(this.soundDetected, IndoorCameraStateID.SOUND_DETECTED);
             await this.clearEvents(this.petDetected, IndoorCameraStateID.PET_DETECTED);
+            await this.clearEvents(this.downloadEvent);
 
             if (this.eufy)
                 this.eufy.close();
@@ -414,8 +431,7 @@ export class EufySecurity extends utils.Adapter {
                     try {
                         const device = this.eufy.getDevice("T8114P0220223A5A");
                         if (device)
-                            //this._startDownload("T8010P23201721F8", device.getStoragePath("20201008191909"), 92);
-                            this._startDownload("T8010P23201721F8", "/media/mmcblk0p1/Camera00/20210213171152.dat", 92);
+                            this.downloadEventVideo(device, new Date().getTime() - 12312, "/media/mmcblk0p1/Camera00/20210213171152.dat", 92);
                         //await this.eufy.getStation("T8010P23201721F8").startDownload(`/media/mmcblk0p1/Camera00/${20201008191909}.dat`, cipher.private_key);
                     } catch (error) {
                         this.log.error(error);
@@ -455,6 +471,22 @@ export class EufySecurity extends utils.Adapter {
                             case CameraStateID.ANTITHEFT_DETECTION:
                                 if (device && state.val !== null)
                                     station.setAntiTheftDetection(device, state.val as boolean);
+                                break;
+
+                            case CameraStateID.MOTION_DETECTION:
+                                if (device && state.val !== null)
+                                    station.setMotionDetection(device, state.val as boolean);
+                                break;
+
+                            case CameraStateID.RTSP_STREAM:
+                                if (device && state.val !== null) {
+                                    const value = state.val as boolean;
+                                    station.setRTSPStream(device, value);
+
+                                    if (!value) {
+                                        await this.delStateAsync(device.getStateID(CameraStateID.RTSP_STREAM_URL));
+                                    }
+                                }
                                 break;
 
                             case CameraStateID.AUTO_NIGHTVISION:
@@ -821,6 +853,55 @@ export class EufySecurity extends utils.Adapter {
                 try {
                     await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.AUTO_NIGHTVISION), camera.getParameter(CommandType.CMD_IRCUT_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_IRCUT_SWITCH).modified);
                 } catch (error) {
+                }
+
+                // Motion detection
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.MOTION_DETECTION), {
+                    type: "state",
+                    common: {
+                        name: "Motion detection",
+                        type: "boolean",
+                        role: "state",
+                        read: true,
+                        write: true
+                    },
+                    native: {},
+                });
+                try {
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.MOTION_DETECTION), camera.getParameter(CommandType.CMD_PIR_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_PIR_SWITCH).modified);
+                } catch (error) {
+                }
+
+                if (camera.isCamera2Product() || camera.isIndoorCamera() || camera.isSoloCameras()) {
+                    // RTSP Stream
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.RTSP_STREAM), {
+                        type: "state",
+                        common: {
+                            name: "RTSP stream enabled",
+                            type: "boolean",
+                            role: "state",
+                            read: true,
+                            write: true
+                        },
+                        native: {},
+                    });
+                    try {
+                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.RTSP_STREAM), camera.getParameter(CommandType.CMD_NAS_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_NAS_SWITCH).modified);
+                    } catch (error) {
+                    }
+
+                    // RTSP Stream URL
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.RTSP_STREAM_URL), {
+                        type: "state",
+                        common: {
+                            name: "RTSP stream URL",
+                            type: "string",
+                            role: "state",
+                            read: true,
+                            write: false
+                        },
+                        native: {},
+                    });
                 }
 
                 if (camera.isCamera2Product() || camera.isIndoorCamera() || camera.isSoloCameras() || camera.isFloodLight()) {
@@ -1377,7 +1458,8 @@ export class EufySecurity extends utils.Adapter {
             });
             const guard_mode = station.getParameter(ParamType.GUARD_MODE);
             try {
-                await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(guard_mode.value), guard_mode.modified);
+                if (guard_mode !== undefined)
+                    await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(guard_mode.value), guard_mode.modified);
             } catch (error) {
                 this.log.error(`handleStations(): GUARD_MODE - Error: ${error}`);
             }
@@ -1402,7 +1484,7 @@ export class EufySecurity extends utils.Adapter {
             //APP_CMD_GET_ALARM_MODE = 1151
             try {
                 const schedule_mode = station.getParameter(ParamType.SCHEDULE_MODE);
-                if (schedule_mode && guard_mode)
+                if (schedule_mode !== undefined && guard_mode !== undefined)
                     await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.CURRENT_MODE), guard_mode.value === "2" ? Number.parseInt(schedule_mode.value) : Number.parseInt(guard_mode.value), guard_mode.value === "2" ? station.getParameter(ParamType.SCHEDULE_MODE).modified : guard_mode.modified);
             } catch (error) {
                 this.log.error(`handleStations(): CURRENT_MODE - Error: ${error}`);
@@ -1424,17 +1506,33 @@ export class EufySecurity extends utils.Adapter {
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private _startDownload(station_sn: string, full_path: string | undefined, cipher_id: number | undefined): void {
-        /*TODO: Directly downloading the video when receiving the push notification results
-                in receiving a very short video (about 2 sec.). Start the download after a
-                delay that depends on the configured power mode of the device
-                in the meantime this feature was switched off
-        */
-        /*const station = this.eufy.getStation(station_sn);
-        if (station && !isEmpty(full_path) && cipher_id !== undefined) {
-            station.startDownload(full_path!, cipher_id);
-        }*/
+    private downloadEventVideo(device: Device, event_time: number, full_path: string | undefined, cipher_id: number | undefined): void {
+        this.log.debug(`downloadEventVideo(): device: ${device.getSerial()} full_path: ${full_path} cipher_id: ${cipher_id}`);
+        try {
+            if (!isEmpty(full_path) && cipher_id !== undefined) {
+                const station = this.eufy.getStation(device.getStationSerial());
+
+                if (station !== undefined) {
+                    if (this.downloadEvent[device.getSerial()])
+                        clearTimeout(this.downloadEvent[device.getSerial()]);
+
+                    let videoLength = getVideoClipLength(device);
+                    const time_passed = (new Date().getTime() - new Date(event_time).getTime()) / 1000;
+
+                    if (time_passed >= videoLength)
+                        videoLength = 1;
+                    else
+                        videoLength = videoLength - time_passed;
+
+                    this.log.info(`Downloading video event for device ${device.getSerial()} in ${videoLength} seconds...`);
+                    this.downloadEvent[device.getSerial()] = setTimeout(async () => {
+                        station.startDownload(device, full_path!, cipher_id);
+                    }, videoLength * 1000);
+                }
+            }
+        } catch (error) {
+            this.log.error(`downloadEventVideo(): device: ${device.getSerial()} - Error: ${error}`);
+        }
     }
 
     private async handlePushNotification(push_msg: PushMessage): Promise<void> {
@@ -1460,8 +1558,6 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): DoorbellPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case DoorbellPushEvent.FACE_DETECTION:
                                 await this.setStateAsync(device.getStateID(DoorbellStateID.PERSON_DETECTED), { val: true, ack: true });
@@ -1476,8 +1572,6 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): DoorbellPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case DoorbellPushEvent.PRESS_DOORBELL:
                                 await this.setStateAsync(device.getStateID(DoorbellStateID.RINGING), { val: true, ack: true });
@@ -1496,6 +1590,8 @@ export class EufySecurity extends utils.Adapter {
                                 this.log.debug(`handlePushNotifications(): Unhandled doorbell push event: ${JSON.stringify(push_msg)}`);
                                 break;
                         }
+                        if (push_msg.push_count === 1)
+                            this.downloadEventVideo(device, push_msg.event_time, push_msg.file_path, push_msg.cipher);
                     } else {
                         this.log.debug(`handlePushNotifications(): DoorbellPushEvent - Device not found: ${push_msg.device_sn}`);
                     }
@@ -1516,8 +1612,6 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.MOTION_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.FACE_DETECTION:
                                 await this.setStateAsync(device.getStateID(IndoorCameraStateID.PERSON_DETECTED), { val: true, ack: true });
@@ -1532,8 +1626,6 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.FACE_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.CRYIG_DETECTION:
                                 await this.setStateAsync(device.getStateID(IndoorCameraStateID.CRYING_DETECTED), { val: true, ack: true });
@@ -1547,8 +1639,6 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.CRYIG_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.SOUND_DETECTION:
                                 await this.setStateAsync(device.getStateID(IndoorCameraStateID.SOUND_DETECTED), { val: true, ack: true });
@@ -1562,8 +1652,6 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.SOUND_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             case IndoorPushEvent.PET_DETECTION:
                                 await this.setStateAsync(device.getStateID(IndoorCameraStateID.PET_DETECTED), { val: true, ack: true });
@@ -1577,13 +1665,13 @@ export class EufySecurity extends utils.Adapter {
                                         this.log.error(`handlePushNotifications(): IndoorPushEvent.PET_DETECTION of device ${device.getSerial()} - saveImageStates(): url ${push_msg.pic_url}`);
                                     });
                                 }
-                                if (push_msg.push_count === 1)
-                                    this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
                                 break;
                             default:
                                 this.log.debug(`handlePushNotifications(): Unhandled indoor camera push event: ${JSON.stringify(push_msg)}`);
                                 break;
                         }
+                        if (push_msg.push_count === 1)
+                            this.downloadEventVideo(device, push_msg.event_time, push_msg.file_path, push_msg.cipher);
                     } else {
                         this.log.debug(`handlePushNotifications(): IndoorPushEvent - Device not found: ${push_msg.device_sn}`);
                     }
@@ -1639,7 +1727,7 @@ export class EufySecurity extends utils.Adapter {
                                         }, this.config.eventDuration * 1000);
                                     }
                                     if (push_msg.push_count === 1)
-                                        this._startDownload(push_msg.station_sn, push_msg.file_path, push_msg.cipher);
+                                        this.downloadEventVideo(device, push_msg.event_time, push_msg.file_path, push_msg.cipher);
                                 } else {
                                     this.log.debug(`handlePushNotifications(): CusPushEvent.SECURITY - Device not found: ${push_msg.device_sn}`);
                                 }
@@ -1736,7 +1824,7 @@ export class EufySecurity extends utils.Adapter {
 
         this.eufy.registerPushNotifications(this.getPersistentData().push_credentials, this.getPersistentData().push_persistentIds);
         Object.values(this.eufy.getStations()).forEach(function (station: Station) {
-            station.connect();
+            station.connect(true);
         });
     }
 

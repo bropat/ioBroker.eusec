@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import { readBigUInt64BE } from "read-bigint";
 import axios, { AxiosResponse } from "axios";
-import { CommandType } from "eufy-security-client";
+import { CommandType, Device } from "eufy-security-client";
 import path from "path";
 import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
@@ -55,6 +55,10 @@ export const getState = function(type: CommandType): string | null {
             return CameraStateID.ANTITHEFT_DETECTION;
         case CommandType.CMD_IRCUT_SWITCH:
             return CameraStateID.AUTO_NIGHTVISION;
+        case CommandType.CMD_PIR_SWITCH:
+            return CameraStateID.MOTION_DETECTION;
+        case CommandType.CMD_NAS_SWITCH:
+            return CameraStateID.RTSP_STREAM;
         case CommandType.CMD_DEV_LED_SWITCH:
             return CameraStateID.LED_STATUS;
     }
@@ -224,3 +228,40 @@ export const lowestUnusedNumber = function (sequence: number[], startingFrom: nu
         return num !== seqIndex && seqIndex < lowest ? seqIndex : lowest
     }, arr.length + startingFrom);
 }
+
+export const sleep = async (ms: number): Promise<void> => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+};
+
+export const getVideoClipLength = (device: Device): number => {
+    let length = 60;
+    const workingMode = device.getParameter(CommandType.CMD_SET_PIR_POWERMODE);
+    if (workingMode !== undefined) {
+        switch(workingMode.value) {
+            case "0":
+                if (device.isCamera2Product() || device.isIndoorCamera() || device.isSoloCameras())
+                    length = 20;
+                else if (device.isBatteryDoorbell() || device.isBatteryDoorbell2())
+                    length = 30;
+                break;
+            case "1":
+                // Corrisponds to 60 seconds
+                break;
+            case "2":
+                const customValue = device.getParameter(CommandType.CMD_DEV_RECORD_TIMEOUT);
+                if (customValue !== undefined) {
+                    try {
+                        length = Number.parseInt(customValue.value);
+                    } catch(error) {
+                    }
+                }
+                break;
+            case "3":
+                // Corrisponds to 60 seconds?? (this mode exists only for battery doorbells; mode: Optimal Battery Life)
+                break;
+        }
+    }
+    return length;
+};

@@ -73,5 +73,65 @@ systemDictionary = {
         "es": "Tiempo en segundos antes del reinicio del evento",
         "pl": "Czas w sekundach do zresetowania zdarzenia",
         "zh-cn": "事件重置之前的时间（以秒为单位）"
+    },
+    "Authentication settings": {
+        "en": "Authentication settings",
+        "de": "Authentifizierungseinstellungen",
+        "ru": "Настройки аутентификации",
+        "pt": "Configurações de autenticação",
+        "nl": "Authenticatie-instellingen",
+        "fr": "Paramètres d'authentification",
+        "it": "Impostazioni di autenticazione",
+        "es": "Configuración de autenticación",
+        "pl": "Ustawienia uwierzytelniania",
+        "zh-cn": "验证设定"
+    },
+    "Other settings": {
+        "en": "Other settings",
+        "de": "Andere Einstellungen",
+        "ru": "Другие настройки",
+        "pt": "Outros ajustes",
+        "nl": "Andere instellingen",
+        "fr": "Autres réglages",
+        "it": "Altre impostazioni",
+        "es": "Otros ajustes",
+        "pl": "Inne ustawienia",
+        "zh-cn": "其他设定"
+    },
+    "Settings": {
+        "en": "Settings",
+        "de": "Einstellungen",
+        "ru": "Настройки",
+        "pt": "Configurações",
+        "nl": "Instellingen",
+        "fr": "Réglages",
+        "it": "Impostazioni",
+        "es": "Ajustes",
+        "pl": "Ustawienia",
+        "zh-cn": "设定值"
+    },
+    "Main settings": {
+        "en": "Main settings",
+        "de": "Haupteinstellungen",
+        "ru": "Основные параметры",
+        "pt": "Configurações principais",
+        "nl": "Belangrijkste instellingen",
+        "fr": "Réglages principaux",
+        "it": "Impostazioni principali",
+        "es": "Ajustes principales",
+        "pl": "Ustawienia główne",
+        "zh-cn": "主要设定"
+    },
+    "Livestream settings": {
+        "en": "Livestream settings",
+        "de": "Livestream-Einstellungen",
+        "ru": "Настройки прямой трансляции",
+        "pt": "Configurações de transmissão ao vivo",
+        "nl": "Livestream-instellingen",
+        "fr": "Paramètres de diffusion en direct",
+        "it": "Impostazioni live streaming",
+        "es": "Configuración de transmisión en vivo",
+        "pl": "Ustawienia transmisji na żywo",
+        "zh-cn": "直播设置"
     }
 };

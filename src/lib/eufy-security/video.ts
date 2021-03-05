@@ -3,12 +3,13 @@ import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import pathToFfmpeg from "ffmpeg-static";
 import { Readable } from "stream";
-import { StreamMetadata, AudioCodec, VideoCodec } from "eufy-security-client";
+import { StreamMetadata/*, AudioCodec, VideoCodec*/ } from "eufy-security-client";
 import { tmpdir } from "os";
 import fse from "fs-extra";
 
 import { ioBrokerLogger } from "./log";
 import { lowestUnusedNumber } from "./utils";
+import { StoppablePromise } from "./types";
 
 class UniversalStream {
 
@@ -62,14 +63,14 @@ export const StreamOutput = function(namespace: string, stream: NodeJS.WritableS
     return new UniversalStream(namespace, (socket: net.Socket) => socket.pipe(stream, { end: true }))
 }
 
-export const ffmpegPreviewImage = (input:string, output: string, log: ioBrokerLogger): Promise<void> => {
+export const ffmpegPreviewImage = (config: ioBroker.AdapterConfig, input:string, output: string, log: ioBrokerLogger, skip_seconds = 2.0): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
             ffmpeg.setFfmpegPath(pathToFfmpeg);
 
             ffmpeg()
                 .addOptions([
-                    "-ss 2.0",
+                    `-ss ${skip_seconds}`,
                     "-frames:v 1"
                 ])
                 .input(input)
@@ -94,7 +95,7 @@ export const ffmpegPreviewImage = (input:string, output: string, log: ioBrokerLo
     });
 }
 
-export const ffmpegStreamToHls = (namespace: string, metadata: StreamMetadata, videoStream: Readable, audioStream: Readable, output: string, log: ioBrokerLogger): Promise<void> => {
+export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: string, metadata: StreamMetadata, videoStream: Readable, audioStream: Readable, output: string, log: ioBrokerLogger): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
             ffmpeg.setFfmpegPath(pathToFfmpeg);
@@ -102,52 +103,37 @@ export const ffmpegStreamToHls = (namespace: string, metadata: StreamMetadata, v
             const uVideoStream = StreamInput(namespace, videoStream);
             const uAudioStream = StreamInput(namespace, audioStream);
 
-            let videoFormat = "h264";
-            let audioFormat = "aac";
             const options: string[] = [
-                "-strict -2",
-                "-crf 21",
-                "-pix_fmt yuv420p",
-                "-hls_time 4",
-                "-start_number 1",
+                "-hls_init_time 0",
+                "-hls_time 2",
+                "-hls_segment_type mpegts",
+                "-absf aac_adtstoasc",
+                //"-hls_time 4",
+                //"-start_number 1",
                 "-sc_threshold 0",
                 `-g ${metadata.videoFPS}`,
-                "-preset veryfast",
-                //"-hls_flags single_file",
-                "-hls_playlist_type event",
-                //"-hls_segment_filename stream_%v/data%06d.ts",
-                //"-use_localtime_mkdir 1"
+                "-fflags genpts+nobuffer+flush_packets",
+                //"-flush_packets 1",
+                "-hls_playlist_type event"
+                //"-hls_flags split_by_time"
             ];
-
-            switch(metadata.videoCodec) {
-                case VideoCodec.H264:
-                    videoFormat = "h264";
-                    options.push("-profile:v baseline");
-                    break;
-                case VideoCodec.H265:
-                    videoFormat = "hevc";
-                    break;
-            }
-
-            switch(metadata.audioCodec) {
-                case AudioCodec.AAC:
-                    audioFormat = "aac";
-                    break;
-            }
 
             ffmpeg()
                 .input(uVideoStream.url)
-                .inputFormat(videoFormat)
+                .inputFormat("h264")
                 .inputFps(metadata.videoFPS)
                 .input(uAudioStream.url)
-                .inputFormat(audioFormat)
+                .inputFormat("aac")
+                .videoCodec("copy")
+                .audioCodec("copy")
                 .output(output)
-                .size(`${metadata.videoWidth}x${metadata.videoHeight}`)
                 .addOptions(options)
                 .on("error", function(err, stdout, stderr) {
                     log.error(`ffmpegStreamToHls(): An error occurred: ${err.message}`);
                     log.error(`ffmpegStreamToHls(): ffmpeg output:\n${stdout}`);
                     log.error(`ffmpegStreamToHls(): ffmpeg stderr:\n${stderr}`);
+                    uVideoStream.close();
+                    uAudioStream.close();
                     reject(err);
                 })
                 .on("end", () => {
@@ -164,24 +150,31 @@ export const ffmpegStreamToHls = (namespace: string, metadata: StreamMetadata, v
     });
 }
 
-export const ffmpegRTMPToHls = (rtmp_url: string, output: string, log: ioBrokerLogger): Promise<void> => {
-    return new Promise((resolve, reject) => {
+export const ffmpegRTMPToHls = (config: ioBroker.AdapterConfig, rtmp_url: string, output: string, log: ioBrokerLogger): StoppablePromise => {
+    //TODO: Handle graceful stop of ffmpeg process
+    let resolveCb: () => void;
+    let ffmpegCommand: ffmpeg.FfmpegCommand;
+
+    const rtmpPromise = new Promise((resolve, reject) => {
+        resolveCb = resolve;
         try {
             ffmpeg.setFfmpegPath(pathToFfmpeg);
 
-            ffmpeg(rtmp_url, { timeout: 30 })
+            //TODO: Timeout option isn't correct, fix it when handling graceful stop of ffmpeg process
+            ffmpegCommand = ffmpeg(rtmp_url, { timeout: 180 })
+                .videoCodec("copy")
+                .audioCodec("copy")
+                .output(output)
                 .addOptions([
-                    "-c:v libx264",
-                    "-c:a aac",
-                    "-profile:v baseline",
-                    "-strict -2",
-                    "-crf 21",
-                    "-pix_fmt yuv420p",
-                    "-hls_time 4",
-                    "-start_number 1",
+                    "-hls_init_time 0",
+                    "-hls_time 2",
+                    "-hls_segment_type mpegts",
+                    "-absf aac_adtstoasc",
+                    //"-start_number 1",
                     "-sc_threshold 0",
                     "-g 15",
-                    "-preset veryfast",
+                    "-fflags genpts+nobuffer+flush_packets",
+                    //"-flush_packets 1",
                     "-hls_playlist_type event"
                 ])
                 .on("error", function(err, stdout, stderr) {
@@ -193,11 +186,19 @@ export const ffmpegRTMPToHls = (rtmp_url: string, output: string, log: ioBrokerL
                 .on("end", () => {
                     log.debug("ffmpegRTMPToHls(): Processing finished!");
                     resolve();
-                })
-                .run();
+                });
+            ffmpegCommand.run();
         } catch (error) {
             log.error(`ffmpegRTMPToHls(): Error: ${error}`);
             reject(error);
         }
-    });
+    }) as StoppablePromise;
+
+    rtmpPromise.stop = () => {
+        ffmpegCommand.removeAllListeners();
+        ffmpegCommand.kill("SIGINT");
+        resolveCb();
+    };
+
+    return rtmpPromise;
 }

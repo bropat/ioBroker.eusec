@@ -1,3 +1,5 @@
+import { IStoppablePromise } from "./interfaces";
+
 export const DataLocation = {
     LIVESTREAM: "live",
     LAST_LIVESTREAM: "last_live",
@@ -9,7 +11,7 @@ export const STREAM_FILE_NAME_EXT = ".m3u8";
 export const IMAGE_FILE_JPEG_EXT = ".jpeg";
 export const IMAGE_FILE_PNG_EXT = ".png";
 
-//export type VideoConversionEndCallback = (station: Station, device: Device, ) => any;
+export type StoppablePromise = IStoppablePromise<void>;
 
 export const DeviceStateID = {
     NAME: "name",
@@ -46,7 +48,10 @@ export const CameraStateID = {
     WATERMARK: "watermark",
     ANTITHEFT_DETECTION: "antitheft_detection",
     AUTO_NIGHTVISION: "auto_nightvision",
-    LED_STATUS: "led_status"
+    MOTION_DETECTION: "motion_detection",
+    LED_STATUS: "led_status",
+    RTSP_STREAM: "rtsp_stream",
+    RTSP_STREAM_URL: "rtsp_stream_url"
 }
 
 export const StationStateID = {
