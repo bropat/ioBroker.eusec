@@ -141,7 +141,7 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
-### 0.3.0 (2021-03-xx)
+### 0.3.0 (2021-03-05)
 * (bropat) Implemented feature request [#88](https://github.com/bropat/ioBroker.eufy-security/issues/88): Enable/disable motion detection for camera products
 * (bropat) Implemented feature request [#81](https://github.com/bropat/ioBroker.eufy-security/issues/81): Enable/disable RTSP stream (added also RTSP stream url)
 * (bropat) Implemented asynchronous download of event videos when receiving a push notification
