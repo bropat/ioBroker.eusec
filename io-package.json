@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.3.0",
+        "version": "0.3.1",
         "news": {
+            "0.3.1": {
+                "en": "Fixed regression on livestream with h265 codec",
+                "de": "Regression im Livestream mit h265-Codec behoben",
+                "ru": "Исправлена регрессия в прямом эфире с кодеком h265",
+                "pt": "Regressão corrigida na transmissão ao vivo com codec h265",
+                "nl": "Vaste regressie op livestream met h265-codec",
+                "fr": "Correction de la régression sur la diffusion en direct avec le codec h265",
+                "it": "Risolto il problema con la regressione in live streaming con il codec h265",
+                "es": "Se corrigió la regresión en la transmisión en vivo con el códec h265",
+                "pl": "Naprawiono regresję podczas transmisji na żywo z kodekiem h265",
+                "zh-cn": "使用H265编解码器修复了实时流的回归"
+            },
             "0.3.0": {
                 "en": "Implemented feature request #81, #88 and asynchronous download of event videos including some fixes",
                 "de": "Implementierte Feature-Anforderung Nr. 81, Nr. 88 und asynchrones Herunterladen von Ereignisvideos einschließlich einiger Korrekturen",
@@ -194,66 +206,6 @@
                 "es": "Problema solucionado # 13",
                 "pl": "Naprawiono problem nr 13",
                 "zh-cn": "已修复问题13"
-            },
-            "0.0.5": {
-                "en": "Added event states for different devices (motion detected, person detected, etc.)",
-                "de": "Ereigniszustände für Kamera hinzugefügt (Bewegung erkannt, Person erkannt)",
-                "ru": "Добавлены состояния событий для камеры (обнаружено движение, обнаружен человек)",
-                "pt": "Adicionados estados de eventos para a câmera (movimento detectado, pessoa detectada)",
-                "nl": "Gebeurtenisstatussen toegevoegd voor camera (beweging gedetecteerd, persoon gedetecteerd)",
-                "fr": "Ajout d'états d'événement pour la caméra (mouvement détecté, personne détectée)",
-                "it": "Aggiunti stati evento per la telecamera (movimento rilevato, persona rilevata)",
-                "es": "Estados de eventos agregados para la cámara (movimiento detectado, persona detectada)",
-                "pl": "Dodano stany zdarzeń dla kamery (wykryto ruch, wykryto osobę)",
-                "zh-cn": "添加了摄像机的事件状态（检测到运动，检测到人）"
-            },
-            "0.0.4": {
-                "en": "Better exception handling; Push notification fixes",
-                "de": "Bessere Ausnahmebehandlung; Push-Benachrichtigungskorrekturen",
-                "ru": "Лучшая обработка исключений; Исправления push-уведомлений",
-                "pt": "Melhor tratamento de exceções; Correções de notificação push",
-                "nl": "Betere afhandeling van uitzonderingen; Fixes voor pushmeldingen",
-                "fr": "Meilleure gestion des exceptions; Correction des notifications push",
-                "it": "Migliore gestione delle eccezioni; Correzioni delle notifiche push",
-                "es": "Mejor manejo de excepciones; Correcciones de notificaciones push",
-                "pl": "Lepsza obsługa wyjątków; Poprawki powiadomień push",
-                "zh-cn": "更好的异常处理；推送通知修复"
-            },
-            "0.0.3": {
-                "en": "Fixed issue with push notification credentials initialization",
-                "de": "Problem bei der Initialisierung der Anmeldeinformationen für Push-Benachrichtigungen behoben",
-                "ru": "Исправлена проблема с инициализацией учетных данных push-уведомлений.",
-                "pt": "Corrigido problema com a inicialização de credenciais de notificação push",
-                "nl": "Probleem opgelost met initialisatie van aanmeldingsgegevens voor pushmeldingen",
-                "fr": "Correction d'un problème avec l'initialisation des informations d'identification de notification push",
-                "it": "Risolto il problema con l'inizializzazione delle credenziali di notifica push",
-                "es": "Problema solucionado con la inicialización de las credenciales de notificación push",
-                "pl": "Naprawiono problem z inicjalizacją poświadczeń powiadomień push",
-                "zh-cn": "推送通知凭证初始化的已修复问题"
-            },
-            "0.0.2": {
-                "en": "Added push notification support for event notification",
-                "de": "Unterstützung für Push-Benachrichtigungen für Ereignisbenachrichtigungen hinzugefügt",
-                "ru": "Добавлена поддержка push-уведомлений для уведомлений о событиях",
-                "pt": "Adicionado suporte de notificação push para notificação de eventos",
-                "nl": "Ondersteuning voor pushmeldingen toegevoegd voor melding van gebeurtenissen",
-                "fr": "Ajout de la prise en charge des notifications push pour la notification d'événements",
-                "it": "Aggiunto supporto per le notifiche push per la notifica degli eventi",
-                "es": "Se agregó soporte de notificación push para notificación de eventos",
-                "pl": "Dodano obsługę powiadomień push dla powiadomień o wydarzeniach",
-                "zh-cn": "增加了对事件通知的推送通知支持"
-            },
-            "0.0.1": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "zh-cn": "首次出版"
             }
         },
         "title": "Eufy Security",

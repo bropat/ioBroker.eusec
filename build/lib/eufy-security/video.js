@@ -8,6 +8,7 @@ const net_1 = __importDefault(require("net"));
 const path_1 = __importDefault(require("path"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 const ffmpeg_static_1 = __importDefault(require("ffmpeg-static"));
+const eufy_security_client_1 = require("eufy-security-client");
 const os_1 = require("os");
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const utils_1 = require("./utils");
@@ -89,12 +90,13 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
             const uVideoStream = exports.StreamInput(namespace, videoStream);
             const uAudioStream = exports.StreamInput(namespace, audioStream);
+            let videoFormat = "h264";
+            let audioFormat = "aac";
             const options = [
                 "-hls_init_time 0",
                 "-hls_time 2",
                 "-hls_segment_type mpegts",
                 "-absf aac_adtstoasc",
-                //"-hls_time 4",
                 //"-start_number 1",
                 "-sc_threshold 0",
                 `-g ${metadata.videoFPS}`,
@@ -103,12 +105,25 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
                 "-hls_playlist_type event"
                 //"-hls_flags split_by_time"
             ];
+            switch (metadata.videoCodec) {
+                case eufy_security_client_1.VideoCodec.H264:
+                    videoFormat = "h264";
+                    break;
+                case eufy_security_client_1.VideoCodec.H265:
+                    videoFormat = "hevc";
+                    break;
+            }
+            switch (metadata.audioCodec) {
+                case eufy_security_client_1.AudioCodec.AAC:
+                    audioFormat = "aac";
+                    break;
+            }
             fluent_ffmpeg_1.default()
                 .input(uVideoStream.url)
-                .inputFormat("h264")
+                .inputFormat(videoFormat)
                 .inputFps(metadata.videoFPS)
                 .input(uAudioStream.url)
-                .inputFormat("aac")
+                .inputFormat(audioFormat)
                 .videoCodec("copy")
                 .audioCodec("copy")
                 .output(output)
@@ -137,15 +152,13 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
 };
 exports.ffmpegStreamToHls = ffmpegStreamToHls;
 const ffmpegRTMPToHls = (config, rtmp_url, output, log) => {
-    //TODO: Handle graceful stop of ffmpeg process
     let resolveCb;
     let ffmpegCommand;
     const rtmpPromise = new Promise((resolve, reject) => {
         resolveCb = resolve;
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
-            //TODO: Timeout option isn't correct, fix it when handling graceful stop of ffmpeg process
-            ffmpegCommand = fluent_ffmpeg_1.default(rtmp_url, { timeout: 180 })
+            ffmpegCommand = fluent_ffmpeg_1.default(rtmp_url)
                 .videoCodec("copy")
                 .audioCodec("copy")
                 .output(output)

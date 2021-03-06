@@ -3,7 +3,7 @@ import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import pathToFfmpeg from "ffmpeg-static";
 import { Readable } from "stream";
-import { StreamMetadata/*, AudioCodec, VideoCodec*/ } from "eufy-security-client";
+import { StreamMetadata, AudioCodec, VideoCodec } from "eufy-security-client";
 import { tmpdir } from "os";
 import fse from "fs-extra";
 
@@ -103,12 +103,13 @@ export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: str
             const uVideoStream = StreamInput(namespace, videoStream);
             const uAudioStream = StreamInput(namespace, audioStream);
 
+            let videoFormat = "h264";
+            let audioFormat = "aac";
             const options: string[] = [
                 "-hls_init_time 0",
                 "-hls_time 2",
                 "-hls_segment_type mpegts",
                 "-absf aac_adtstoasc",
-                //"-hls_time 4",
                 //"-start_number 1",
                 "-sc_threshold 0",
                 `-g ${metadata.videoFPS}`,
@@ -118,12 +119,27 @@ export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: str
                 //"-hls_flags split_by_time"
             ];
 
+            switch(metadata.videoCodec) {
+                case VideoCodec.H264:
+                    videoFormat = "h264";
+                    break;
+                case VideoCodec.H265:
+                    videoFormat = "hevc";
+                    break;
+            }
+
+            switch(metadata.audioCodec) {
+                case AudioCodec.AAC:
+                    audioFormat = "aac";
+                    break;
+            }
+
             ffmpeg()
                 .input(uVideoStream.url)
-                .inputFormat("h264")
+                .inputFormat(videoFormat)
                 .inputFps(metadata.videoFPS)
                 .input(uAudioStream.url)
-                .inputFormat("aac")
+                .inputFormat(audioFormat)
                 .videoCodec("copy")
                 .audioCodec("copy")
                 .output(output)
@@ -151,7 +167,6 @@ export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: str
 }
 
 export const ffmpegRTMPToHls = (config: ioBroker.AdapterConfig, rtmp_url: string, output: string, log: ioBrokerLogger): StoppablePromise => {
-    //TODO: Handle graceful stop of ffmpeg process
     let resolveCb: () => void;
     let ffmpegCommand: ffmpeg.FfmpegCommand;
 
@@ -160,8 +175,7 @@ export const ffmpegRTMPToHls = (config: ioBroker.AdapterConfig, rtmp_url: string
         try {
             ffmpeg.setFfmpegPath(pathToFfmpeg);
 
-            //TODO: Timeout option isn't correct, fix it when handling graceful stop of ffmpeg process
-            ffmpegCommand = ffmpeg(rtmp_url, { timeout: 180 })
+            ffmpegCommand = ffmpeg(rtmp_url)
                 .videoCodec("copy")
                 .audioCodec("copy")
                 .output(output)
