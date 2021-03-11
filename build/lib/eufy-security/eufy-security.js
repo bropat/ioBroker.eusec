@@ -163,7 +163,8 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
         }
     }
     onConnect(station) {
-        station.getCameraInfo();
+        if (station.getDeviceType() !== eufy_security_client_1.DeviceType.DOORBELL)
+            station.getCameraInfo();
     }
     onClose(station) {
         try {
@@ -240,7 +241,22 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
             }
             else {
                 let new_device;
-                if (eufy_security_client_1.Device.isCamera(device.device_type)) {
+                if (eufy_security_client_1.Device.isIndoorCamera(device.device_type)) {
+                    new_device = new eufy_security_client_1.IndoorCamera(this.api, device);
+                }
+                else if (eufy_security_client_1.Device.isSoloCamera(device.device_type)) {
+                    new_device = new eufy_security_client_1.SoloCamera(this.api, device);
+                }
+                else if (eufy_security_client_1.Device.isBatteryDoorbell(device.device_type) || eufy_security_client_1.Device.isBatteryDoorbell2(device.device_type)) {
+                    new_device = new eufy_security_client_1.BatteryDoorbellCamera(this.api, device);
+                }
+                else if (eufy_security_client_1.Device.isWiredDoorbell(device.device_type)) {
+                    new_device = new eufy_security_client_1.DoorbellCamera(this.api, device);
+                }
+                else if (eufy_security_client_1.Device.isFloodLight(device.device_type)) {
+                    new_device = new eufy_security_client_1.FloodlightCamera(this.api, device);
+                }
+                else if (eufy_security_client_1.Device.isCamera(device.device_type)) {
                     new_device = new eufy_security_client_1.Camera(this.api, device);
                 }
                 else if (eufy_security_client_1.Device.isLock(device.device_type)) {
@@ -273,7 +289,7 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.api.updateDeviceInfo();
             Object.values(this.stations).forEach((station) => __awaiter(this, void 0, void 0, function* () {
-                if (station.isConnected())
+                if (station.isConnected() && station.getDeviceType() !== eufy_security_client_1.DeviceType.DOORBELL)
                     yield station.getCameraInfo();
             }));
         });
@@ -386,9 +402,10 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} WIFI_RSSI Error: ${error}`);
             }
         }
-        else if (type == eufy_security_client_1.CommandType.CMD_DEVS_SWITCH || type == 99904) {
+        else if (type == eufy_security_client_1.CommandType.CMD_DEVS_SWITCH || type == 99904 || type === eufy_security_client_1.ParamType.OPEN_DEVICE) {
             try {
-                utils_1.setStateChangedWithTimestamp(this.adapter, device.getStateID(types_1.CameraStateID.ENABLED), device.isEnabled(), modified);
+                const enabled = device.isEnabled();
+                utils_1.setStateChangedWithTimestamp(this.adapter, device.getStateID(types_1.CameraStateID.ENABLED), enabled.value, modified);
             }
             catch (error) {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} ENABLED Error: ${error}`);

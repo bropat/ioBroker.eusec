@@ -93,5 +93,7 @@ export const IndoorCameraStateID = {
     ...CameraStateID,
     CRYING_DETECTED: "crying_detected",
     SOUND_DETECTED: "sound_detected",
+    SOUND_DETECTION: "sound_detection",
     PET_DETECTED: "pet_detected",
+    PET_DETECTION: "pet_detection",
 }

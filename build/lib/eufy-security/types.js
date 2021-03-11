@@ -24,4 +24,4 @@ exports.EntrySensorStateID = Object.assign(Object.assign({}, exports.DeviceState
 exports.MotionSensorStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", LOW_BATTERY: "low_battery", MOTION_DETECTED: "motion_detected" });
 exports.KeyPadStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", LOW_BATTERY: "low_battery" });
 exports.DoorbellStateID = Object.assign(Object.assign({}, exports.CameraStateID), { RINGING: "ringing" });
-exports.IndoorCameraStateID = Object.assign(Object.assign({}, exports.CameraStateID), { CRYING_DETECTED: "crying_detected", SOUND_DETECTED: "sound_detected", PET_DETECTED: "pet_detected" });
+exports.IndoorCameraStateID = Object.assign(Object.assign({}, exports.CameraStateID), { CRYING_DETECTED: "crying_detected", SOUND_DETECTED: "sound_detected", SOUND_DETECTION: "sound_detection", PET_DETECTED: "pet_detected", PET_DETECTION: "pet_detection" });

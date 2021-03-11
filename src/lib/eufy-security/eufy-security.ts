@@ -1,5 +1,5 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { HTTPApi, Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice, Devices, FullDevices, Hubs, Station, Stations, ParamType, FullDeviceResponse, HubResponse, Credentials, PushMessage, CommandResult, CommandType, ErrorCode, StreamMetadata, PushNotificationService, ParameterArray, AuthResult } from "eufy-security-client";
+import { HTTPApi, Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice, Devices, FullDevices, Hubs, Station, Stations, ParamType, FullDeviceResponse, HubResponse, Credentials, PushMessage, CommandResult, CommandType, ErrorCode, StreamMetadata, PushNotificationService, ParameterArray, AuthResult, DoorbellCamera, FloodlightCamera, IndoorCamera, SoloCamera, BatteryDoorbellCamera, DeviceType } from "eufy-security-client";
 import { Readable } from "stream";
 import fse from "fs-extra";
 
@@ -180,7 +180,8 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
     }
 
     private onConnect(station: Station): void {
-        station.getCameraInfo();
+        if (station.getDeviceType() !== DeviceType.DOORBELL)
+            station.getCameraInfo();
     }
 
     private onClose(station: Station): void {
@@ -251,7 +252,17 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
             } else {
                 let new_device: Device;
 
-                if (Device.isCamera(device.device_type)) {
+                if (Device.isIndoorCamera(device.device_type)) {
+                    new_device = new IndoorCamera(this.api, device);
+                } else if (Device.isSoloCamera(device.device_type)) {
+                    new_device = new SoloCamera(this.api, device);
+                } else if (Device.isBatteryDoorbell(device.device_type) || Device.isBatteryDoorbell2(device.device_type)) {
+                    new_device = new BatteryDoorbellCamera(this.api, device);
+                } else if (Device.isWiredDoorbell(device.device_type)) {
+                    new_device = new DoorbellCamera(this.api, device);
+                } else if (Device.isFloodLight(device.device_type)) {
+                    new_device = new FloodlightCamera(this.api, device);
+                } else if (Device.isCamera(device.device_type)) {
                     new_device = new Camera(this.api, device);
                 } else if (Device.isLock(device.device_type)) {
                     new_device = new Lock(this.api, device);
@@ -280,7 +291,7 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
     public async refreshData(): Promise<void> {
         await this.api.updateDeviceInfo();
         Object.values(this.stations).forEach(async (station: Station) => {
-            if (station.isConnected())
+            if (station.isConnected() && station.getDeviceType() !== DeviceType.DOORBELL)
                 await station.getCameraInfo();
         });
     }
@@ -390,9 +401,10 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
             } catch (error) {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} WIFI_RSSI Error: ${error}`);
             }
-        } else if (type == CommandType.CMD_DEVS_SWITCH || type == 99904) {
+        } else if (type == CommandType.CMD_DEVS_SWITCH || type == 99904 || type === ParamType.OPEN_DEVICE) {
             try {
-                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.ENABLED), device.isEnabled(), modified);
+                const enabled = device.isEnabled();
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.ENABLED), enabled.value, modified);
             } catch (error) {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} ENABLED Error: ${error}`);
             }

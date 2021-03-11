@@ -1,12 +1,12 @@
 import * as crypto from "crypto";
 import { readBigUInt64BE } from "read-bigint";
 import axios, { AxiosResponse } from "axios";
-import { CommandType, Device } from "eufy-security-client";
+import { CommandType, Device, ParamType } from "eufy-security-client";
 import path from "path";
 import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
 
-import { CameraStateID, IMAGE_FILE_JPEG_EXT, StationStateID } from "./types";
+import { CameraStateID, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, StationStateID } from "./types";
 import { ImageResponse } from "./interfaces";
 
 export const decrypt = (key: string, value: string): string => {
@@ -42,7 +42,7 @@ export const isEmpty = function(str: string | null | undefined): boolean {
     return true;
 };
 
-export const getState = function(type: CommandType): string | null {
+export const getState = function(type: CommandType | ParamType): string | null {
     //TODO: Extend the implementation as soon as new p2p commands are implemented!
     switch(type) {
         case CommandType.CMD_SET_ARMING:
@@ -56,10 +56,23 @@ export const getState = function(type: CommandType): string | null {
         case CommandType.CMD_IRCUT_SWITCH:
             return CameraStateID.AUTO_NIGHTVISION;
         case CommandType.CMD_PIR_SWITCH:
+        case CommandType.CMD_INDOOR_DET_SET_MOTION_DETECT_ENABLE:
             return CameraStateID.MOTION_DETECTION;
         case CommandType.CMD_NAS_SWITCH:
             return CameraStateID.RTSP_STREAM;
         case CommandType.CMD_DEV_LED_SWITCH:
+        case CommandType.CMD_INDOOR_LED_SWITCH:
+        case CommandType.CMD_BAT_DOORBELL_SET_LED_ENABLE:
+            return CameraStateID.LED_STATUS;
+        case CommandType.CMD_INDOOR_DET_SET_SOUND_DETECT_ENABLE:
+            return IndoorCameraStateID.SOUND_DETECTION;
+        case CommandType.CMD_INDOOR_DET_SET_PET_ENABLE:
+            return IndoorCameraStateID.PET_DETECTION;
+    }
+    switch(type) {
+        case ParamType.COMMAND_MOTION_DETECTION_PACKAGE:
+            return CameraStateID.MOTION_DETECTION;
+        case ParamType.COMMAND_LED_NIGHT_OPEN:
             return CameraStateID.LED_STATUS;
     }
     return null;
@@ -264,4 +277,30 @@ export const getVideoClipLength = (device: Device): number => {
         }
     }
     return length;
+};
+
+export const handleUpdate = async function(adapter: ioBroker.Adapter, old_version: number): Promise<void> {
+    if (old_version <= 31) {
+        try {
+            const watermark = await adapter.getStatesAsync("*.watermark");
+            Object.keys(watermark).forEach(async id => {
+                await adapter.delObjectAsync(id);
+            });
+        } catch (error) {
+        }
+        try {
+            const state = await adapter.getStatesAsync("*.state");
+            Object.keys(state).forEach(async id => {
+                await adapter.delObjectAsync(id);
+            });
+        } catch (error) {
+        }
+        try {
+            const wifi_rssi = await adapter.getStatesAsync("*.wifi_rssi");
+            Object.keys(wifi_rssi).forEach(async id => {
+                await adapter.delObjectAsync(id);
+            });
+        } catch (error) {
+        }
+    }
 };

@@ -30,6 +30,7 @@ export interface PersistentData {
     cloud_token_expiration: number;
     push_credentials: Credentials | undefined;
     push_persistentIds: string[];
+    version: string;
 }
 
 

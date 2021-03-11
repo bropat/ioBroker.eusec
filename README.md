@@ -73,9 +73,11 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * Stop livestream (hls)
         * Enable/disable device
         * Enable/disable auto night vision 
-        * Enable/disable led (only camera 2 products, indoor cameras, floodlight camera and solo cameras)
+        * Enable/disable led (only camera 2 products, indoor cameras, floodlight camera, solo cameras and doorbells)
         * Enable/disable anti-theft detection (only camera 2 products)
         * Enable/disable motion detection
+        * Enable/disable pet detection (only indoor cameras)
+        * Enable/disable sound detection (only indoor cameras)
         * Enable/disable RTSP stream (only camera2 products, indoor cameras and solo cameras)
         * Change video watermark setting
     * Events:
@@ -140,6 +142,19 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.4.0 (2021-03-11)
+* (bropat) Added handling of adapter updates with breaking changes
+* (bropat) Added new P2P feature: enable/disable pet detection for indoor cameras
+* (bropat) Added new P2P feature: enable/disable sound detection for indoor cameras
+* (bropat) Added new P2P feature: enable/disable led for wired doorbell
+* (bropat) Unlocked state: last_event_video_url
+* (bropat) Fixed parsing of push notification to download video events for battery doorbells and indoor cameras
+* (bropat) Fixed enable/disable device (for wired doorbells, indoor cameras, floodlight camera and solo cameras)
+* (bropat) Fixed enable/disable led (for battery doorbells, indoor cameras, floodlight camera and solo cameras)
+* (bropat) Fixed enable/disable motion detection (for indoor cameras, floodlight camera and solo cameras)
+* (bropat) Fixed change video watermark setting (for indoor cameras and floodlight camera)
+* (bropat) Updated versions of the package dependencies
 
 ### 0.3.1 (2021-03-06)
 * (bropat) Fixed regression on livestream with h265 codec

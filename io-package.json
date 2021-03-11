@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.3.1",
+        "version": "0.4.0",
         "news": {
+            "0.4.0": {
+                "en": "Added new p2p features and applied some bugfixing",
+                "de": "Neue P2P-Funktionen hinzugefügt und Bugfixes angewendet",
+                "ru": "Добавлены новые функции p2p и исправлены некоторые ошибки.",
+                "pt": "Adicionados novos recursos p2p e corrigidos alguns bugs",
+                "nl": "Nieuwe p2p-functies toegevoegd en enkele bugfixes toegepast",
+                "fr": "Ajout de nouvelles fonctionnalités p2p et correction de bogues",
+                "it": "Aggiunte nuove funzionalità p2p e applicate alcune correzioni di bug",
+                "es": "Se agregaron nuevas funciones p2p y se aplicaron algunas correcciones de errores",
+                "pl": "Dodano nowe funkcje p2p i poprawiono kilka błędów",
+                "zh-cn": "添加了新的p2p功能并应用了一些错误修复"
+            },
             "0.3.1": {
                 "en": "Fixed regression on livestream with h265 codec",
                 "de": "Regression im Livestream mit h265-Codec behoben",
@@ -194,18 +206,6 @@
                 "es": "Problema solucionado # 11",
                 "pl": "Naprawiono problem nr 11",
                 "zh-cn": "已修复问题11"
-            },
-            "0.0.6": {
-                "en": "Fixed issue #13",
-                "de": "Problem Nr. 13 behoben",
-                "ru": "Исправленная проблема # 13",
-                "pt": "Problema nº 13 corrigido",
-                "nl": "Probleem # 13 opgelost",
-                "fr": "Problème résolu n ° 13",
-                "it": "Risolto il problema # 13",
-                "es": "Problema solucionado # 13",
-                "pl": "Naprawiono problem nr 13",
-                "zh-cn": "已修复问题13"
             }
         },
         "title": "Eufy Security",

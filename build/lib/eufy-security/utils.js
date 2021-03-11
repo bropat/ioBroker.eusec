@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
+exports.handleUpdate = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
 const read_bigint_1 = require("read-bigint");
 const axios_1 = __importDefault(require("axios"));
@@ -89,10 +89,23 @@ const getState = function (type) {
         case eufy_security_client_1.CommandType.CMD_IRCUT_SWITCH:
             return types_1.CameraStateID.AUTO_NIGHTVISION;
         case eufy_security_client_1.CommandType.CMD_PIR_SWITCH:
+        case eufy_security_client_1.CommandType.CMD_INDOOR_DET_SET_MOTION_DETECT_ENABLE:
             return types_1.CameraStateID.MOTION_DETECTION;
         case eufy_security_client_1.CommandType.CMD_NAS_SWITCH:
             return types_1.CameraStateID.RTSP_STREAM;
         case eufy_security_client_1.CommandType.CMD_DEV_LED_SWITCH:
+        case eufy_security_client_1.CommandType.CMD_INDOOR_LED_SWITCH:
+        case eufy_security_client_1.CommandType.CMD_BAT_DOORBELL_SET_LED_ENABLE:
+            return types_1.CameraStateID.LED_STATUS;
+        case eufy_security_client_1.CommandType.CMD_INDOOR_DET_SET_SOUND_DETECT_ENABLE:
+            return types_1.IndoorCameraStateID.SOUND_DETECTION;
+        case eufy_security_client_1.CommandType.CMD_INDOOR_DET_SET_PET_ENABLE:
+            return types_1.IndoorCameraStateID.PET_DETECTION;
+    }
+    switch (type) {
+        case eufy_security_client_1.ParamType.COMMAND_MOTION_DETECTION_PACKAGE:
+            return types_1.CameraStateID.MOTION_DETECTION;
+        case eufy_security_client_1.ParamType.COMMAND_LED_NIGHT_OPEN:
             return types_1.CameraStateID.LED_STATUS;
     }
     return null;
@@ -314,3 +327,34 @@ const getVideoClipLength = (device) => {
     return length;
 };
 exports.getVideoClipLength = getVideoClipLength;
+const handleUpdate = function (adapter, old_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (old_version <= 31) {
+            try {
+                const watermark = yield adapter.getStatesAsync("*.watermark");
+                Object.keys(watermark).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                    yield adapter.delObjectAsync(id);
+                }));
+            }
+            catch (error) {
+            }
+            try {
+                const state = yield adapter.getStatesAsync("*.state");
+                Object.keys(state).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                    yield adapter.delObjectAsync(id);
+                }));
+            }
+            catch (error) {
+            }
+            try {
+                const wifi_rssi = yield adapter.getStatesAsync("*.wifi_rssi");
+                Object.keys(wifi_rssi).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                    yield adapter.delObjectAsync(id);
+                }));
+            }
+            catch (error) {
+            }
+        }
+    });
+};
+exports.handleUpdate = handleUpdate;

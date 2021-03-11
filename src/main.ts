@@ -7,14 +7,14 @@ import * as utils from "@iobroker/adapter-core";
 import { strict } from "assert";
 import * as path from "path";
 import * as fs from "fs";
-import { Camera, Device, EntrySensor, Keypad, MotionSensor, Devices, Station, Stations, CommandType, isPrivateIp, PushMessage, Credentials, DoorbellPushEvent, IndoorPushEvent, CusPushEvent, ServerPushEvent, ParamType, GuardMode, DeviceType } from "eufy-security-client";
+import { Camera, Device, EntrySensor, Keypad, MotionSensor, Devices, Station, Stations, PushMessage, Credentials, DoorbellPushEvent, IndoorPushEvent, CusPushEvent, ServerPushEvent, GuardMode, DeviceType, IndoorCamera } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
 
 import * as EufySecurityAPI from "./lib/eufy-security/eufy-security";
 import * as Interface from "./lib/eufy-security/interfaces"
 import { CameraStateID, DataLocation, DeviceStateID, DoorbellStateID, EntrySensorStateID, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, StationStateID } from "./lib/eufy-security/types";
-import { decrypt, generateSerialnumber, generateUDID, getVideoClipLength, isEmpty, md5, saveImageStates, setStateChangedAsync, setStateChangedWithTimestamp } from "./lib/eufy-security/utils";
+import { decrypt, generateSerialnumber, generateUDID, getVideoClipLength, handleUpdate, isEmpty, md5, saveImageStates, setStateChangedAsync, setStateChangedWithTimestamp } from "./lib/eufy-security/utils";
 import { PersistentData } from "./lib/eufy-security/interfaces";
 
 // Augment the adapter.config object with the actual types
@@ -66,7 +66,8 @@ export class EufySecurity extends utils.Adapter {
         serial_number: "",
         push_credentials: undefined,
         push_persistentIds: [],
-        login_hash: ""
+        login_hash: "",
+        version: ""
     };
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -252,6 +253,25 @@ export class EufySecurity extends utils.Adapter {
             countryCode = getCountryCode(systemConfig.common.country, "en");
             if (isValidLanguageCode(systemConfig.common.language))
                 languageCode = systemConfig.common.language;
+        }
+
+        try {
+            const adapter_info = await this.getForeignObjectAsync("system.adapter.eufy-security.0");
+            if (adapter_info && adapter_info.common && adapter_info.common.version) {
+                if (this.persistentData.version !== adapter_info.common.version) {
+                    const currentVersion = Number.parseInt(adapter_info.common.version.replace(/\./gi, ""));
+                    const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseInt(this.persistentData.version.replace(/\./gi, "")) : 0;
+                    this.log.debug(`onReady(): Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
+
+                    if (previousVersion < currentVersion) {
+                        await handleUpdate(this, previousVersion);
+                        this.persistentData.version = adapter_info.common.version;
+                        this.writePersistentData();
+                    }
+                }
+            }
+        } catch (error) {
+            this.log.error(`onReady(): Handling of adapter update - Error: ${error}`);
         }
 
         this.eufy = new EufySecurityAPI.EufySecurity(this, countryCode, languageCode);
@@ -498,6 +518,16 @@ export class EufySecurity extends utils.Adapter {
                                 if (device && state.val !== null)
                                     station.setWatermark(device, state.val as number);
                                 break;
+
+                            case IndoorCameraStateID.PET_DETECTION:
+                                if (device && state.val !== null)
+                                    station.setPetDetection(device, state.val as boolean);
+                                break;
+
+                            case IndoorCameraStateID.SOUND_DETECTION:
+                                if (device && state.val !== null)
+                                    station.setSoundDetection(device, state.val as boolean);
+                                break;
                         }
                     }
                 } catch (error) {
@@ -635,29 +665,29 @@ export class EufySecurity extends utils.Adapter {
 
                 const camera = device as Camera;
 
-                // State
-                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.STATE), {
-                    type: "state",
-                    common: {
-                        name: "State",
-                        type: "number",
-                        role: "state",
-                        read: true,
-                        write: false,
-                        states: {
-                            0: "OFFLINE",
-                            1: "ONLINE",
-                            2: "MANUALLY_DISABLED",
-                            3: "OFFLINE_LOWBAT",
-                            4: "REMOVE_AND_READD",
-                            5: "RESET_AND_READD"
-                        }
-                    },
-                    native: {},
-                });
-                try {
-                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.STATE), Number.parseInt(camera.getParameter(CommandType.CMD_GET_DEV_STATUS).value), camera.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
-                } catch(error) {
+                if (camera.isCamera2Product() || camera.isBatteryDoorbell() || camera.isBatteryDoorbell2()) {
+                    // State
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.STATE), {
+                        type: "state",
+                        common: {
+                            name: "State",
+                            type: "number",
+                            role: "state",
+                            read: true,
+                            write: false,
+                            states: {
+                                0: "OFFLINE",
+                                1: "ONLINE",
+                                2: "MANUALLY_DISABLED",
+                                3: "OFFLINE_LOWBAT",
+                                4: "REMOVE_AND_READD",
+                                5: "RESET_AND_READD"
+                            }
+                        },
+                        native: {},
+                    });
+                    const state = camera.getState();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.STATE), state.value, state.timestamp);
                 }
 
                 // Mac address
@@ -675,13 +705,13 @@ export class EufySecurity extends utils.Adapter {
                 await setStateChangedAsync(this, camera.getStateID(CameraStateID.MAC_ADDRESS), camera.getMACAddress());
 
                 // Last event picture
-                await saveImageStates(this, camera.getLastCameraImageURL(), camera.getLastCameraImageTimestamp(), camera.getStationSerial(), camera.getSerial(), DataLocation.LAST_EVENT, camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL),camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture").catch(() => {
+                const last_camera_url = camera.getLastCameraImageURL();
+                await saveImageStates(this, last_camera_url.value, last_camera_url.timestamp, camera.getStationSerial(), camera.getSerial(), DataLocation.LAST_EVENT, camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL),camera.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture").catch(() => {
                     this.log.error(`handleDevices(): State LAST_EVENT_PICTURE_URL of device ${camera.getSerial()} - saveImageStates(): url ${camera.getLastCameraImageURL()}`);
                 });
 
-                //TODO: As soon as we release the p2p download of videos, unlock this
                 // Last event video URL
-                /*await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), {
+                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), {
                     type: "state",
                     common: {
                         name: "Last captured video URL",
@@ -692,7 +722,7 @@ export class EufySecurity extends utils.Adapter {
                         def: ""
                     },
                     native: {},
-                });*/
+                });
 
                 // Start Stream
                 await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.START_STREAM), {
@@ -783,7 +813,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                await setStateChangedAsync(this, camera.getStateID(CameraStateID.ENABLED), camera.isEnabled());
+                const enabled = camera.isEnabled();
+                await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.ENABLED), enabled.value, enabled.timestamp);
 
                 // Watermark
                 let watermark_state: Record<string, string> = {
@@ -791,14 +822,20 @@ export class EufySecurity extends utils.Adapter {
                     1: "TIMESTAMP",
                     2: "TIMESTAMP_AND_LOGO"
                 };
-                if (camera.getDeviceType() === DeviceType.DOORBELL || camera.isSoloCameras()) {
+                if (camera.isWiredDoorbell() || camera.isSoloCameras()) {
                     watermark_state = {
                         0: "OFF",
                         1: "TIMESTAMP"
                     };
                 } else if (camera.isBatteryDoorbell() || camera.isBatteryDoorbell2() || camera.getDeviceType() === DeviceType.CAMERA || camera.getDeviceType() === DeviceType.CAMERA_E) {
                     watermark_state = {
-                        1: "ON",
+                        2: "ON",
+                        1: "OFF"
+                    };
+                } else if (camera.isIndoorCamera() || camera.isFloodLight()) {
+                    watermark_state = {
+                        0: "TIMESTAMP",
+                        1: "TIMESTAMP_AND_LOGO",
                         2: "OFF"
                     };
                 }
@@ -814,10 +851,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                try {
-                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.WATERMARK), Number.parseInt(camera.getParameter(CommandType.CMD_SET_DEVS_OSD).value), camera.getParameter(CommandType.CMD_SET_DEVS_OSD).modified);
-                } catch (error) {
-                }
+                const watermark = camera.getWatermark();
+                await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.WATERMARK), watermark.value, watermark.timestamp);
 
                 if (camera.isCamera2Product()) {
                     // Antitheft detection
@@ -832,10 +867,8 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    try {
-                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.ANTITHEFT_DETECTION), camera.getParameter(CommandType.CMD_EAS_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_EAS_SWITCH).modified);
-                    } catch (error) {
-                    }
+                    const eas_switch = camera.isAntiTheftDetectionEnabled();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.ANTITHEFT_DETECTION), eas_switch.value, eas_switch.timestamp);
                 }
 
                 // Auto Nightvision
@@ -850,10 +883,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                try {
-                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.AUTO_NIGHTVISION), camera.getParameter(CommandType.CMD_IRCUT_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_IRCUT_SWITCH).modified);
-                } catch (error) {
-                }
+                const ircut_switch = camera.isAutoNightVisionEnabled();
+                await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.AUTO_NIGHTVISION), ircut_switch.value , ircut_switch.timestamp);
 
                 // Motion detection
                 await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.MOTION_DETECTION), {
@@ -867,10 +898,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                try {
-                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.MOTION_DETECTION), camera.getParameter(CommandType.CMD_PIR_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_PIR_SWITCH).modified);
-                } catch (error) {
-                }
+                const pir_switch = camera.isMotionDetectionEnabled();
+                await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.MOTION_DETECTION), pir_switch.value, pir_switch.timestamp);
 
                 if (camera.isCamera2Product() || camera.isIndoorCamera() || camera.isSoloCameras()) {
                     // RTSP Stream
@@ -885,10 +914,8 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    try {
-                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.RTSP_STREAM), camera.getParameter(CommandType.CMD_NAS_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_NAS_SWITCH).modified);
-                    } catch (error) {
-                    }
+                    const nas_switch = camera.isRTSPStreamEnabled();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.RTSP_STREAM), nas_switch.value, nas_switch.timestamp);
 
                     // RTSP Stream URL
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.RTSP_STREAM_URL), {
@@ -904,7 +931,7 @@ export class EufySecurity extends utils.Adapter {
                     });
                 }
 
-                if (camera.isCamera2Product() || camera.isIndoorCamera() || camera.isSoloCameras() || camera.isFloodLight()) {
+                if (camera.isCamera2Product() || camera.isIndoorCamera() || camera.isSoloCameras() || camera.isFloodLight() || camera.isBatteryDoorbell2() || camera.isBatteryDoorbell() || camera.isWiredDoorbell()) {
                     // LED Status
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LED_STATUS), {
                         type: "state",
@@ -917,10 +944,8 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    try {
-                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.LED_STATUS), camera.getParameter(CommandType.CMD_DEV_LED_SWITCH).value === "1" ? true : false, camera.getParameter(CommandType.CMD_DEV_LED_SWITCH).modified);
-                    } catch (error) {
-                    }
+                    const led_switch = camera.isLedEnabled();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.LED_STATUS), led_switch.value, led_switch.timestamp);
                 }
 
                 // Battery
@@ -939,10 +964,8 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    try {
-                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.BATTERY), Number.parseInt(camera.getParameter(CommandType.CMD_GET_BATTERY).value), camera.getParameter(CommandType.CMD_GET_BATTERY).modified);
-                    } catch (error) {
-                    }
+                    const battery = camera.getBatteryValue();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.BATTERY), battery.value, battery.timestamp);
 
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.BATTERY_TEMPERATURE), {
                         type: "state",
@@ -956,10 +979,8 @@ export class EufySecurity extends utils.Adapter {
                         },
                         native: {},
                     });
-                    try {
-                        await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.BATTERY_TEMPERATURE), Number.parseInt(camera.getParameter(CommandType.CMD_GET_BATTERY_TEMP).value), camera.getParameter(CommandType.CMD_GET_BATTERY_TEMP).modified);
-                    } catch (error) {
-                    }
+                    const battery_temp = camera.getBatteryTemperature();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.BATTERY_TEMPERATURE), battery_temp.value, battery_temp.timestamp);
 
                     // Last Charge Used Days
                     await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.LAST_CHARGE_USED_DAYS), {
@@ -1018,21 +1039,21 @@ export class EufySecurity extends utils.Adapter {
                     await setStateChangedAsync(this, camera.getStateID(CameraStateID.LAST_CHARGE_FILTERED_EVENTS), camera.getLastChargingFalseEvents());
                 }
 
-                // Wifi RSSI
-                await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.WIFI_RSSI), {
-                    type: "state",
-                    common: {
-                        name: "Wifi RSSI",
-                        type: "number",
-                        role: "value",
-                        read: true,
-                        write: false,
-                    },
-                    native: {},
-                });
-                try {
-                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.WIFI_RSSI), Number.parseInt(camera.getParameter(CommandType.CMD_GET_WIFI_RSSI).value), camera.getParameter(CommandType.CMD_GET_WIFI_RSSI).modified);
-                } catch (error) {
+                if (camera.isCamera2Product() || camera.isBatteryDoorbell() || camera.isBatteryDoorbell2()) {
+                    // Wifi RSSI
+                    await this.setObjectNotExistsAsync(camera.getStateID(CameraStateID.WIFI_RSSI), {
+                        type: "state",
+                        common: {
+                            name: "Wifi RSSI",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    const wifi_rssi = camera.getWifiRssi();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(CameraStateID.WIFI_RSSI), wifi_rssi.value, wifi_rssi.timestamp);
                 }
 
                 // Motion detected
@@ -1092,6 +1113,38 @@ export class EufySecurity extends utils.Adapter {
                         native: {},
                     });
                 } else if (camera.isIndoorCamera()) {
+                    const indoor = device as IndoorCamera;
+
+                    // Sound detection
+                    await this.setObjectNotExistsAsync(camera.getStateID(IndoorCameraStateID.SOUND_DETECTION), {
+                        type: "state",
+                        common: {
+                            name: "Sound detection",
+                            type: "boolean",
+                            role: "state",
+                            read: true,
+                            write: true
+                        },
+                        native: {},
+                    });
+                    const sound_detection = indoor.isSoundDetectionEnabled();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(IndoorCameraStateID.SOUND_DETECTION), sound_detection.value, sound_detection.timestamp);
+
+                    // Pet detection
+                    await this.setObjectNotExistsAsync(camera.getStateID(IndoorCameraStateID.PET_DETECTION), {
+                        type: "state",
+                        common: {
+                            name: "Pet detection",
+                            type: "boolean",
+                            role: "state",
+                            read: true,
+                            write: true
+                        },
+                        native: {},
+                    });
+                    const pet_detection = indoor.isPetDetectionEnabled();
+                    await setStateChangedWithTimestamp(this, camera.getStateID(IndoorCameraStateID.PET_DETECTION), pet_detection.value, pet_detection.timestamp);
+
                     // Crying detected event
                     await this.setObjectNotExistsAsync(camera.getStateID(IndoorCameraStateID.CRYING_DETECTED), {
                         type: "state",
@@ -1157,10 +1210,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                try {
-                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.STATE), Number.parseInt(sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).value), sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
-                } catch (error) {
-                }
+                const status = sensor.getState();
+                await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.STATE), status.value, status.timestamp);
 
                 // Sensor Open
                 await this.setObjectNotExistsAsync(sensor.getStateID(EntrySensorStateID.SENSOR_OPEN), {
@@ -1174,8 +1225,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                if (sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS))
-                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.SENSOR_OPEN), sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS).value === "1", sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_STATUS).modified);
+                const sensor_status = sensor.isSensorOpen();
+                await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.SENSOR_OPEN), sensor_status.value, sensor_status.timestamp);
 
                 // Low Battery
                 await this.setObjectNotExistsAsync(sensor.getStateID(EntrySensorStateID.LOW_BATTERY), {
@@ -1189,8 +1240,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                if (sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE))
-                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.LOW_BATTERY), sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE).value === "1", sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_BAT_STATE).modified);
+                const battery_low = sensor.isBatteryLow();
+                await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.LOW_BATTERY), battery_low.value, battery_low.timestamp);
 
                 // Sensor change time
                 await this.setObjectNotExistsAsync(sensor.getStateID(EntrySensorStateID.SENSOR_CHANGE_TIME), {
@@ -1204,8 +1255,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                if (sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME))
-                    await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.SENSOR_CHANGE_TIME), sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME).value, sensor.getParameter(CommandType.CMD_ENTRY_SENSOR_CHANGE_TIME).modified);
+                const change_time = sensor.getSensorChangeTime();
+                await setStateChangedWithTimestamp(this, sensor.getStateID(EntrySensorStateID.SENSOR_CHANGE_TIME), change_time.value, change_time.timestamp);
 
             } else if (device.isMotionSensor()) {
                 const sensor = device as MotionSensor;
@@ -1230,10 +1281,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                try {
-                    await setStateChangedWithTimestamp(this, sensor.getStateID(MotionSensorStateID.STATE), Number.parseInt(sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).value), sensor.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
-                } catch (error) {
-                }
+                const status = sensor.getState();
+                await setStateChangedWithTimestamp(this, sensor.getStateID(MotionSensorStateID.STATE), status.value, status.timestamp);
 
                 // Low Battery
                 await this.setObjectNotExistsAsync(sensor.getStateID(MotionSensorStateID.LOW_BATTERY), {
@@ -1247,8 +1296,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                if (sensor.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE))
-                    await setStateChangedWithTimestamp(this, sensor.getStateID(MotionSensorStateID.LOW_BATTERY), sensor.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE).value === "1", sensor.getParameter(CommandType.CMD_MOTION_SENSOR_BAT_STATE).modified);
+                const low_battery = sensor.isBatteryLow();
+                await setStateChangedWithTimestamp(this, sensor.getStateID(MotionSensorStateID.LOW_BATTERY), low_battery.value, low_battery.timestamp);
 
                 // Motion detected
                 await this.setObjectNotExistsAsync(sensor.getStateID(MotionSensorStateID.MOTION_DETECTED), {
@@ -1286,10 +1335,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                try {
-                    await setStateChangedWithTimestamp(this, keypad.getStateID(KeyPadStateID.STATE), Number.parseInt(keypad.getParameter(CommandType.CMD_GET_DEV_STATUS).value), keypad.getParameter(CommandType.CMD_GET_DEV_STATUS).modified);
-                } catch (error) {
-                }
+                const status = keypad.getState();
+                await setStateChangedWithTimestamp(this, keypad.getStateID(KeyPadStateID.STATE), status.value, status.timestamp);
 
                 // Low Battery
                 await this.setObjectNotExistsAsync(keypad.getStateID(KeyPadStateID.LOW_BATTERY), {
@@ -1303,8 +1350,8 @@ export class EufySecurity extends utils.Adapter {
                     },
                     native: {},
                 });
-                if (keypad.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE))
-                    await setStateChangedWithTimestamp(this, keypad.getStateID(KeyPadStateID.LOW_BATTERY), keypad.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE).value === "1", keypad.getParameter(CommandType.CMD_KEYPAD_BATTERY_CAP_STATE).modified);
+                const low_battery = keypad.isBatteryLow();
+                await setStateChangedWithTimestamp(this, keypad.getStateID(KeyPadStateID.LOW_BATTERY), low_battery.value, low_battery.timestamp);
             }
         });
     }
@@ -1428,10 +1475,8 @@ export class EufySecurity extends utils.Adapter {
                 },
                 native: {},
             });
-            //TODO: Change this implementation!
-            const lan_ip_address = station.getParameter(CommandType.CMD_GET_HUB_LAN_IP);
-            if (lan_ip_address && isPrivateIp(lan_ip_address.value))
-                await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.LAN_IP_ADDRESS), lan_ip_address.value, lan_ip_address.modified);
+            const lan_ip_address = station.getLANIPAddress();
+            await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.LAN_IP_ADDRESS), lan_ip_address.value, lan_ip_address.timestamp);
 
             // Station Paramters
             // Guard Mode
@@ -1456,13 +1501,9 @@ export class EufySecurity extends utils.Adapter {
                 },
                 native: {},
             });
-            const guard_mode = station.getParameter(ParamType.GUARD_MODE);
-            try {
-                if (guard_mode !== undefined)
-                    await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.GUARD_MODE), Number.parseInt(guard_mode.value), guard_mode.modified);
-            } catch (error) {
-                this.log.error(`handleStations(): GUARD_MODE - Error: ${error}`);
-            }
+            const guard_mode = station.getGuardMode();
+            if (guard_mode.value !== -1)
+                await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.GUARD_MODE), guard_mode.value, guard_mode.timestamp);
 
             // Current Alarm Mode
             await this.setObjectNotExistsAsync(station.getStateID(StationStateID.CURRENT_MODE), {
@@ -1482,13 +1523,8 @@ export class EufySecurity extends utils.Adapter {
                 native: {},
             });
             //APP_CMD_GET_ALARM_MODE = 1151
-            try {
-                const schedule_mode = station.getParameter(ParamType.SCHEDULE_MODE);
-                if (schedule_mode !== undefined && guard_mode !== undefined)
-                    await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.CURRENT_MODE), guard_mode.value === "2" ? Number.parseInt(schedule_mode.value) : Number.parseInt(guard_mode.value), guard_mode.value === "2" ? station.getParameter(ParamType.SCHEDULE_MODE).modified : guard_mode.modified);
-            } catch (error) {
-                this.log.error(`handleStations(): CURRENT_MODE - Error: ${error}`);
-            }
+            const schedule_mode = station.getCurrentMode();
+            await setStateChangedWithTimestamp(this, station.getStateID(StationStateID.CURRENT_MODE), schedule_mode.value, schedule_mode.timestamp);
 
             // Reboot station
             await this.setObjectNotExistsAsync(station.getStateID(StationStateID.REBOOT), {
