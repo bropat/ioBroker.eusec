@@ -18,100 +18,48 @@
     <script type="text/javascript" src="words.js"></script>
 
     <script type="text/javascript">
-        var secret;
+		// This will be called by the admin adapter when the settings page loads
+		function load(settings, onChange) {
+			// example: select elements with id=key and class=value and insert value
+			if (!settings) return;
+			$('.value').each(function () {
+				var $key = $(this);
+				var id = $key.attr('id');
+				if ($key.attr('type') === 'checkbox') {
+					// do not call onChange direct, because onChange could expect some arguments
+					$key.prop('checked', settings[id])
+						.on('change', () => onChange())
+						;
+				} else {
+					// do not call onChange direct, because onChange could expect some arguments
+					$key.val(settings[id])
+						.on('change', () => onChange())
+						.on('keyup', () => onChange())
+						;
+				}
+			});
+			onChange(false);
+			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+			if (M) M.updateTextFields();
+		}
 
-        if (!encrypt || typeof encrypt !== 'function') {
-            function encrypt(key, value) {
-                if (value === undefined) {
-                    value = key;
-                    key = secret;
-                }
-                var result = '';
-                for (var i = 0; i < value.length; ++i) {
-                    result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-                }
-                return result;
-            }
-        }
-        if (!decrypt || typeof decrypt !== 'function') {
-            function decrypt(key, value) {
-                if (value === undefined) {
-                    value = key;
-                    key = secret;
-                }
-                var result = '';
-                for (var i = 0; i < value.length; ++i) {
-                    result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-                }
-                return result;
-            }
-        }
-
-        function loadHelper(settings, onChange) {
-        // example: select elements with id=key and class=value and insert value
-            if (!settings) return;
-
-            $('.value').each(function () {
-                var $key = $(this);
-                var id = $key.attr('id');
-                if (id === 'password' && (typeof supportsFeature !== 'function' || !supportsFeature('ADAPTER_AUTO_DECRYPT_NATIVE'))) {
-                    settings[id] = decrypt(secret, settings[id]);
-                }
-
-                if ($key.attr('type') === 'checkbox') {
-                    // do not call onChange direct, because onChange could expect some arguments
-                    $key.prop('checked', settings[id]).change(function() {
-                        onChange();
-                    });
-                } else {
-                    // do not call onChange direct, because onChange could expect some arguments
-                    $key.val(settings[id]).change(function() {
-                        onChange();
-                    }).keyup(function() {
-                        onChange();
-                    });
-                }
-            });
-            onChange(false);
-            M.updateTextFields();  // function Materialize.updateTextFields(); to reinitialize all the Materialize labels on the page if you are dynamically adding inputs.
-        }
-
-        // This will be called by the admin adapter when the settings page loads
-        // the function loadSettings has to exist ...
-        function load(settings, onChange) {
-            socket.emit('getObject', 'system.config', function (err, obj) {
-                secret = (obj.native ? obj.native.secret : '') || 'yx6eWMwGK2AE4k1Yoxt3E5pT';
-                loadHelper(settings, onChange);
-            });
-
-            onChange(false);
-            // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
-            if (M) M.updateTextFields();
-        }
-        // This will be called by the admin adapter when the user presses the save button
-        // ... and the function save has to exist.
-        // you have to make sure the callback is called with the settings object as first param!
-        function save(callback) {
-            // example: select elements with class=value and build settings object
-            var obj = {};
-            $('.value').each(function () {
-                var $this = $(this);
-                var id = $this.attr('id');
-
-                if ($this.attr('type') === 'checkbox') {
-                    obj[id] = $this.prop('checked');
-                } else {
-                    var value = $this.val();
-                    if (id === 'password' && (typeof supportsFeature !== 'function' || !supportsFeature('ADAPTER_AUTO_DECRYPT_NATIVE'))) {
-                        value = encrypt(secret, value);
-                    }
-                    obj[id] = value;
-                }
-            });
-
-            callback(obj);
-        }
-    </script>
+		// This will be called by the admin adapter when the user presses the save button
+		function save(callback) {
+			// example: select elements with class=value and build settings object
+			var obj = {};
+			$('.value').each(function () {
+				var $this = $(this);
+				if ($this.attr('type') === 'checkbox') {
+					obj[$this.attr('id')] = $this.prop('checked');
+				} else if ($this.attr('type') === 'number') {
+					obj[$this.attr('id')] = parseFloat($this.val());
+				} else {
+					obj[$this.attr('id')] = $this.val();
+				}
+			});
+			callback(obj);
+		}
+	</script>
     <style>
         .sub-title {
             margin-top: 2rem!important;

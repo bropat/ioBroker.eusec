@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.4.0",
+        "version": "0.4.1",
         "news": {
+            "0.4.1": {
+                "en": "Removed legacy password encryption support for admin adapter",
+                "de": "Unterstützung für ältere Kennwortverschlüsselung für Admin-Adapter entfernt",
+                "ru": "Удалена поддержка устаревшего шифрования паролей для адаптера администратора.",
+                "pt": "Suporte de criptografia de senha legado removido para adaptador admin",
+                "nl": "Ondersteuning voor oude wachtwoordversleuteling voor admin-adapter verwijderd",
+                "fr": "Suppression de la prise en charge du chiffrement des mots de passe hérités pour l'adaptateur admin",
+                "it": "Rimosso il supporto per la crittografia delle password legacy per l'adattatore admin",
+                "es": "Se eliminó el soporte de cifrado de contraseña heredado para el adaptador admin",
+                "pl": "Usunięto obsługę wcześniejszego szyfrowania haseł dla adaptera admin",
+                "zh-cn": "删除了对管理员适配器的旧密码加密支持"
+            },
             "0.4.0": {
                 "en": "Added new p2p features and applied some bugfixing",
                 "de": "Neue P2P-Funktionen hinzugefügt und Bugfixes angewendet",
@@ -182,30 +194,6 @@
                 "es": "e ha implementado la solicitud de características #1, dependencias actualizadas y más",
                 "pl": "Zaimplementowane żądanie funkcji #1, zaktualizowane zależności i więcej",
                 "zh-cn": "实现了功能请求#1，更新了依赖关系等。"
-            },
-            "0.0.8": {
-                "en": "Fixed issue #16",
-                "de": "Problem Nr. 16 behoben",
-                "ru": "Исправленная проблема # 16",
-                "pt": "Problema nº 16 corrigido",
-                "nl": "Probleem # 16 opgelost",
-                "fr": "Problème résolu n ° 16",
-                "it": "Risolto il problema # 16",
-                "es": "Problema solucionado # 16",
-                "pl": "Naprawiono problem nr 16",
-                "zh-cn": "已修复问题16"
-            },
-            "0.0.7": {
-                "en": "Fixed issue #11",
-                "de": "Problem Nr. 11 behoben",
-                "ru": "Исправленная проблема # 11",
-                "pt": "Problema nº 11 corrigido",
-                "nl": "Probleem # 11 opgelost",
-                "fr": "Problème résolu n ° 11",
-                "it": "Risolto il problema # 11",
-                "es": "Problema solucionado # 11",
-                "pl": "Naprawiono problem nr 11",
-                "zh-cn": "已修复问题11"
             }
         },
         "title": "Eufy Security",
@@ -262,6 +250,11 @@
             {
                 "js-controller": ">=3.1.4",
                 "web": ">=2.0.0"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=4.0.9"
             }
         ],
         "dataFolder": "eufy-security.%INSTANCE%"

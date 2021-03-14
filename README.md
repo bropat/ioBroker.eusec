@@ -1,10 +1,10 @@
 ![Logo](admin/eufy-security.png)
 # ioBroker.eufy-security
 
-[![NPM version](http://img.shields.io/npm/v/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
+[![NPM version](https://img.shields.io/npm/v/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
-![Number of Installations (latest)](http://iobroker.live/badges/eufy-security-installed.svg)
-![Number of Installations (stable)](http://iobroker.live/badges/eufy-security-stable.svg)
+![Number of Installations (latest)](https://iobroker.live/badges/eufy-security-installed.svg)
+![Number of Installations (stable)](https://iobroker.live/badges/eufy-security-stable.svg)
 [![Dependency Status](https://img.shields.io/david/bropat/iobroker.eufy-security.svg)](https://david-dm.org/bropat/iobroker.eufy-security)
 [![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.eufy-security/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.eufy-security)
 
@@ -22,7 +22,7 @@ If you appreciate my work and progress and want to support me, you can do it her
 
 ## Description
 
-This adapter allows to control Eufy security devices by connecting to the Eufy cloud servers and local/remote stations.
+This adapter allows to control [Eufy security devices](https://us.eufylife.com/collections/security) by connecting to the Eufy cloud servers and local/remote stations.
 
 You need to provide your Cloud login credentials. The adapter connects to your cloud account and polls for all device data via HTTPS. Now a local or remote P2P connection to the Eufy stations/devices is also supported. However, a connection to the Eufy Cloud is always a prerequisite.
 
@@ -142,6 +142,11 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.4.1 (2021-03-14)
+* (bropat) Removed legacy password encryption support for admin adapter (requires admin adapter >= 4.0.9)
+* (bropat) Added admin adapter as global dependency
+* (bropat) Updated license
 
 ### 0.4.0 (2021-03-11)
 * (bropat) Added handling of adapter updates with breaking changes
