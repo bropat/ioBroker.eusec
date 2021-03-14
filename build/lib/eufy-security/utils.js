@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleUpdate = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
+exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
 const read_bigint_1 = require("read-bigint");
 const axios_1 = __importDefault(require("axios"));
@@ -229,8 +229,8 @@ const saveImageStates = function (adapter, url, timestamp, station_sn, device_sn
             }
             return;
         }
-        exports.setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp);
-        exports.setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp);
+        exports.setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
+        exports.setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
     });
 };
 exports.saveImageStates = saveImageStates;
@@ -327,9 +327,15 @@ const getVideoClipLength = (device) => {
     return length;
 };
 exports.getVideoClipLength = getVideoClipLength;
+const removeLastChar = function (text, char) {
+    const strArr = [...text];
+    strArr.splice(text.lastIndexOf(char), 1);
+    return strArr.join("");
+};
+exports.removeLastChar = removeLastChar;
 const handleUpdate = function (adapter, old_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (old_version <= 31) {
+        if (old_version <= 0.31) {
             try {
                 const watermark = yield adapter.getStatesAsync("*.watermark");
                 Object.keys(watermark).forEach((id) => __awaiter(this, void 0, void 0, function* () {
@@ -337,6 +343,7 @@ const handleUpdate = function (adapter, old_version) {
                 }));
             }
             catch (error) {
+                adapter.log.error(`handleUpdate(): Version 0.3.1 - watermark: Error: ${error}`);
             }
             try {
                 const state = yield adapter.getStatesAsync("*.state");
@@ -345,6 +352,7 @@ const handleUpdate = function (adapter, old_version) {
                 }));
             }
             catch (error) {
+                adapter.log.error(`handleUpdate(): Version 0.3.1 - state: Error: ${error}`);
             }
             try {
                 const wifi_rssi = yield adapter.getStatesAsync("*.wifi_rssi");
@@ -353,6 +361,66 @@ const handleUpdate = function (adapter, old_version) {
                 }));
             }
             catch (error) {
+                adapter.log.error(`handleUpdate(): Version 0.3.1 - wifi_rssi: Error: ${error}`);
+            }
+        }
+        else if (old_version <= 0.41) {
+            try {
+                const changeRole = function (adapter, state, role) {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            const states = yield adapter.getStatesAsync(`*.${state}`);
+                            Object.keys(states).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                                yield adapter.extendObjectAsync(id, {
+                                    type: "state",
+                                    common: {
+                                        role: role
+                                    }
+                                }, {});
+                            }));
+                        }
+                        catch (error) {
+                            adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                        }
+                    });
+                };
+                yield changeRole(adapter, types_1.CameraStateID.STATE, "value");
+                yield changeRole(adapter, types_1.CameraStateID.LIVESTREAM, "url");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_LIVESTREAM_PIC_URL, "url");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_LIVESTREAM_PIC_HTML, "html");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_LIVESTREAM_VIDEO_URL, "url");
+                yield changeRole(adapter, types_1.CameraStateID.ENABLED, "switch.enable");
+                yield changeRole(adapter, types_1.CameraStateID.ANTITHEFT_DETECTION, "switch.enable");
+                yield changeRole(adapter, types_1.CameraStateID.AUTO_NIGHTVISION, "switch.enable");
+                yield changeRole(adapter, types_1.CameraStateID.MOTION_DETECTION, "switch.enable");
+                yield changeRole(adapter, types_1.CameraStateID.RTSP_STREAM, "switch.enable");
+                yield changeRole(adapter, types_1.CameraStateID.RTSP_STREAM_URL, "url");
+                yield changeRole(adapter, types_1.CameraStateID.LED_STATUS, "switch.enable");
+                yield changeRole(adapter, types_1.CameraStateID.MOTION_DETECTED, "sensor.motion");
+                yield changeRole(adapter, types_1.CameraStateID.PERSON_DETECTED, "sensor.motion");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_PERSON_IDENTIFIED, "text");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_EVENT_PICTURE_URL, "url");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_EVENT_PICTURE_HTML, "html");
+                yield changeRole(adapter, types_1.CameraStateID.LAST_EVENT_VIDEO_URL, "url");
+                yield changeRole(adapter, types_1.DoorbellStateID.RINGING, "sensor");
+                yield changeRole(adapter, types_1.IndoorCameraStateID.SOUND_DETECTION, "switch.enable");
+                yield changeRole(adapter, types_1.IndoorCameraStateID.PET_DETECTION, "switch.enable");
+                yield changeRole(adapter, types_1.IndoorCameraStateID.SOUND_DETECTED, "sensor.noise");
+                yield changeRole(adapter, types_1.IndoorCameraStateID.CRYING_DETECTED, "sensor.noise");
+                yield changeRole(adapter, types_1.IndoorCameraStateID.PET_DETECTED, "sensor");
+                yield changeRole(adapter, types_1.EntrySensorStateID.STATE, "value");
+                yield changeRole(adapter, types_1.EntrySensorStateID.SENSOR_OPEN, "sensor");
+                yield changeRole(adapter, types_1.EntrySensorStateID.LOW_BATTERY, "sensor");
+                yield changeRole(adapter, types_1.EntrySensorStateID.SENSOR_CHANGE_TIME, "value");
+                yield changeRole(adapter, types_1.MotionSensorStateID.STATE, "value");
+                yield changeRole(adapter, types_1.MotionSensorStateID.LOW_BATTERY, "sensor");
+                yield changeRole(adapter, types_1.MotionSensorStateID.MOTION_DETECTED, "sensor.motion");
+                yield changeRole(adapter, types_1.KeyPadStateID.STATE, "value");
+                yield changeRole(adapter, types_1.KeyPadStateID.LOW_BATTERY, "sensor");
+                yield changeRole(adapter, types_1.StationStateID.CURRENT_MODE, "value");
+            }
+            catch (error) {
+                adapter.log.error(`handleUpdate(): Version 0.4.1 - Error: ${error}`);
             }
         }
     });

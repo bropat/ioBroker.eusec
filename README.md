@@ -143,6 +143,9 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.4.2 (2021-03-14)
+* (bropat) Fixed roles of states according to ioBroker documentation
+
 ### 0.4.1 (2021-03-14)
 * (bropat) Removed legacy password encryption support for admin adapter (requires admin adapter >= 4.0.9)
 * (bropat) Added admin adapter as global dependency

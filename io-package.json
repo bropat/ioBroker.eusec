@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.4.1",
+        "version": "0.4.2",
         "news": {
+            "0.4.2": {
+                "en": "Corrected state roles based on ioBroker documentation",
+                "de": "Korrigierte Statusrollen basierend auf der ioBroker-Dokumentation",
+                "ru": "Исправлены государственные роли на основе документации ioBroker.",
+                "pt": "Funções de estado corrigidas com base na documentação do ioBroker",
+                "nl": "Statusrollen gecorrigeerd op basis van ioBroker-documentatie",
+                "fr": "Rôles d'état corrigés sur la base de la documentation ioBroker",
+                "it": "Ruoli di stato corretti in base alla documentazione di ioBroker",
+                "es": "Roles estatales corregidos según la documentación de ioBroker",
+                "pl": "Poprawione role stanu na podstawie dokumentacji ioBroker",
+                "zh-cn": "根据ioBroker文档更正了状态角色"
+            },
             "0.4.1": {
                 "en": "Removed legacy password encryption support for admin adapter",
                 "de": "Unterstützung für ältere Kennwortverschlüsselung für Admin-Adapter entfernt",

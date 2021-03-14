@@ -6,7 +6,7 @@ import path from "path";
 import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
 
-import { CameraStateID, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, StationStateID } from "./types";
+import { CameraStateID, DoorbellStateID, EntrySensorStateID, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, StationStateID } from "./types";
 import { ImageResponse } from "./interfaces";
 
 export const decrypt = (key: string, value: string): string => {
@@ -187,8 +187,8 @@ export const saveImageStates = async function(adapter: ioBroker.Adapter, url: st
         }
         return;
     }
-    setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp);
-    setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp);
+    setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
+    setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
 }
 
 export const removeFiles = function(namespace: string, stationSerial: string, folderName: string, device_sn: string): Promise<void> {
@@ -279,14 +279,21 @@ export const getVideoClipLength = (device: Device): number => {
     return length;
 };
 
+export const removeLastChar = function(text: string, char: string): string {
+    const strArr = [...text];
+    strArr.splice(text.lastIndexOf(char), 1);
+    return strArr.join("");
+}
+
 export const handleUpdate = async function(adapter: ioBroker.Adapter, old_version: number): Promise<void> {
-    if (old_version <= 31) {
+    if (old_version <= 0.31) {
         try {
             const watermark = await adapter.getStatesAsync("*.watermark");
             Object.keys(watermark).forEach(async id => {
                 await adapter.delObjectAsync(id);
             });
         } catch (error) {
+            adapter.log.error(`handleUpdate(): Version 0.3.1 - watermark: Error: ${error}`);
         }
         try {
             const state = await adapter.getStatesAsync("*.state");
@@ -294,6 +301,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                 await adapter.delObjectAsync(id);
             });
         } catch (error) {
+            adapter.log.error(`handleUpdate(): Version 0.3.1 - state: Error: ${error}`);
         }
         try {
             const wifi_rssi = await adapter.getStatesAsync("*.wifi_rssi");
@@ -301,6 +309,62 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                 await adapter.delObjectAsync(id);
             });
         } catch (error) {
+            adapter.log.error(`handleUpdate(): Version 0.3.1 - wifi_rssi: Error: ${error}`);
+        }
+    } else if (old_version <= 0.41) {
+        try {
+            const changeRole = async function(adapter: ioBroker.Adapter, state: string, role: string): Promise<void> {
+                try {
+                    const states = await adapter.getStatesAsync(`*.${state}`);
+                    Object.keys(states).forEach(async id => {
+                        await adapter.extendObjectAsync(id, {
+                            type: "state",
+                            common: {
+                                role: role
+                            }
+                        }, {});
+                    });
+                } catch (error) {
+                    adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                }
+            };
+
+            await changeRole(adapter, CameraStateID.STATE, "value");
+            await changeRole(adapter, CameraStateID.LIVESTREAM, "url");
+            await changeRole(adapter, CameraStateID.LAST_LIVESTREAM_PIC_URL, "url");
+            await changeRole(adapter, CameraStateID.LAST_LIVESTREAM_PIC_HTML, "html");
+            await changeRole(adapter, CameraStateID.LAST_LIVESTREAM_VIDEO_URL, "url");
+            await changeRole(adapter, CameraStateID.ENABLED, "switch.enable");
+            await changeRole(adapter, CameraStateID.ANTITHEFT_DETECTION, "switch.enable");
+            await changeRole(adapter, CameraStateID.AUTO_NIGHTVISION, "switch.enable");
+            await changeRole(adapter, CameraStateID.MOTION_DETECTION, "switch.enable");
+            await changeRole(adapter, CameraStateID.RTSP_STREAM, "switch.enable");
+            await changeRole(adapter, CameraStateID.RTSP_STREAM_URL, "url");
+            await changeRole(adapter, CameraStateID.LED_STATUS, "switch.enable");
+            await changeRole(adapter, CameraStateID.MOTION_DETECTED, "sensor.motion");
+            await changeRole(adapter, CameraStateID.PERSON_DETECTED, "sensor.motion");
+            await changeRole(adapter, CameraStateID.LAST_PERSON_IDENTIFIED, "text");
+            await changeRole(adapter, CameraStateID.LAST_EVENT_PICTURE_URL, "url");
+            await changeRole(adapter, CameraStateID.LAST_EVENT_PICTURE_HTML, "html");
+            await changeRole(adapter, CameraStateID.LAST_EVENT_VIDEO_URL, "url");
+            await changeRole(adapter, DoorbellStateID.RINGING, "sensor");
+            await changeRole(adapter, IndoorCameraStateID.SOUND_DETECTION, "switch.enable");
+            await changeRole(adapter, IndoorCameraStateID.PET_DETECTION, "switch.enable");
+            await changeRole(adapter, IndoorCameraStateID.SOUND_DETECTED, "sensor.noise");
+            await changeRole(adapter, IndoorCameraStateID.CRYING_DETECTED, "sensor.noise");
+            await changeRole(adapter, IndoorCameraStateID.PET_DETECTED, "sensor");
+            await changeRole(adapter, EntrySensorStateID.STATE, "value");
+            await changeRole(adapter, EntrySensorStateID.SENSOR_OPEN, "sensor");
+            await changeRole(adapter, EntrySensorStateID.LOW_BATTERY, "sensor");
+            await changeRole(adapter, EntrySensorStateID.SENSOR_CHANGE_TIME, "value");
+            await changeRole(adapter, MotionSensorStateID.STATE, "value");
+            await changeRole(adapter, MotionSensorStateID.LOW_BATTERY, "sensor");
+            await changeRole(adapter, MotionSensorStateID.MOTION_DETECTED, "sensor.motion");
+            await changeRole(adapter, KeyPadStateID.STATE, "value");
+            await changeRole(adapter, KeyPadStateID.LOW_BATTERY, "sensor");
+            await changeRole(adapter, StationStateID.CURRENT_MODE, "value");
+        } catch (error) {
+            adapter.log.error(`handleUpdate(): Version 0.4.1 - Error: ${error}`);
         }
     }
 };

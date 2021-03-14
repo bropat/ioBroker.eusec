@@ -493,14 +493,14 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
                     .then((result) => {
                         if (result) {
                             const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
-                            setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                            setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, undefined, "url");
                             if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
                                 ffmpegPreviewImage(this.adapter.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
                                     .then(() => {
-                                        setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), "Last event picture URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`);
+                                        setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_PICTURE_URL), "Last event picture URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`, undefined, "url");
                                         try {
                                             const image_data = getImageAsHTML(fse.readFileSync(`${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`));
-                                            setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture HTML image", image_data);
+                                            setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_PICTURE_HTML), "Last event picture HTML image", image_data, undefined, "html");
                                         } catch (error) {
                                             this.log.error(`EufySecurity.onStartDownload(): station: ${station.getSerial()} device: ${device.getSerial()} - Error: ${error}`);
                                         }

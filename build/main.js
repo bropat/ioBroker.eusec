@@ -244,8 +244,8 @@ class EufySecurity extends utils.Adapter {
                 const adapter_info = yield this.getForeignObjectAsync("system.adapter.eufy-security.0");
                 if (adapter_info && adapter_info.common && adapter_info.common.version) {
                     if (this.persistentData.version !== adapter_info.common.version) {
-                        const currentVersion = Number.parseInt(adapter_info.common.version.replace(/\./gi, ""));
-                        const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseInt(this.persistentData.version.replace(/\./gi, "")) : 0;
+                        const currentVersion = Number.parseFloat(utils_1.removeLastChar(adapter_info.common.version, "."));
+                        const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat(utils_1.removeLastChar(this.persistentData.version, ".")) : 0;
                         this.log.debug(`onReady(): Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
                         if (previousVersion < currentVersion) {
                             yield utils_1.handleUpdate(this, previousVersion);
@@ -628,7 +628,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "State",
                                 type: "number",
-                                role: "state",
+                                role: "value",
                                 read: true,
                                 write: false,
                                 states: {
@@ -669,7 +669,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Last captured video URL",
                             type: "string",
-                            role: "state",
+                            role: "url",
                             read: true,
                             write: false,
                             def: ""
@@ -706,7 +706,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Livestream URL",
                             type: "string",
-                            role: "text.url",
+                            role: "url",
                             read: true,
                             write: false,
                         },
@@ -718,7 +718,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Last livestream video URL",
                             type: "string",
-                            role: "state",
+                            role: "url",
                             read: true,
                             write: false,
                         },
@@ -730,7 +730,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Last livestream picture URL",
                             type: "string",
-                            role: "state",
+                            role: "url",
                             read: true,
                             write: false,
                         },
@@ -742,7 +742,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Last livestream picture HTML image",
                             type: "string",
-                            role: "state",
+                            role: "html",
                             read: true,
                             write: false,
                         },
@@ -754,7 +754,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Device enabled",
                             type: "boolean",
-                            role: "state",
+                            role: "switch.enable",
                             read: true,
                             write: true,
                         },
@@ -808,7 +808,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Antitheft detection",
                                 type: "boolean",
-                                role: "state",
+                                role: "switch.enable",
                                 read: true,
                                 write: true
                             },
@@ -823,7 +823,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Auto nightvision",
                             type: "boolean",
-                            role: "state",
+                            role: "switch.enable",
                             read: true,
                             write: true
                         },
@@ -837,7 +837,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Motion detection",
                             type: "boolean",
-                            role: "state",
+                            role: "switch.enable",
                             read: true,
                             write: true
                         },
@@ -852,7 +852,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "RTSP stream enabled",
                                 type: "boolean",
-                                role: "state",
+                                role: "switch.enable",
                                 read: true,
                                 write: true
                             },
@@ -866,7 +866,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "RTSP stream URL",
                                 type: "string",
-                                role: "state",
+                                role: "url",
                                 read: true,
                                 write: false
                             },
@@ -880,7 +880,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "LED status",
                                 type: "boolean",
-                                role: "state",
+                                role: "switch.enable",
                                 read: true,
                                 write: true
                             },
@@ -996,7 +996,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Motion detected",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor.motion",
                             read: true,
                             write: false,
                             def: false
@@ -1009,7 +1009,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Person detected",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor.motion",
                             read: true,
                             write: false,
                             def: false
@@ -1022,7 +1022,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Last person identified",
                             type: "string",
-                            role: "state",
+                            role: "text",
                             read: true,
                             write: false,
                             def: ""
@@ -1036,7 +1036,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Ringing",
                                 type: "boolean",
-                                role: "state",
+                                role: "sensor",
                                 read: true,
                                 write: false,
                                 def: false
@@ -1052,7 +1052,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Sound detection",
                                 type: "boolean",
-                                role: "state",
+                                role: "switch.enable",
                                 read: true,
                                 write: true
                             },
@@ -1066,7 +1066,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Pet detection",
                                 type: "boolean",
-                                role: "state",
+                                role: "switch.enable",
                                 read: true,
                                 write: true
                             },
@@ -1080,7 +1080,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Crying detected",
                                 type: "boolean",
-                                role: "state",
+                                role: "sensor.noise",
                                 read: true,
                                 write: false,
                                 def: false
@@ -1093,7 +1093,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Sound detected",
                                 type: "boolean",
-                                role: "state",
+                                role: "sensor.noise",
                                 read: true,
                                 write: false,
                                 def: false
@@ -1106,7 +1106,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Pet detected",
                                 type: "boolean",
-                                role: "state",
+                                role: "sensor",
                                 read: true,
                                 write: false,
                                 def: false
@@ -1123,7 +1123,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "State",
                             type: "number",
-                            role: "state",
+                            role: "value",
                             read: true,
                             write: false,
                             states: {
@@ -1145,7 +1145,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Sensor open",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor",
                             read: true,
                             write: false,
                         },
@@ -1159,7 +1159,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Low Battery",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor",
                             read: true,
                             write: false,
                         },
@@ -1172,8 +1172,8 @@ class EufySecurity extends utils.Adapter {
                         type: "state",
                         common: {
                             name: "Sensor change time",
-                            type: "string",
-                            role: "state",
+                            type: "number",
+                            role: "value",
                             read: true,
                             write: false,
                         },
@@ -1190,7 +1190,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "State",
                             type: "number",
-                            role: "state",
+                            role: "value",
                             read: true,
                             write: false,
                             states: {
@@ -1212,7 +1212,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Low Battery",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor",
                             read: true,
                             write: false,
                         },
@@ -1226,7 +1226,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Motion detected",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor.motion",
                             read: true,
                             write: false,
                             def: false
@@ -1242,7 +1242,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "State",
                             type: "number",
-                            role: "state",
+                            role: "value",
                             read: true,
                             write: false,
                             states: {
@@ -1264,7 +1264,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Low Battery",
                             type: "boolean",
-                            role: "state",
+                            role: "sensor",
                             read: true,
                             write: false,
                         },
@@ -1420,7 +1420,7 @@ class EufySecurity extends utils.Adapter {
                     common: {
                         name: "Current Mode",
                         type: "number",
-                        role: "state",
+                        role: "value",
                         read: true,
                         write: false,
                         states: {
