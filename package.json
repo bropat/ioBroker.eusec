@@ -38,7 +38,7 @@
     "@types/fs-extra": "^9.0.8",
     "ts-log": "^2.2.3",
     "i18n-iso-countries": "^6.5.0",
-    "@cospired/i18n-iso-languages": "^2.2.0"
+    "@cospired/i18n-iso-languages": "^3.0.0"
   },
   "devDependencies": {
     "@iobroker/testing": "^2.4.2",
