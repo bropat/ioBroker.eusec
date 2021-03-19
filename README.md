@@ -143,6 +143,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.4.3 (2021-03-19)
+* (bropat) Code enhancements for publishing the adapter to the central repository
+* (bropat) Updated versions of the package dependencies
+
 ### 0.4.2 (2021-03-14)
 * (bropat) Fixed roles of states according to ioBroker documentation
 

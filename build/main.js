@@ -68,7 +68,7 @@ class EufySecurity extends utils.Adapter {
         // this.on("message", this.onMessage.bind(this));
         this.on("unload", this.onUnload.bind(this));
         const data_dir = utils.getAbsoluteInstanceDataDir(this);
-        this.persistentFile = data_dir + path.sep + "persistent.json";
+        this.persistentFile = path.join(data_dir, "persistent.json");
         if (!fs.existsSync(data_dir))
             fs.mkdirSync(data_dir);
     }
@@ -77,18 +77,6 @@ class EufySecurity extends utils.Adapter {
      */
     onReady() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.getForeignObject("system.config", (err, obj) => {
-                if (!this.supportsFeature || !this.supportsFeature("ADAPTER_AUTO_DECRYPT_NATIVE")) {
-                    if (obj && obj.native && obj.native.secret) {
-                        //noinspection JSUnresolvedVariable
-                        this.config.password = utils_1.decrypt(obj.native.secret, this.config.password);
-                    }
-                    else {
-                        //noinspection JSUnresolvedVariable
-                        this.config.password = utils_1.decrypt("yx6eWMwGK2AE4k1Yoxt3E5pT", this.config.password);
-                    }
-                }
-            });
             yield this.setObjectNotExistsAsync("verify_code", {
                 type: "state",
                 common: {
@@ -303,7 +291,12 @@ class EufySecurity extends utils.Adapter {
     }
     writePersistentData() {
         this.persistentData.login_hash = utils_1.md5(`${this.config.username}:${this.config.password}`);
-        fs.writeFileSync(this.persistentFile, JSON.stringify(this.persistentData));
+        try {
+            fs.writeFileSync(this.persistentFile, JSON.stringify(this.persistentData));
+        }
+        catch (error) {
+            this.log.error(`writePersistentData() - Error: ${error}`);
+        }
     }
     refreshData(adapter) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -311,7 +304,7 @@ class EufySecurity extends utils.Adapter {
             if (adapter.eufy) {
                 adapter.log.info("Refresh data from cloud and schedule next refresh.");
                 yield adapter.eufy.refreshData();
-                adapter.refreshTimeout = setTimeout(() => { this.refreshData(adapter); }, adapter.config.pollingInterval * 60 * 1000);
+                adapter.refreshEufySecurityTimeout = setTimeout(() => { this.refreshData(adapter); }, adapter.config.pollingInterval * 60 * 1000);
             }
         });
     }
@@ -330,11 +323,16 @@ class EufySecurity extends utils.Adapter {
         return __awaiter(this, void 0, void 0, function* () {
             for (const serialnr of Object.keys(events)) {
                 clearTimeout(events[serialnr]);
-                if (state !== undefined) {
-                    const states = yield this.getStatesAsync(`*.${serialnr}.${state}`);
-                    for (const id of Object.keys(states)) {
-                        yield this.setStateAsync(id, { val: false, ack: true });
+                try {
+                    if (state !== undefined) {
+                        const states = yield this.getStatesAsync(`*.${serialnr}.${state}`);
+                        for (const id of Object.keys(states)) {
+                            yield this.setStateAsync(id, { val: false, ack: true });
+                        }
                     }
+                }
+                catch (error) {
+                    this.log.error(`clearEvents(): device: ${serialnr} - Error: ${error}`);
                 }
             }
         });
@@ -345,11 +343,8 @@ class EufySecurity extends utils.Adapter {
     onUnload(callback) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (this.eufy)
-                    this.setPushPersistentIds(this.eufy.getPushPersistentIds());
-                this.writePersistentData();
-                if (this.refreshTimeout)
-                    clearTimeout(this.refreshTimeout);
+                if (this.refreshEufySecurityTimeout)
+                    clearTimeout(this.refreshEufySecurityTimeout);
                 yield this.clearEvents(this.personDetected, types_1.CameraStateID.PERSON_DETECTED);
                 yield this.clearEvents(this.motionDetected, types_1.CameraStateID.MOTION_DETECTED);
                 yield this.clearEvents(this.ringing, types_1.DoorbellStateID.RINGING);
@@ -357,6 +352,9 @@ class EufySecurity extends utils.Adapter {
                 yield this.clearEvents(this.soundDetected, types_1.IndoorCameraStateID.SOUND_DETECTED);
                 yield this.clearEvents(this.petDetected, types_1.IndoorCameraStateID.PET_DETECTED);
                 yield this.clearEvents(this.downloadEvent);
+                if (this.eufy)
+                    this.setPushPersistentIds(this.eufy.getPushPersistentIds());
+                this.writePersistentData();
                 if (this.eufy)
                     this.eufy.close();
                 callback();
@@ -560,7 +558,7 @@ class EufySecurity extends utils.Adapter {
                     common: {
                         name: "Name",
                         type: "string",
-                        role: "text",
+                        role: "info.name",
                         read: true,
                         write: false,
                     },
@@ -628,7 +626,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "State",
                                 type: "number",
-                                role: "value",
+                                role: "info.status",
                                 read: true,
                                 write: false,
                                 states: {
@@ -651,7 +649,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "MAC Address",
                             type: "string",
-                            role: "text",
+                            role: "info.mac",
                             read: true,
                             write: false,
                         },
@@ -896,7 +894,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Battery",
                                 type: "number",
-                                role: "value",
+                                role: "value.battery",
                                 unit: "%",
                                 min: 0,
                                 max: 100,
@@ -912,7 +910,7 @@ class EufySecurity extends utils.Adapter {
                             common: {
                                 name: "Battery temperature",
                                 type: "number",
-                                role: "value",
+                                role: "value.temperature",
                                 unit: "°C",
                                 read: true,
                                 write: false,
@@ -1123,7 +1121,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "State",
                             type: "number",
-                            role: "value",
+                            role: "info.status",
                             read: true,
                             write: false,
                             states: {
@@ -1159,7 +1157,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Low Battery",
                             type: "boolean",
-                            role: "sensor",
+                            role: "indicator.lowbat",
                             read: true,
                             write: false,
                         },
@@ -1190,7 +1188,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "State",
                             type: "number",
-                            role: "value",
+                            role: "info.status",
                             read: true,
                             write: false,
                             states: {
@@ -1212,7 +1210,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Low Battery",
                             type: "boolean",
-                            role: "sensor",
+                            role: "indicator.lowbat",
                             read: true,
                             write: false,
                         },
@@ -1242,7 +1240,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "State",
                             type: "number",
-                            role: "value",
+                            role: "info.status",
                             read: true,
                             write: false,
                             states: {
@@ -1264,7 +1262,7 @@ class EufySecurity extends utils.Adapter {
                         common: {
                             name: "Low Battery",
                             type: "boolean",
-                            role: "sensor",
+                            role: "indicator.lowbat",
                             read: true,
                             write: false,
                         },
@@ -1302,7 +1300,7 @@ class EufySecurity extends utils.Adapter {
                     common: {
                         name: "Name",
                         type: "string",
-                        role: "text",
+                        role: "info.name",
                         read: true,
                         write: false,
                     },
@@ -1367,7 +1365,7 @@ class EufySecurity extends utils.Adapter {
                     common: {
                         name: "MAC Address",
                         type: "string",
-                        role: "text",
+                        role: "info.mac",
                         read: true,
                         write: false,
                     },
@@ -1380,7 +1378,7 @@ class EufySecurity extends utils.Adapter {
                     common: {
                         name: "LAN IP Address",
                         type: "string",
-                        role: "text",
+                        role: "info.ip",
                         read: true,
                         write: false,
                     },

@@ -50,9 +50,9 @@ class ProxyEufySecurity {
         if (this.config.route[0] === "/") {
             this.config.route = this.config.route.substr(1);
         }
-        const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path_1.default.sep}${this.namespace}`;
+        const root_path = path_1.default.join(utils.getAbsoluteDefaultDataDir(), this.namespace);
         this.app.use("/" + this.config.route, (req, res) => {
-            const fileName = `${root_path}${path_1.default.sep}${req.url.substring(1)}`;
+            const fileName = path_1.default.join(root_path, req.url.substring(1));
             const normalized_filename = path_1.default.resolve(fileName);
             if (normalized_filename.startsWith(root_path)) {
                 adapter.log.debug(`ProxyEufySecurity(): url: ${req.url} fileName: ${fileName}`);

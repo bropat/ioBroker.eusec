@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.4.2",
+        "version": "0.4.3",
         "news": {
+            "0.4.3": {
+                "en": "Code enhancements for publishing the adapter to the central repository",
+                "de": "Codeverbesserungen zum Veröffentlichen des Adapters im zentralen Repository",
+                "ru": "Улучшения кода для публикации адаптера в центральном репозитории",
+                "pt": "Aprimoramentos de código para publicar o adaptador no repositório central",
+                "nl": "Codeverbeteringen voor het publiceren van de adapter naar de centrale opslagplaats",
+                "fr": "Améliorations du code pour la publication de l'adaptateur dans le référentiel central",
+                "it": "Miglioramenti al codice per la pubblicazione dell'adattatore nel repository centrale",
+                "es": "Mejoras de código para publicar el adaptador en el repositorio central",
+                "pl": "Udoskonalenia kodu dotyczące publikowania adaptera w centralnym repozytorium",
+                "zh-cn": "用于将适配器发布到中央存储库的代码增强"
+            },
             "0.4.2": {
                 "en": "Corrected state roles based on ioBroker documentation",
                 "de": "Korrigierte Statusrollen basierend auf der ioBroker-Dokumentation",
@@ -194,18 +206,6 @@
                 "es": "Problema solucionado # 37",
                 "pl": "Naprawiono problem nr 37",
                 "zh-cn": "已修复问题37"
-            },
-            "0.0.9": {
-                "en": "Implemented feature request #1, updated dependencies and more",
-                "de": "Feature Request #1 implementiert, Abhängigkeiten aktualisiert und mehr",
-                "ru": "Реализован запрос функции #1, обновлены зависимости и т.д.",
-                "pt": "Pedido de funcionalidade implementada #1, dependências actualizadas e mais",
-                "nl": "Geïmplementeerde functieaanvraag #1, bijgewerkte afhankelijkheden en meer",
-                "fr": "Mise en œuvre de la demande de fonctionnalité n°1, mise à jour des dépendances et plus",
-                "it": "Implementata richiesta di funzionalità n. 1, aggiornato le dipendenze e altro ancora",
-                "es": "e ha implementado la solicitud de características #1, dependencias actualizadas y más",
-                "pl": "Zaimplementowane żądanie funkcji #1, zaktualizowane zależności i więcej",
-                "zh-cn": "实现了功能请求#1，更新了依赖关系等。"
             }
         },
         "title": "Eufy Security",

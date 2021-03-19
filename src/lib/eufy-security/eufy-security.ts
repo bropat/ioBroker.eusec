@@ -474,25 +474,25 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         try {
             const device = this.getStationDevice(station.getSerial(), channel);
             try {
-                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, device.getSerial()).catch();
-                const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.TEMP, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                await removeFiles(this.adapter, station.getSerial(), DataLocation.TEMP, device.getSerial()).catch();
+                const file_path = getDataFilePath(this.adapter, station.getSerial(), DataLocation.TEMP, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
 
                 ffmpegStreamToHls(this.adapter.config, this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
                     .then(() => {
                         if (fse.pathExistsSync(file_path)) {
-                            removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
+                            removeFiles(this.adapter, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
                             return true;
                         }
                         return false;
                     })
                     .then((result) => {
                         if (result)
-                            moveFiles(this.adapter.namespace, station.getSerial(), device.getSerial(), DataLocation.TEMP, DataLocation.LAST_EVENT);
+                            moveFiles(this.adapter, station.getSerial(), device.getSerial(), DataLocation.TEMP, DataLocation.LAST_EVENT);
                         return result;
                     })
                     .then((result) => {
                         if (result) {
-                            const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
+                            const filename_without_ext = getDataFilePath(this.adapter, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
                             setStateWithTimestamp(this.adapter, device.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, undefined, "url");
                             if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
                                 ffmpegPreviewImage(this.adapter.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
@@ -538,24 +538,24 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         try {
             const device = this.getStationDevice(station.getSerial(), channel);
             try {
-                const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
-                await removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial()).catch();
+                const file_path = getDataFilePath(this.adapter, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
+                await removeFiles(this.adapter, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial()).catch();
                 ffmpegStreamToHls(this.adapter.config, this.adapter.namespace, metadata, videostream, audiostream, file_path, this.log)
                     .then(() => {
                         if (fse.pathExistsSync(file_path)) {
-                            removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
+                            removeFiles(this.adapter, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
                             return true;
                         }
                         return false;
                     })
                     .then((result) => {
                         if (result)
-                            moveFiles(this.adapter.namespace, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+                            moveFiles(this.adapter, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
                         return result;
                     })
                     .then((result) => {
                         if (result) {
-                            const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
+                            const filename_without_ext = getDataFilePath(this.adapter, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
                             this.adapter.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_VIDEO_URL), { val: `/${this.adapter.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, ack: true });
                             if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
                                 ffmpegPreviewImage(this.adapter.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log)
@@ -616,24 +616,24 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
     private async _startRtmpLivestream(station: Station, camera: Camera): Promise<void> {
         const url = await camera.startStream();
         if (url !== "") {
-            const file_path = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LIVESTREAM, `${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
+            const file_path = getDataFilePath(this.adapter, station.getSerial(), DataLocation.LIVESTREAM, `${camera.getSerial()}${STREAM_FILE_NAME_EXT}`);
             await sleep(2000);
             const rtmpPromise: StoppablePromise = ffmpegRTMPToHls(this.adapter.config, url, file_path, this.log);
             rtmpPromise.then(() => {
                 if (fse.pathExistsSync(file_path)) {
-                    removeFiles(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
+                    removeFiles(this.adapter, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
                     return true;
                 }
                 return false;
             })
                 .then((result) => {
                     if (result)
-                        moveFiles(this.adapter.namespace, station.getSerial(), camera.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+                        moveFiles(this.adapter, station.getSerial(), camera.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
                     return result;
                 })
                 .then((result) => {
                     if (result) {
-                        const filename_without_ext = getDataFilePath(this.adapter.namespace, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
+                        const filename_without_ext = getDataFilePath(this.adapter, station.getSerial(), DataLocation.LAST_LIVESTREAM, camera.getSerial());
                         if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
                             ffmpegPreviewImage(this.adapter.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.log, 5.5)
                                 .then(() => {

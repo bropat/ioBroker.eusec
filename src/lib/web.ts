@@ -35,9 +35,9 @@ class ProxyEufySecurity {
             this.config.route = this.config.route.substr(1);
         }
 
-        const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path.sep}${this.namespace}`
+        const root_path = path.join(utils.getAbsoluteDefaultDataDir(), this.namespace);
         this.app.use("/" + this.config.route, (req: express.Request, res: express.Response) => {
-            const fileName = `${root_path}${path.sep}${req.url.substring(1)}`
+            const fileName = path.join(root_path, req.url.substring(1));
             const normalized_filename = path.resolve(fileName);
 
             if (normalized_filename.startsWith(root_path)) {

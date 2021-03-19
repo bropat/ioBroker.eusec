@@ -25,7 +25,8 @@ class UniversalStream {
             this.url = sockpath;
         }
         else {
-            sockpath = `${os_1.tmpdir()}${path_1.default.sep}${namespace}.${(unique_sock_id)}.sock`;
+            const pipeName = `${namespace}.${unique_sock_id}.sock`;
+            sockpath = path_1.default.join(os_1.tmpdir(), pipeName);
             this.url = "unix:" + sockpath;
             try {
                 if (fs_extra_1.default.existsSync(sockpath))

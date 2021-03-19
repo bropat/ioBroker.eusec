@@ -131,13 +131,12 @@ const getImageAsHTML = function (data) {
     return "";
 };
 exports.getImageAsHTML = getImageAsHTML;
-const getDataFilePath = function (namespace, stationSerial, folderName, fileName) {
-    const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path_1.default.sep}${namespace}`;
-    const dir_path = `${root_path}${path_1.default.sep}${stationSerial}${path_1.default.sep}${folderName}`;
+const getDataFilePath = function (adapter, stationSerial, folderName, fileName) {
+    const dir_path = path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
     if (!fs_extra_1.default.existsSync(dir_path)) {
         fs_extra_1.default.mkdirSync(dir_path, { mode: 0o775, recursive: true });
     }
-    return `${dir_path}${path_1.default.sep}${fileName}`;
+    return path_1.default.join(dir_path, fileName);
 };
 exports.getDataFilePath = getDataFilePath;
 const saveImage = function (adapter, url, station_sn, device_sn, location) {
@@ -155,7 +154,13 @@ const saveImage = function (adapter, url, station_sn, device_sn, location) {
                 result.statusText = response.statusText;
                 if (response.status === 200) {
                     const data = Buffer.from(response.data);
-                    yield adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`, data).then(() => {
+                    const fileName = `${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`;
+                    const filePath = path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), station_sn, location);
+                    if (!fs_extra_1.default.existsSync(filePath)) {
+                        fs_extra_1.default.mkdirSync(filePath, { mode: 0o775, recursive: true });
+                    }
+                    yield fs_extra_1.default.writeFile(path_1.default.join(filePath, fileName), data).then(() => {
+                        //await adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`, data).then(() => {
                         result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`;
                         result.imageHtml = exports.getImageAsHTML(data);
                     }).catch(error => {
@@ -234,15 +239,14 @@ const saveImageStates = function (adapter, url, timestamp, station_sn, device_sn
     });
 };
 exports.saveImageStates = saveImageStates;
-const removeFiles = function (namespace, stationSerial, folderName, device_sn) {
+const removeFiles = function (adapter, stationSerial, folderName, device_sn) {
     return new Promise((resolve, reject) => {
         try {
-            const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path_1.default.sep}${namespace}`;
-            const dir_path = `${root_path}${path_1.default.sep}${stationSerial}${path_1.default.sep}${folderName}`;
+            const dir_path = path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
             if (fs_extra_1.default.existsSync(dir_path)) {
                 const files = fs_extra_1.default.readdirSync(dir_path).filter(fn => fn.startsWith(device_sn));
                 try {
-                    files.map(filename => fs_extra_1.default.removeSync(`${dir_path}${path_1.default.sep}${filename}`));
+                    files.map(filename => fs_extra_1.default.removeSync(path_1.default.join(dir_path, filename)));
                 }
                 catch (error) {
                 }
@@ -255,19 +259,18 @@ const removeFiles = function (namespace, stationSerial, folderName, device_sn) {
     });
 };
 exports.removeFiles = removeFiles;
-const moveFiles = function (namespace, stationSerial, device_sn, srcFolderName, dstFolderName) {
+const moveFiles = function (adapter, stationSerial, device_sn, srcFolderName, dstFolderName) {
     return new Promise((resolve, reject) => {
         try {
-            const rootPath = `${utils.getAbsoluteDefaultDataDir()}files${path_1.default.sep}${namespace}`;
-            const dirSrcPath = `${rootPath}${path_1.default.sep}${stationSerial}${path_1.default.sep}${srcFolderName}`;
-            const dirDstPath = `${rootPath}${path_1.default.sep}${stationSerial}${path_1.default.sep}${dstFolderName}`;
+            const dirSrcPath = path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, srcFolderName);
+            const dirDstPath = path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, dstFolderName);
             if (!fs_extra_1.default.existsSync(dirDstPath)) {
                 fs_extra_1.default.mkdirSync(dirDstPath, { mode: 0o775, recursive: true });
             }
             if (fs_extra_1.default.existsSync(dirSrcPath)) {
                 const files = fs_extra_1.default.readdirSync(dirSrcPath).filter(fn => fn.startsWith(device_sn));
                 try {
-                    files.map(filename => fs_extra_1.default.moveSync(`${dirSrcPath}${path_1.default.sep}${filename}`, `${dirDstPath}${path_1.default.sep}${filename}`));
+                    files.map(filename => fs_extra_1.default.moveSync(path_1.default.join(dirSrcPath, filename), path_1.default.join(dirDstPath, filename)));
                 }
                 catch (error) {
                 }
@@ -421,6 +424,45 @@ const handleUpdate = function (adapter, old_version) {
             }
             catch (error) {
                 adapter.log.error(`handleUpdate(): Version 0.4.1 - Error: ${error}`);
+            }
+        }
+        else if (old_version <= 0.42) {
+            try {
+                const changeRole = function (adapter, state, role) {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            const states = yield adapter.getStatesAsync(`*.${state}`);
+                            Object.keys(states).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                                yield adapter.extendObjectAsync(id, {
+                                    type: "state",
+                                    common: {
+                                        role: role
+                                    }
+                                }, {});
+                            }));
+                        }
+                        catch (error) {
+                            adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                        }
+                    });
+                };
+                yield changeRole(adapter, types_1.CameraStateID.STATE, "info.status");
+                yield changeRole(adapter, types_1.CameraStateID.NAME, "info.name");
+                yield changeRole(adapter, types_1.CameraStateID.MAC_ADDRESS, "info.mac");
+                yield changeRole(adapter, types_1.CameraStateID.BATTERY, "value.battery");
+                yield changeRole(adapter, types_1.CameraStateID.BATTERY_TEMPERATURE, "value.temperature");
+                yield changeRole(adapter, types_1.EntrySensorStateID.LOW_BATTERY, "indicator.lowbat");
+                yield changeRole(adapter, types_1.StationStateID.LAN_IP_ADDRESS, "info.ip");
+            }
+            catch (error) {
+                adapter.log.error(`handleUpdate(): Version 0.4.2 - States - Error: ${error}`);
+            }
+            try {
+                const files = fs_extra_1.default.readdirSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
+                files.map(filename => fs_extra_1.default.moveSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
+            }
+            catch (error) {
+                adapter.log.error(`handleUpdate(): Version 0.4.2 - Files - Error: ${error}`);
             }
         }
     });

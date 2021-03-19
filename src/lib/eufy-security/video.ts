@@ -33,7 +33,8 @@ class UniversalStream {
             this.url = sockpath;
         }
         else {
-            sockpath = `${tmpdir()}${path.sep}${namespace}.${(unique_sock_id)}.sock`;
+            const pipeName = `${namespace}.${unique_sock_id}.sock`;
+            sockpath = path.join(tmpdir(), pipeName);
             this.url = "unix:" + sockpath;
 
             try {

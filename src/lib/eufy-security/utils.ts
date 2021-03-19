@@ -97,13 +97,12 @@ export const getImageAsHTML = function(data: Buffer): string {
     return "";
 }
 
-export const getDataFilePath = function(namespace: string, stationSerial: string, folderName: string, fileName: string): string {
-    const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path.sep}${namespace}`
-    const dir_path = `${root_path}${path.sep}${stationSerial}${path.sep}${folderName}`;
+export const getDataFilePath = function(adapter: ioBroker.Adapter, stationSerial: string, folderName: string, fileName: string): string {
+    const dir_path = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
     if (!fse.existsSync(dir_path)) {
         fse.mkdirSync(dir_path, {mode: 0o775, recursive: true});
     }
-    return `${dir_path}${path.sep}${fileName}`;
+    return path.join(dir_path, fileName);
 }
 
 export const saveImage = async function(adapter: ioBroker.Adapter, url: string, station_sn: string, device_sn: string, location: string): Promise<ImageResponse> {
@@ -120,7 +119,15 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
             result.statusText = response.statusText;
             if (response.status === 200) {
                 const data = Buffer.from(response.data);
-                await adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`, data).then(() => {
+                const fileName = `${device_sn}${IMAGE_FILE_JPEG_EXT}`;
+                const filePath = path.join(utils.getAbsoluteInstanceDataDir(adapter), station_sn, location);
+
+                if (!fse.existsSync(filePath)) {
+                    fse.mkdirSync(filePath, {mode: 0o775, recursive: true});
+                }
+
+                await fse.writeFile(path.join(filePath, fileName), data).then(() => {
+                //await adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`, data).then(() => {
                     result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`;
                     result.imageHtml = getImageAsHTML(data);
                 }).catch(error => {
@@ -191,15 +198,14 @@ export const saveImageStates = async function(adapter: ioBroker.Adapter, url: st
     setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
 }
 
-export const removeFiles = function(namespace: string, stationSerial: string, folderName: string, device_sn: string): Promise<void> {
+export const removeFiles = function(adapter: ioBroker.Adapter, stationSerial: string, folderName: string, device_sn: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
-            const root_path = `${utils.getAbsoluteDefaultDataDir()}files${path.sep}${namespace}`
-            const dir_path = `${root_path}${path.sep}${stationSerial}${path.sep}${folderName}`;
+            const dir_path = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
             if (fse.existsSync(dir_path)) {
                 const files = fse.readdirSync(dir_path).filter(fn => fn.startsWith(device_sn));
                 try {
-                    files.map(filename => fse.removeSync(`${dir_path}${path.sep}${filename}`));
+                    files.map(filename => fse.removeSync(path.join(dir_path, filename)));
                 } catch (error) {
                 }
             }
@@ -210,19 +216,18 @@ export const removeFiles = function(namespace: string, stationSerial: string, fo
     });
 }
 
-export const moveFiles = function(namespace: string, stationSerial: string, device_sn: string, srcFolderName: string, dstFolderName: string): Promise<void> {
+export const moveFiles = function(adapter: ioBroker.Adapter, stationSerial: string, device_sn: string, srcFolderName: string, dstFolderName: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
-            const rootPath = `${utils.getAbsoluteDefaultDataDir()}files${path.sep}${namespace}`
-            const dirSrcPath = `${rootPath}${path.sep}${stationSerial}${path.sep}${srcFolderName}`;
-            const dirDstPath = `${rootPath}${path.sep}${stationSerial}${path.sep}${dstFolderName}`;
+            const dirSrcPath = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, srcFolderName);
+            const dirDstPath = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, dstFolderName);
             if (!fse.existsSync(dirDstPath)) {
                 fse.mkdirSync(dirDstPath, {mode: 0o775, recursive: true});
             }
             if (fse.existsSync(dirSrcPath)) {
                 const files = fse.readdirSync(dirSrcPath).filter(fn => fn.startsWith(device_sn));
                 try {
-                    files.map(filename => fse.moveSync(`${dirSrcPath}${path.sep}${filename}`, `${dirDstPath}${path.sep}${filename}`));
+                    files.map(filename => fse.moveSync(path.join(dirSrcPath, filename), path.join(dirDstPath, filename)));
                 } catch (error) {
                 }
             }
@@ -365,6 +370,40 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
             await changeRole(adapter, StationStateID.CURRENT_MODE, "value");
         } catch (error) {
             adapter.log.error(`handleUpdate(): Version 0.4.1 - Error: ${error}`);
+        }
+    } else if (old_version <= 0.42) {
+        try {
+            const changeRole = async function(adapter: ioBroker.Adapter, state: string, role: string): Promise<void> {
+                try {
+                    const states = await adapter.getStatesAsync(`*.${state}`);
+                    Object.keys(states).forEach(async id => {
+                        await adapter.extendObjectAsync(id, {
+                            type: "state",
+                            common: {
+                                role: role
+                            }
+                        }, {});
+                    });
+                } catch (error) {
+                    adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                }
+            };
+
+            await changeRole(adapter, CameraStateID.STATE, "info.status");
+            await changeRole(adapter, CameraStateID.NAME, "info.name");
+            await changeRole(adapter, CameraStateID.MAC_ADDRESS, "info.mac");
+            await changeRole(adapter, CameraStateID.BATTERY, "value.battery");
+            await changeRole(adapter, CameraStateID.BATTERY_TEMPERATURE, "value.temperature");
+            await changeRole(adapter, EntrySensorStateID.LOW_BATTERY, "indicator.lowbat");
+            await changeRole(adapter, StationStateID.LAN_IP_ADDRESS, "info.ip");
+        } catch (error) {
+            adapter.log.error(`handleUpdate(): Version 0.4.2 - States - Error: ${error}`);
+        }
+        try {
+            const files = fse.readdirSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
+            files.map(filename => fse.moveSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
+        } catch (error) {
+            adapter.log.error(`handleUpdate(): Version 0.4.2 - Files - Error: ${error}`);
         }
     }
 };
