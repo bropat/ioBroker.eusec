@@ -1,5 +1,4 @@
 import * as crypto from "crypto";
-import { readBigUInt64BE } from "read-bigint";
 import axios, { AxiosResponse } from "axios";
 import { CommandType, Device, ParamType } from "eufy-security-client";
 import path from "path";
@@ -18,8 +17,7 @@ export const decrypt = (key: string, value: string): string => {
 }
 
 export const generateUDID = function(): string {
-    //return crypto.randomBytes(8).readBigUInt64BE().toString(16);
-    return readBigUInt64BE(crypto.randomBytes(8)).toString(16);
+    return crypto.randomBytes(8).readBigUInt64BE().toString(16);
 };
 
 export const generateSerialnumber = function(length: number): string {

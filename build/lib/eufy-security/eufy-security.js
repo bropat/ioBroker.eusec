@@ -125,10 +125,10 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
     getApi() {
         return this.api;
     }
-    connectToStation(station_sn) {
+    connectToStation(station_sn, p2pConnectionType = eufy_security_client_1.P2PConnectionType.PREFER_LOCAL) {
         return __awaiter(this, void 0, void 0, function* () {
             if (Object.keys(this.stations).includes(station_sn))
-                this.stations[station_sn].connect(true);
+                this.stations[station_sn].connect(p2pConnectionType, true);
             else
                 throw new Error(`No station with this serial number: ${station_sn}!`);
         });
@@ -209,6 +209,15 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
                         catch (error) {
                             this.log.error(`EufySecurity.stationP2PCommandResult(): Error: ${error} - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
                         }
+                    }
+                }
+                else if (result.command_type === eufy_security_client_1.CommandType.CMD_DOORLOCK_DATA_PASS_THROUGH) {
+                    // TODO: Implement third level of command verification for ESL?
+                    const device = this.getStationDevice(station.getSerial(), result.channel);
+                    const states = yield this.adapter.getStatesAsync(`${device.getStateID("", 1)}.*`);
+                    for (const state in states) {
+                        if (!states[state].ack)
+                            this.adapter.setStateAsync(state, Object.assign(Object.assign({}, states[state]), { ack: true }));
                     }
                 }
                 else {
@@ -377,7 +386,7 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
             device.updateParameters(params);
     }
     deviceParameterChanged(device, type, value, modified) {
-        //this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value} modified: ${modified}`);
+        this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value} modified: ${modified}`);
         if (type == eufy_security_client_1.CommandType.CMD_GET_BATTERY) {
             try {
                 utils_1.setStateChangedWithTimestamp(this.adapter, device.getStateID(types_1.CameraStateID.BATTERY), Number.parseInt(value), modified);
@@ -468,6 +477,15 @@ class EufySecurity extends tiny_typed_emitter_1.TypedEmitter {
             }
             catch (error) {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} STATE Error: ${error}`);
+            }
+        }
+        else if (type == eufy_security_client_1.CommandType.CMD_DOORLOCK_GET_STATE) {
+            try {
+                utils_1.setStateChangedWithTimestamp(this.adapter, device.getStateID(types_1.LockStateID.LOCK_STATUS), Number.parseInt(value), modified);
+                utils_1.setStateChangedWithTimestamp(this.adapter, device.getStateID(types_1.LockStateID.LOCK), Number.parseInt(value) === 4 ? true : false, modified);
+            }
+            catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} LOCK_STATUS Error: ${error}`);
             }
         }
     }

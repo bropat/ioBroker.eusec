@@ -92,18 +92,46 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
         * States: 
             * Online / offline etc.
             * Low battery
+            * Name
+            * Model
+            * Serial number
+            * Software version
+            * Hardware version
         * Events: 
             * Open / closed
     * Motion sensor:
         * States:
             * Online / offline etc.
             * Low battery
+            * Name
+            * Model
+            * Serial number
+            * Software version
+            * Hardware version
         * Events:
             * Motion detected
 * Keypad:
     * States:
         * Online / offline etc.
         * Low battery
+        * Name
+        * Model
+        * Serial number
+        * Software version
+        * Hardware version
+* Lock:
+    * States:
+        * Online / offline etc.
+        * Battery %
+        * Lock status
+        * Name
+        * Model
+        * Serial number
+        * Software version
+        * Hardware version
+        * Wifi RSSI
+    * Actions:
+        * Lock/unlock
 * more to come...
 
 ## Configuration
@@ -115,6 +143,7 @@ See [here](./docs/en/README.md)
 * HomeBase (T8001)
 * HomeBase E (T8002)
 * HomeBase 2 (T8010)
+* Smart Lock Wi-Fi Bridge (T8021)
 * eufyCam (T8111)
 * eufyCam E (T8112)
 * eufyCam 2 (T8114)
@@ -132,6 +161,7 @@ See [here](./docs/en/README.md)
 * Indoor Cam 2K (T8400)
 * Indoor Cam Pan&Tilt 1080p (T8411)
 * Indoor Cam 1080p (T8401)
+* Smart Lock Front Door (T8500)
 
 If more devices work (or also not) please report them by opening a GitHub issue.
 
@@ -142,6 +172,14 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.5.0 (2021-03-30)
+* (bropat) Added support for smart lock products
+* (bropat) Added new P2P feature: lock/unlock smart lock products
+* (bropat) Optimized speed of P2P connection establishment
+* (bropat) New setting: P2P connection setup preference: local prefered, local only or quickest connection
+* (bropat) Dropped support for NodeJS 10.x (min. requirement 12)
+* (bropat) Updated versions of the package dependencies
 
 ### 0.4.3 (2021-03-19)
 * (bropat) Code enhancements for publishing the adapter to the central repository

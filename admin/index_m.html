@@ -78,8 +78,8 @@
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s2"><a href="#tab-main"  class="translate active">Main settings</a></li>
-                    <li class="tab col s2 live-settings"><a href="#tab-live"    class="translate">Livestream settings</a></li>
+                    <li class="tab col s2"><a href="#tab-main" class="translate active">Main settings</a></li>
+                    <li class="tab col s2 live-settings"><a href="#tab-live" class="translate">Livestream settings</a></li>
                 </ul>
             </div>
         </div>
@@ -110,11 +110,19 @@
                     <input class="value" min="10" type="number" id="pollingInterval" />
                     <label for="pollingInterval" class="translate">Polling interval (min)</label>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col s6 l2 input-field">
                     <input class="value" min="1" max="120" type="number" id="eventDuration" />
                     <label for="eventDuration" class="translate">Time in seconds before event reset</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s6 m2">
+                    <select class="value" id="p2pConnectionType">
+                        <option value="prefer_local" class="translate">Prefer local connection</option>
+                        <option value="only_local" class="translate">Only local connection</option>
+                        <option value="quickest" class="translate">Quickest connection</option>
+                    </select>
+                    <label for="p2pConnectionType" class="translate">P2P connection type</label>
                 </div>
             </div>
         </div>

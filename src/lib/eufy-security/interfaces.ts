@@ -19,6 +19,7 @@ export interface AdapterConfig {
     maxLivestreamDuration: number;
     eventDuration: number;
     verificationMethod: number;
+    p2pConnectionType: string;
 }
 
 export interface PersistentData {

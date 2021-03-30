@@ -33,7 +33,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = exports.md5 = exports.generateSerialnumber = exports.generateUDID = exports.decrypt = void 0;
 const crypto = __importStar(require("crypto"));
-const read_bigint_1 = require("read-bigint");
 const axios_1 = __importDefault(require("axios"));
 const eufy_security_client_1 = require("eufy-security-client");
 const path_1 = __importDefault(require("path"));
@@ -49,8 +48,7 @@ const decrypt = (key, value) => {
 };
 exports.decrypt = decrypt;
 const generateUDID = function () {
-    //return crypto.randomBytes(8).readBigUInt64BE().toString(16);
-    return read_bigint_1.readBigUInt64BE(crypto.randomBytes(8)).toString(16);
+    return crypto.randomBytes(8).readBigUInt64BE().toString(16);
 };
 exports.generateUDID = generateUDID;
 const generateSerialnumber = function (length) {

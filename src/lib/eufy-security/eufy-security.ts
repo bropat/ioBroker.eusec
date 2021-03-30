@@ -1,9 +1,9 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { HTTPApi, Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice, Devices, FullDevices, Hubs, Station, Stations, ParamType, FullDeviceResponse, HubResponse, Credentials, PushMessage, CommandResult, CommandType, ErrorCode, StreamMetadata, PushNotificationService, ParameterArray, AuthResult, DoorbellCamera, FloodlightCamera, IndoorCamera, SoloCamera, BatteryDoorbellCamera, DeviceType } from "eufy-security-client";
+import { HTTPApi, Device, Camera, Lock, MotionSensor, EntrySensor, Keypad, UnknownDevice, Devices, FullDevices, Hubs, Station, Stations, ParamType, FullDeviceResponse, HubResponse, Credentials, PushMessage, CommandResult, CommandType, ErrorCode, StreamMetadata, PushNotificationService, ParameterArray, AuthResult, DoorbellCamera, FloodlightCamera, IndoorCamera, SoloCamera, BatteryDoorbellCamera, DeviceType, P2PConnectionType } from "eufy-security-client";
 import { Readable } from "stream";
 import fse from "fs-extra";
 
-import { CameraStateID, StationStateID, StoppablePromise } from "./types";
+import { CameraStateID, LockStateID, StationStateID, StoppablePromise } from "./types";
 import { EufySecurityEvents } from "./interfaces";
 import { EufySecurity as EufySecurityAdapter } from "./../../main";
 import { getDataFilePath, getImageAsHTML, getState, moveFiles, removeFiles, setStateChangedWithTimestamp, setStateWithTimestamp, sleep } from "./utils";
@@ -142,9 +142,9 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
         return this.api;
     }
 
-    public async connectToStation(station_sn: string): Promise<void> {
+    public async connectToStation(station_sn: string, p2pConnectionType: P2PConnectionType = P2PConnectionType.PREFER_LOCAL): Promise<void> {
         if (Object.keys(this.stations).includes(station_sn))
-            this.stations[station_sn].connect(true);
+            this.stations[station_sn].connect(p2pConnectionType, true);
         else
             throw new Error(`No station with this serial number: ${station_sn}!`);
     }
@@ -218,11 +218,19 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
                         const device = this.getStationDevice(station.getSerial(), result.channel);
                         const state_id = device.getStateID(state_name);
                         const state = await this.adapter.getStateAsync(state_id);
-                        this.adapter.setStateAsync(state_id, {...state as ioBroker.State, ack: true });
+                        this.adapter.setStateAsync(state_id, { ...state as ioBroker.State, ack: true });
                         this.log.debug(`EufySecurity.stationP2PCommandResult(): State ${state_id} aknowledged - station: ${station.getSerial()} device: ${device.getSerial()} result: ${JSON.stringify(result)}`);
                     } catch(error) {
                         this.log.error(`EufySecurity.stationP2PCommandResult(): Error: ${error} - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
                     }
+                }
+            } else if (result.command_type === CommandType.CMD_DOORLOCK_DATA_PASS_THROUGH) {
+                // TODO: Implement third level of command verification for ESL?
+                const device = this.getStationDevice(station.getSerial(), result.channel);
+                const states = await this.adapter.getStatesAsync(`${device.getStateID("", 1)}.*`);
+                for (const state in states) {
+                    if (!states[state].ack)
+                        this.adapter.setStateAsync(state, { ...states[state] as ioBroker.State, ack: true });
                 }
             } else {
                 this.log.debug(`EufySecurity.stationP2PCommandResult(): No mapping for state <> command_type - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
@@ -382,7 +390,7 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
     }
 
     private deviceParameterChanged(device: Device, type: number, value: string, modified: number): void {
-        //this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value} modified: ${modified}`);
+        this.log.debug(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} type: ${type} value: ${value} modified: ${modified}`);
         if (type == CommandType.CMD_GET_BATTERY) {
             try {
                 setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.BATTERY), Number.parseInt(value), modified);
@@ -452,6 +460,13 @@ export class EufySecurity extends TypedEmitter<EufySecurityEvents> {
                 setStateChangedWithTimestamp(this.adapter, device.getStateID(CameraStateID.STATE), Number.parseInt(value), modified);
             } catch (error) {
                 this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} STATE Error: ${error}`);
+            }
+        } else if (type == CommandType.CMD_DOORLOCK_GET_STATE) {
+            try {
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(LockStateID.LOCK_STATUS), Number.parseInt(value), modified);
+                setStateChangedWithTimestamp(this.adapter, device.getStateID(LockStateID.LOCK), Number.parseInt(value) === 4 ? true : false, modified);
+            } catch (error) {
+                this.log.error(`EufySecurity.deviceParameterChanged(): device: ${device.getSerial()} LOCK_STATUS Error: ${error}`);
             }
         }
     }

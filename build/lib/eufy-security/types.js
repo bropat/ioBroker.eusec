@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IndoorCameraStateID = exports.DoorbellStateID = exports.KeyPadStateID = exports.MotionSensorStateID = exports.EntrySensorStateID = exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.IMAGE_FILE_PNG_EXT = exports.IMAGE_FILE_JPEG_EXT = exports.STREAM_FILE_NAME_EXT = exports.DataLocation = void 0;
+exports.LockStateID = exports.IndoorCameraStateID = exports.DoorbellStateID = exports.KeyPadStateID = exports.MotionSensorStateID = exports.EntrySensorStateID = exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.IMAGE_FILE_PNG_EXT = exports.IMAGE_FILE_JPEG_EXT = exports.STREAM_FILE_NAME_EXT = exports.DataLocation = void 0;
 exports.DataLocation = {
     LIVESTREAM: "live",
     LAST_LIVESTREAM: "last_live",
@@ -25,3 +25,4 @@ exports.MotionSensorStateID = Object.assign(Object.assign({}, exports.DeviceStat
 exports.KeyPadStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", LOW_BATTERY: "low_battery" });
 exports.DoorbellStateID = Object.assign(Object.assign({}, exports.CameraStateID), { RINGING: "ringing" });
 exports.IndoorCameraStateID = Object.assign(Object.assign({}, exports.CameraStateID), { CRYING_DETECTED: "crying_detected", SOUND_DETECTED: "sound_detected", SOUND_DETECTION: "sound_detection", PET_DETECTED: "pet_detected", PET_DETECTION: "pet_detection" });
+exports.LockStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", BATTERY: "battery", WIFI_RSSI: "wifi_rssi", LOCK: "lock", LOCK_STATUS: "lock_status" });

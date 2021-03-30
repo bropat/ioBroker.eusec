@@ -1,8 +1,11 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.4.3",
+        "version": "0.5.0",
         "news": {
+            "0.5.0": {
+                
+            },
             "0.4.3": {
                 "en": "Code enhancements for publishing the adapter to the central repository",
                 "de": "Codeverbesserungen zum Veröffentlichen des Adapters im zentralen Repository",
@@ -194,18 +197,6 @@
                 "es": "Algunos arreglos y dependencias actualizadas",
                 "pl": "Niektóre poprawki i zaktualizowane zależności",
                 "zh-cn": "一些修复和更新的依赖性"
-            },
-            "0.1.1": {
-                "en": "Fixed issue #37",
-                "de": "Problem Nr. 37 behoben",
-                "ru": "Исправленная проблема # 37",
-                "pt": "Problema nº 37 corrigido",
-                "nl": "Probleem # 37 opgelost",
-                "fr": "Problème résolu n ° 37",
-                "it": "Risolto il problema # 37",
-                "es": "Problema solucionado # 37",
-                "pl": "Naprawiono problem nr 37",
-                "zh-cn": "已修复问题37"
             }
         },
         "title": "Eufy Security",
@@ -284,7 +275,8 @@
         "maxLivestreamDuration": 120,
         "verificationMethod": 2,
         "eventDuration": 15,
-        "webInstance": "*"
+        "webInstance": "*",
+        "p2pConnectionType": "prefer_local"
     },
     "objects": [],
     "instanceObjects": [

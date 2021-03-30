@@ -97,3 +97,12 @@ export const IndoorCameraStateID = {
     PET_DETECTED: "pet_detected",
     PET_DETECTION: "pet_detection",
 }
+
+export const LockStateID = {
+    ...DeviceStateID,
+    STATE: "state",
+    BATTERY: "battery",
+    WIFI_RSSI: "wifi_rssi",
+    LOCK: "lock",
+    LOCK_STATUS: "lock_status",
+}

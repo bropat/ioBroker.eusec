@@ -133,5 +133,53 @@ systemDictionary = {
         "es": "Configuración de transmisión en vivo",
         "pl": "Ustawienia transmisji na żywo",
         "zh-cn": "直播设置"
+    },
+    "Prefer local connection": {
+        "en": "Prefer local connection",
+        "de": "Lokale Verbindung bevorzugen",
+        "ru": "Предпочитает местное подключение",
+        "pt": "Preferir conexão local",
+        "nl": "Voorkeur voor lokale verbinding",
+        "fr": "Préférer une connexion locale",
+        "it": "Preferire la connessione locale",
+        "es": "Prefiero la conexión local",
+        "pl": "Preferowane połączenie lokalne",
+        "zh-cn": "倾向于本地连接"
+    },
+    "Only local connection": {
+        "en": "Only local connection",
+        "de": "Nur lokale Verbindung",
+        "ru": "Только локальное подключение",
+        "pt": "Apenas conexão local",
+        "nl": "Alleen lokale verbinding",
+        "fr": "Uniquement connexion locale",
+        "it": "Solo connessione locale",
+        "es": "Solo conexión local",
+        "pl": "Tylko połączenie lokalne",
+        "zh-cn": "仅本地连接"
+    },
+    "Quickest connection": {
+        "en": "Quickest connection",
+        "de": "Schnellste Verbindung",
+        "ru": "Самое быстрое соединение",
+        "pt": "Conexão mais rápida",
+        "nl": "Snelste verbinding",
+        "fr": "Connexion la plus rapide",
+        "it": "Connessione più veloce",
+        "es": "Conexión más rápida",
+        "pl": "Najszybsze połączenie",
+        "zh-cn": "最快的连接"
+    },
+    "P2P connection type": {
+        "en": "P2P connection type",
+        "de": "P2P-Verbindungstyp",
+        "ru": "Тип подключения P2P",
+        "pt": "Tipo de conexão P2P",
+        "nl": "P2P-verbindingstype",
+        "fr": "Type de connexion P2P",
+        "it": "Tipo di connessione P2P",
+        "es": "Tipo de conexión P2P",
+        "pl": "Typ połączenia P2P",
+        "zh-cn": "P2P连接类型"
     }
 };

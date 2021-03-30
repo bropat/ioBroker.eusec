@@ -265,6 +265,7 @@ class EufySecurity extends utils.Adapter {
                     this.log.info(`Authentication properties changed, invalidate saved cloud token.`);
                     this.persistentData.cloud_token = "";
                     this.persistentData.cloud_token_expiration = 0;
+                    this.persistentData.api_base = "";
                 }
             }
             else {
@@ -510,6 +511,25 @@ class EufySecurity extends utils.Adapter {
                                 yield station.rebootHUB();
                                 break;
                         }
+                    }
+                }
+                else if (device_type == "locks") {
+                    try {
+                        const device_sn = values[4];
+                        const device_state_name = values[5];
+                        const station = this.eufy.getStation(station_sn);
+                        const device = this.eufy.getDevice(device_sn);
+                        if (this.eufy) {
+                            switch (device_state_name) {
+                                case types_1.LockStateID.LOCK:
+                                    if (device && state.val !== null)
+                                        station.lockDevice(device, state.val);
+                                    break;
+                            }
+                        }
+                    }
+                    catch (error) {
+                        this.log.error(`onStateChange(): locks - Error: ${error}`);
                     }
                 }
             }
@@ -1271,6 +1291,99 @@ class EufySecurity extends utils.Adapter {
                     const low_battery = keypad.isBatteryLow();
                     yield utils_1.setStateChangedWithTimestamp(this, keypad.getStateID(types_1.KeyPadStateID.LOW_BATTERY), low_battery.value, low_battery.timestamp);
                 }
+                else if (device.isLock()) {
+                    const lock = device;
+                    // State
+                    yield this.setObjectNotExistsAsync(lock.getStateID(types_1.LockStateID.STATE), {
+                        type: "state",
+                        common: {
+                            name: "State",
+                            type: "number",
+                            role: "info.status",
+                            read: true,
+                            write: false,
+                            states: {
+                                0: "OFFLINE",
+                                1: "ONLINE",
+                                2: "MANUALLY_DISABLED",
+                                3: "OFFLINE_LOWBAT",
+                                4: "REMOVE_AND_READD",
+                                5: "RESET_AND_READD"
+                            }
+                        },
+                        native: {},
+                    });
+                    const status = lock.getState();
+                    yield utils_1.setStateChangedWithTimestamp(this, lock.getStateID(types_1.LockStateID.STATE), status.value, status.timestamp);
+                    // Battery
+                    yield this.setObjectNotExistsAsync(lock.getStateID(types_1.LockStateID.BATTERY), {
+                        type: "state",
+                        common: {
+                            name: "Battery",
+                            type: "number",
+                            role: "value.battery",
+                            unit: "%",
+                            min: 0,
+                            max: 100,
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    const battery = lock.getBatteryValue();
+                    yield utils_1.setStateChangedWithTimestamp(this, lock.getStateID(types_1.LockStateID.BATTERY), battery.value, battery.timestamp);
+                    // Wifi RSSI
+                    yield this.setObjectNotExistsAsync(lock.getStateID(types_1.LockStateID.WIFI_RSSI), {
+                        type: "state",
+                        common: {
+                            name: "Wifi RSSI",
+                            type: "number",
+                            role: "value",
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    const wifi_rssi = lock.getWifiRssi();
+                    yield utils_1.setStateChangedWithTimestamp(this, lock.getStateID(types_1.LockStateID.WIFI_RSSI), wifi_rssi.value, wifi_rssi.timestamp);
+                    // Lock/Unlock
+                    yield this.setObjectNotExistsAsync(lock.getStateID(types_1.LockStateID.LOCK), {
+                        type: "state",
+                        common: {
+                            name: "Lock",
+                            type: "boolean",
+                            role: "switch.enable",
+                            read: true,
+                            write: true
+                        },
+                        native: {},
+                    });
+                    const state = lock.isLocked();
+                    yield utils_1.setStateChangedWithTimestamp(this, lock.getStateID(types_1.LockStateID.LOCK), state.value, state.timestamp);
+                    // Lock Status
+                    yield this.setObjectNotExistsAsync(lock.getStateID(types_1.LockStateID.LOCK_STATUS), {
+                        type: "state",
+                        common: {
+                            name: "Lock Status",
+                            type: "number",
+                            role: "info.status",
+                            read: true,
+                            write: false,
+                            states: {
+                                1: "1",
+                                2: "2",
+                                3: "UNLOCKED",
+                                4: "LOCKED",
+                                5: "MECHANICAL_ANOMALY",
+                                6: "6",
+                                7: "7",
+                            }
+                        },
+                        native: {},
+                    });
+                    const lock_status = lock.getLockStatus();
+                    yield utils_1.setStateChangedWithTimestamp(this, lock.getStateID(types_1.LockStateID.LOCK_STATUS), lock_status.value, lock_status.timestamp);
+                }
             }));
         });
     }
@@ -1767,8 +1880,15 @@ class EufySecurity extends utils.Adapter {
                 this.setCloudToken(token, token_expiration);
             }
             this.eufy.registerPushNotifications(this.getPersistentData().push_credentials, this.getPersistentData().push_persistentIds);
+            let connectionType = eufy_security_client_1.P2PConnectionType.PREFER_LOCAL;
+            if (this.config.p2pConnectionType === "only_local") {
+                connectionType = eufy_security_client_1.P2PConnectionType.ONLY_LOCAL;
+            }
+            else if (this.config.p2pConnectionType === "only_local") {
+                connectionType = eufy_security_client_1.P2PConnectionType.QUICKEST;
+            }
             Object.values(this.eufy.getStations()).forEach(function (station) {
-                station.connect(true);
+                station.connect(connectionType, true);
             });
         });
     }
