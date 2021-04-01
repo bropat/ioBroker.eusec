@@ -173,6 +173,9 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.5.1 (2021-04-01)
+* (bropat) Fixed issue [#105](https://github.com/bropat/ioBroker.eufy-security/issues/105)
+
 ### 0.5.0 (2021-03-30)
 * (bropat) Added support for smart lock products
 * (bropat) Added new P2P feature: lock/unlock smart lock products

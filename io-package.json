@@ -1,10 +1,31 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.5.0",
+        "version": "0.5.1",
         "news": {
+            "0.5.1": {
+                "en": "Fixed issue #105",
+                "de": "Problem Nr. 105 behoben",
+                "ru": "Исправленная проблема # 105",
+                "pt": "Problema nº 105 corrigido",
+                "nl": "Probleem # 105 opgelost",
+                "fr": "Problème résolu n ° 105",
+                "it": "Risolto il problema # 105",
+                "es": "Problema solucionado # 105",
+                "pl": "Naprawiono problem nr 105",
+                "zh-cn": "已修复问题105"
+            },
             "0.5.0": {
-                
+                "en": "Added support for smart lock products and some improvements",
+                "de": "Unterstützung für Smart Lock-Produkte und einige Verbesserungen hinzugefügt",
+                "ru": "Добавлена поддержка продуктов Smart Lock и некоторые улучшения.",
+                "pt": "Adicionado suporte para produtos de bloqueio inteligente e algumas melhorias",
+                "nl": "Ondersteuning toegevoegd voor slimme vergrendelingsproducten en enkele verbeteringen",
+                "fr": "Ajout de la prise en charge des produits de verrouillage intelligent et de certaines améliorations",
+                "it": "Aggiunto supporto per i prodotti smart lock e alcuni miglioramenti",
+                "es": "Se agregó soporte para productos de bloqueo inteligente y algunas mejoras.",
+                "pl": "Dodano obsługę produktów Smart Lock i kilka ulepszeń",
+                "zh-cn": "增加了对智能锁产品的支持和一些改进"
             },
             "0.4.3": {
                 "en": "Code enhancements for publishing the adapter to the central repository",

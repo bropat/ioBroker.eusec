@@ -330,7 +330,7 @@ export class EufySecurity extends utils.Adapter {
         const states = await this.getStatesAsync(`*.${state}`);
         for (const id of Object.keys(states)) {
             const state = states[id];
-            if (state.val === true) {
+            if (!!state && state.val === true) {
                 await this.setStateAsync(id, { val: false, ack: true });
             }
         }
