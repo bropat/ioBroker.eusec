@@ -314,7 +314,7 @@ class EufySecurity extends utils.Adapter {
             const states = yield this.getStatesAsync(`*.${state}`);
             for (const id of Object.keys(states)) {
                 const state = states[id];
-                if (state.val === true) {
+                if (!!state && state.val === true) {
                     yield this.setStateAsync(id, { val: false, ack: true });
                 }
             }

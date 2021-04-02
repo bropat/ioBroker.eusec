@@ -173,6 +173,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.5.2 (2021-04-02)
+* (bropat) Try to add support for FreeBSD - issue [#106](https://github.com/bropat/ioBroker.eufy-security/issues/106)
+* (bropat) Updated package dependency ffmpeg-static for FreeBSD support
+
 ### 0.5.1 (2021-04-01)
 * (bropat) Fixed issue [#105](https://github.com/bropat/ioBroker.eufy-security/issues/105)
 
