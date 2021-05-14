@@ -29,7 +29,7 @@
     "ffmpeg-static": "^4.3.0",
     "fluent-ffmpeg": "^2.1.2",
     "mime": "^2.5.2",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "ts-log": "^2.2.3",
     "i18n-iso-countries": "^6.7.0",
     "@cospired/i18n-iso-languages": "^3.0.0"
