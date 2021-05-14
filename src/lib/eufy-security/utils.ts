@@ -7,6 +7,7 @@ import * as utils from "@iobroker/adapter-core";
 
 import { CameraStateID, DoorbellStateID, EntrySensorStateID, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, StationStateID } from "./types";
 import { ImageResponse } from "./interfaces";
+import { ioBrokerLogger } from "./log";
 
 export const decrypt = (key: string, value: string): string => {
     let result = "";
@@ -253,7 +254,7 @@ export const sleep = async (ms: number): Promise<void> => {
 
 export const getVideoClipLength = (device: Device): number => {
     let length = 60;
-    const workingMode = device.getParameter(CommandType.CMD_SET_PIR_POWERMODE);
+    const workingMode = device.getRawProperty(CommandType.CMD_SET_PIR_POWERMODE);
     if (workingMode !== undefined) {
         switch(workingMode.value) {
             case "0":
@@ -266,7 +267,7 @@ export const getVideoClipLength = (device: Device): number => {
                 // Corrisponds to 60 seconds
                 break;
             case "2":
-                const customValue = device.getParameter(CommandType.CMD_DEV_RECORD_TIMEOUT);
+                const customValue = device.getRawProperty(CommandType.CMD_DEV_RECORD_TIMEOUT);
                 if (customValue !== undefined) {
                     try {
                         length = Number.parseInt(customValue.value);
@@ -288,7 +289,7 @@ export const removeLastChar = function(text: string, char: string): string {
     return strArr.join("");
 }
 
-export const handleUpdate = async function(adapter: ioBroker.Adapter, old_version: number): Promise<void> {
+export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBrokerLogger, old_version: number): Promise<void> {
     if (old_version <= 0.31) {
         try {
             const watermark = await adapter.getStatesAsync("*.watermark");
@@ -296,7 +297,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                 await adapter.delObjectAsync(id);
             });
         } catch (error) {
-            adapter.log.error(`handleUpdate(): Version 0.3.1 - watermark: Error: ${error}`);
+            log.error("Version 0.3.1 - watermark: Error:", error);
         }
         try {
             const state = await adapter.getStatesAsync("*.state");
@@ -304,7 +305,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                 await adapter.delObjectAsync(id);
             });
         } catch (error) {
-            adapter.log.error(`handleUpdate(): Version 0.3.1 - state: Error: ${error}`);
+            log.error("Version 0.3.1 - state: Error:", error);
         }
         try {
             const wifi_rssi = await adapter.getStatesAsync("*.wifi_rssi");
@@ -312,7 +313,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                 await adapter.delObjectAsync(id);
             });
         } catch (error) {
-            adapter.log.error(`handleUpdate(): Version 0.3.1 - wifi_rssi: Error: ${error}`);
+            log.error("Version 0.3.1 - wifi_rssi: Error:", error);
         }
     } else if (old_version <= 0.41) {
         try {
@@ -328,7 +329,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                         }, {});
                     });
                 } catch (error) {
-                    adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                    log.error(`state: ${state} role: ${role} - Error:`, error);
                 }
             };
 
@@ -367,7 +368,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
             await changeRole(adapter, KeyPadStateID.LOW_BATTERY, "sensor");
             await changeRole(adapter, StationStateID.CURRENT_MODE, "value");
         } catch (error) {
-            adapter.log.error(`handleUpdate(): Version 0.4.1 - Error: ${error}`);
+            log.error("Version 0.4.1 - Error:", error);
         }
     } else if (old_version <= 0.42) {
         try {
@@ -383,7 +384,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
                         }, {});
                     });
                 } catch (error) {
-                    adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                    log.error(`state: ${state} role: ${role} - Error:`, error);
                 }
             };
 
@@ -395,13 +396,13 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, old_versio
             await changeRole(adapter, EntrySensorStateID.LOW_BATTERY, "indicator.lowbat");
             await changeRole(adapter, StationStateID.LAN_IP_ADDRESS, "info.ip");
         } catch (error) {
-            adapter.log.error(`handleUpdate(): Version 0.4.2 - States - Error: ${error}`);
+            log.error("Version 0.4.2 - States - Error:", error);
         }
         try {
             const files = fse.readdirSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
             files.map(filename => fse.moveSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
         } catch (error) {
-            adapter.log.error(`handleUpdate(): Version 0.4.2 - Files - Error: ${error}`);
+            log.error("Version 0.4.2 - Files - Error:", error);
         }
     }
 };

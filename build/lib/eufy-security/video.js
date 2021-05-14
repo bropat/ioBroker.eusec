@@ -200,3 +200,4 @@ const ffmpegRTMPToHls = (config, rtmp_url, output, log) => {
     return rtmpPromise;
 };
 exports.ffmpegRTMPToHls = ffmpegRTMPToHls;
+//# sourceMappingURL=video.js.map

@@ -26,3 +26,4 @@ exports.KeyPadStateID = Object.assign(Object.assign({}, exports.DeviceStateID), 
 exports.DoorbellStateID = Object.assign(Object.assign({}, exports.CameraStateID), { RINGING: "ringing" });
 exports.IndoorCameraStateID = Object.assign(Object.assign({}, exports.CameraStateID), { CRYING_DETECTED: "crying_detected", SOUND_DETECTED: "sound_detected", SOUND_DETECTION: "sound_detection", PET_DETECTED: "pet_detected", PET_DETECTION: "pet_detection" });
 exports.LockStateID = Object.assign(Object.assign({}, exports.DeviceStateID), { STATE: "state", BATTERY: "battery", WIFI_RSSI: "wifi_rssi", LOCK: "lock", LOCK_STATUS: "lock_status" });
+//# sourceMappingURL=types.js.map

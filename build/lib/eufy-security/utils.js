@@ -298,7 +298,7 @@ const sleep = (ms) => __awaiter(void 0, void 0, void 0, function* () {
 exports.sleep = sleep;
 const getVideoClipLength = (device) => {
     let length = 60;
-    const workingMode = device.getParameter(eufy_security_client_1.CommandType.CMD_SET_PIR_POWERMODE);
+    const workingMode = device.getRawProperty(eufy_security_client_1.CommandType.CMD_SET_PIR_POWERMODE);
     if (workingMode !== undefined) {
         switch (workingMode.value) {
             case "0":
@@ -311,7 +311,7 @@ const getVideoClipLength = (device) => {
                 // Corrisponds to 60 seconds
                 break;
             case "2":
-                const customValue = device.getParameter(eufy_security_client_1.CommandType.CMD_DEV_RECORD_TIMEOUT);
+                const customValue = device.getRawProperty(eufy_security_client_1.CommandType.CMD_DEV_RECORD_TIMEOUT);
                 if (customValue !== undefined) {
                     try {
                         length = Number.parseInt(customValue.value);
@@ -334,7 +334,7 @@ const removeLastChar = function (text, char) {
     return strArr.join("");
 };
 exports.removeLastChar = removeLastChar;
-const handleUpdate = function (adapter, old_version) {
+const handleUpdate = function (adapter, log, old_version) {
     return __awaiter(this, void 0, void 0, function* () {
         if (old_version <= 0.31) {
             try {
@@ -344,7 +344,7 @@ const handleUpdate = function (adapter, old_version) {
                 }));
             }
             catch (error) {
-                adapter.log.error(`handleUpdate(): Version 0.3.1 - watermark: Error: ${error}`);
+                log.error("Version 0.3.1 - watermark: Error:", error);
             }
             try {
                 const state = yield adapter.getStatesAsync("*.state");
@@ -353,7 +353,7 @@ const handleUpdate = function (adapter, old_version) {
                 }));
             }
             catch (error) {
-                adapter.log.error(`handleUpdate(): Version 0.3.1 - state: Error: ${error}`);
+                log.error("Version 0.3.1 - state: Error:", error);
             }
             try {
                 const wifi_rssi = yield adapter.getStatesAsync("*.wifi_rssi");
@@ -362,7 +362,7 @@ const handleUpdate = function (adapter, old_version) {
                 }));
             }
             catch (error) {
-                adapter.log.error(`handleUpdate(): Version 0.3.1 - wifi_rssi: Error: ${error}`);
+                log.error("Version 0.3.1 - wifi_rssi: Error:", error);
             }
         }
         else if (old_version <= 0.41) {
@@ -381,7 +381,7 @@ const handleUpdate = function (adapter, old_version) {
                             }));
                         }
                         catch (error) {
-                            adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                            log.error(`state: ${state} role: ${role} - Error:`, error);
                         }
                     });
                 };
@@ -421,7 +421,7 @@ const handleUpdate = function (adapter, old_version) {
                 yield changeRole(adapter, types_1.StationStateID.CURRENT_MODE, "value");
             }
             catch (error) {
-                adapter.log.error(`handleUpdate(): Version 0.4.1 - Error: ${error}`);
+                log.error("Version 0.4.1 - Error:", error);
             }
         }
         else if (old_version <= 0.42) {
@@ -440,7 +440,7 @@ const handleUpdate = function (adapter, old_version) {
                             }));
                         }
                         catch (error) {
-                            adapter.log.error(`changeRole(): state: ${state} role: ${role} - Error: ${error}`);
+                            log.error(`state: ${state} role: ${role} - Error:`, error);
                         }
                     });
                 };
@@ -453,16 +453,17 @@ const handleUpdate = function (adapter, old_version) {
                 yield changeRole(adapter, types_1.StationStateID.LAN_IP_ADDRESS, "info.ip");
             }
             catch (error) {
-                adapter.log.error(`handleUpdate(): Version 0.4.2 - States - Error: ${error}`);
+                log.error("Version 0.4.2 - States - Error:", error);
             }
             try {
                 const files = fs_extra_1.default.readdirSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
                 files.map(filename => fs_extra_1.default.moveSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
             }
             catch (error) {
-                adapter.log.error(`handleUpdate(): Version 0.4.2 - Files - Error: ${error}`);
+                log.error("Version 0.4.2 - Files - Error:", error);
             }
         }
     });
 };
 exports.handleUpdate = handleUpdate;
+//# sourceMappingURL=utils.js.map

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.5.2",
+        "version": "0.5.3",
         "news": {
+            "0.5.3": {
+                "en": "Fixed issue #121 and #130",
+                "de": "Problem Nr. 121 und Nr. 130 behoben",
+                "ru": "Исправлена проблема № 121 и № 130.",
+                "pt": "Correção do problema nº 121 e nº 130",
+                "nl": "Probleem # 121 en # 130 opgelost",
+                "fr": "Problèmes résolus # 121 et # 130",
+                "it": "Risolto il problema # 121 e # 130",
+                "es": "Problema solucionado # 121 y # 130",
+                "pl": "Naprawiono problem # 121 i # 130",
+                "zh-cn": "修复了＃121和＃130问题"
+            },
             "0.5.2": {
                 "en": "Try to add support for FreeBSD",
                 "de": "Versuchen Sie, Unterstützung für FreeBSD hinzuzufügen",
@@ -206,18 +218,6 @@
                 "es": "Algunos arreglos y dependencias actualizadas",
                 "pl": "Niektóre poprawki i zaktualizowane zależności",
                 "zh-cn": "一些修复和更新的依赖性"
-            },
-            "0.1.3": {
-                "en": "Fixed issue #37 and #41",
-                "de": "Problem #37 und #41 behoben",
-                "ru": "Исправлена ошибка № 37 и № 41",
-                "pt": "Edição fixa #37 e #41",
-                "nl": "Vaste uitgave #37 en #41",
-                "fr": "Correction des problèmes n°37 et n°41",
-                "it": "Risolto il malfunzionamento #37 e #41",
-                "es": "Arreglados los números 37 y 41",
-                "pl": "Wydanie stałe #37 i #41",
-                "zh-cn": "修正问题#37和#41"
             }
         },
         "title": "Eufy Security",

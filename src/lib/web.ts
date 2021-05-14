@@ -41,7 +41,6 @@ class ProxyEufySecurity {
             const normalized_filename = path.resolve(fileName);
 
             if (normalized_filename.startsWith(root_path)) {
-                adapter.log.debug(`ProxyEufySecurity(): url: ${req.url} fileName: ${fileName}`);
 
                 res.setHeader("Access-Control-Allow-Origin", "*");
                 res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

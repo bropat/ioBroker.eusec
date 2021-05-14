@@ -55,7 +55,6 @@ class ProxyEufySecurity {
             const fileName = path_1.default.join(root_path, req.url.substring(1));
             const normalized_filename = path_1.default.resolve(fileName);
             if (normalized_filename.startsWith(root_path)) {
-                adapter.log.debug(`ProxyEufySecurity(): url: ${req.url} fileName: ${fileName}`);
                 res.setHeader("Access-Control-Allow-Origin", "*");
                 res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
                 if (fs_1.default.existsSync(normalized_filename)) {
@@ -84,3 +83,4 @@ class ProxyEufySecurity {
     }
 }
 module.exports = ProxyEufySecurity;
+//# sourceMappingURL=web.js.map

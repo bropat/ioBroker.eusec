@@ -111,3 +111,4 @@ function translateGoogle(text, targetLang) {
         }
     });
 }
+//# sourceMappingURL=tools.js.map
