@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.5.3",
+        "version": "0.5.4",
         "news": {
+            "0.5.4": {
+                "en": "Fixed issue with video corruption in p2p livestream",
+                "de": "Problem mit Videobeschädigung im P2P-Livestream behoben",
+                "ru": "Исправлена проблема с повреждением видео в прямом эфире p2p.",
+                "pt": "Corrigido problema de corrupção de vídeo na transmissão ao vivo P2P",
+                "nl": "Probleem opgelost met videocorruptie in p2p-livestream",
+                "fr": "Correction d'un problème de corruption vidéo dans le livestream p2p",
+                "it": "Risolto il problema con la corruzione del video nel livestream p2p",
+                "es": "Se solucionó el problema con la corrupción de video en la transmisión en vivo p2p",
+                "pl": "Naprawiono problem z uszkodzeniem wideo w transmisji na żywo p2p",
+                "zh-cn": "修复了P2P直播中视频损坏的问题"
+            },
             "0.5.3": {
                 "en": "Fixed issue #121 and #130",
                 "de": "Problem Nr. 121 und Nr. 130 behoben",
@@ -206,18 +218,6 @@
                 "es": "Arreglados los números 50 y 53",
                 "pl": "Wydanie stałe #50 i #53",
                 "zh-cn": "修正问题#50和#53"
-            },
-            "0.1.4": {
-                "en": "Some fixes and updated dependencies",
-                "de": "Einige Korrekturen und aktualisierte Abhängigkeiten",
-                "ru": "Некоторые исправления и обновленные зависимости",
-                "pt": "Algumas reparações e actualizações de dependências",
-                "nl": "Enkele fixes en bijgewerkte afhankelijkheden",
-                "fr": "Quelques corrections et mises à jour des dépendances",
-                "it": "Alcune correzioni e aggiornato le dipendenze",
-                "es": "Algunos arreglos y dependencias actualizadas",
-                "pl": "Niektóre poprawki i zaktualizowane zależności",
-                "zh-cn": "一些修复和更新的依赖性"
             }
         },
         "title": "Eufy Security",
@@ -253,7 +253,10 @@
             "eufycam",
             "cam",
             "cameras",
-            "security"
+            "security",
+            "doorbell",
+            "eufy-security",
+            "iobroker"
         ],
         "license": "MIT",
         "platform": "Javascript/Node.js",

@@ -173,6 +173,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.5.4 (2021-05-26)
+* (bropat) Fixed issue with video corruption in p2p livestream
+* (bropat) Updated versions of the package dependencies
+
 ### 0.5.3 (2021-05-14)
 * (bropat) Fixed issue [#121](https://github.com/bropat/ioBroker.eufy-security/issues/121)
 * (bropat) Fixed push notification for indoor and floodlight cams (issue [#130](https://github.com/bropat/ioBroker.eufy-security/issues/130))
