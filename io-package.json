@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.5.4",
+        "version": "0.5.5",
         "news": {
+            "0.5.5": {
+                "en": "Fixed regression in p2p protocol",
+                "de": "Regression im P2P-Protokoll behoben",
+                "ru": "Исправлена регрессия в протоколе p2p",
+                "pt": "Regressão fixa no protocolo p2p",
+                "nl": "Vaste regressie in p2p-protocol",
+                "fr": "Correction de la régression dans le protocole p2p",
+                "it": "Risolto il problema con la regressione nel protocollo p2p",
+                "es": "Regresión fija en el protocolo p2p",
+                "pl": "Naprawiono regresję w protokole p2p",
+                "zh-cn": "在p2p协议中修复了回归"
+            },
             "0.5.4": {
                 "en": "Fixed issue with video corruption in p2p livestream",
                 "de": "Problem mit Videobeschädigung im P2P-Livestream behoben",
@@ -206,18 +218,6 @@
                 "es": "Transmisión en vivo P2P a través de HLS",
                 "pl": "Transmisja na żywo P2P przez HLS",
                 "zh-cn": "通过HLS进行P2P直播"
-            },
-            "0.1.5": {
-                "en": "Fixed issue #50 and #53",
-                "de": "Problem #50 und #53 behoben",
-                "ru": "Исправлена ошибка № 50 и № 53",
-                "pt": "Edição fixa #50 e #53",
-                "nl": "Vaste uitgave #50 en #53",
-                "fr": "Correction des problèmes n°50 et n°53",
-                "it": "Risolto il malfunzionamento #50 e #53",
-                "es": "Arreglados los números 50 y 53",
-                "pl": "Wydanie stałe #50 i #53",
-                "zh-cn": "修正问题#50和#53"
             }
         },
         "title": "Eufy Security",

@@ -293,25 +293,28 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
     if (old_version <= 0.31) {
         try {
             const watermark = await adapter.getStatesAsync("*.watermark");
-            Object.keys(watermark).forEach(async id => {
-                await adapter.delObjectAsync(id);
-            });
+            if (watermark)
+                Object.keys(watermark).forEach(async id => {
+                    await adapter.delObjectAsync(id);
+                });
         } catch (error) {
             log.error("Version 0.3.1 - watermark: Error:", error);
         }
         try {
             const state = await adapter.getStatesAsync("*.state");
-            Object.keys(state).forEach(async id => {
-                await adapter.delObjectAsync(id);
-            });
+            if (state)
+                Object.keys(state).forEach(async id => {
+                    await adapter.delObjectAsync(id);
+                });
         } catch (error) {
             log.error("Version 0.3.1 - state: Error:", error);
         }
         try {
             const wifi_rssi = await adapter.getStatesAsync("*.wifi_rssi");
-            Object.keys(wifi_rssi).forEach(async id => {
-                await adapter.delObjectAsync(id);
-            });
+            if (wifi_rssi)
+                Object.keys(wifi_rssi).forEach(async id => {
+                    await adapter.delObjectAsync(id);
+                });
         } catch (error) {
             log.error("Version 0.3.1 - wifi_rssi: Error:", error);
         }
@@ -320,14 +323,15 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             const changeRole = async function(adapter: ioBroker.Adapter, state: string, role: string): Promise<void> {
                 try {
                     const states = await adapter.getStatesAsync(`*.${state}`);
-                    Object.keys(states).forEach(async id => {
-                        await adapter.extendObjectAsync(id, {
-                            type: "state",
-                            common: {
-                                role: role
-                            }
-                        }, {});
-                    });
+                    if (states)
+                        Object.keys(states).forEach(async id => {
+                            await adapter.extendObjectAsync(id, {
+                                type: "state",
+                                common: {
+                                    role: role
+                                }
+                            }, {});
+                        });
                 } catch (error) {
                     log.error(`state: ${state} role: ${role} - Error:`, error);
                 }
@@ -375,14 +379,15 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             const changeRole = async function(adapter: ioBroker.Adapter, state: string, role: string): Promise<void> {
                 try {
                     const states = await adapter.getStatesAsync(`*.${state}`);
-                    Object.keys(states).forEach(async id => {
-                        await adapter.extendObjectAsync(id, {
-                            type: "state",
-                            common: {
-                                role: role
-                            }
-                        }, {});
-                    });
+                    if (states)
+                        Object.keys(states).forEach(async id => {
+                            await adapter.extendObjectAsync(id, {
+                                type: "state",
+                                common: {
+                                    role: role
+                                }
+                            }, {});
+                        });
                 } catch (error) {
                     log.error(`state: ${state} role: ${role} - Error:`, error);
                 }

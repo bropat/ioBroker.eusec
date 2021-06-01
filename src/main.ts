@@ -142,52 +142,59 @@ export class EufySecurity extends utils.Adapter {
         // Remove old states of previous adapter versions
         try {
             const schedule_modes = await this.getStatesAsync("*.schedule_mode");
-            Object.keys(schedule_modes).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (schedule_modes)
+                Object.keys(schedule_modes).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
         } catch (error) {
         }
         try {
             const push_notifications = await this.getStatesAsync("push_notification.*");
-            Object.keys(push_notifications).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (push_notifications)
+                Object.keys(push_notifications).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
             await this.delObjectAsync("push_notification");
         } catch (error) {
         }
         try {
             const last_camera_url = await this.getStatesAsync("*.last_camera_url");
-            Object.keys(last_camera_url).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (last_camera_url)
+                Object.keys(last_camera_url).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
         } catch (error) {
         }
         try {
             const captured_pic_url = await this.getStatesAsync("*.captured_pic_url");
-            Object.keys(captured_pic_url).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (captured_pic_url)
+                Object.keys(captured_pic_url).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
         } catch (error) {
         }
         try {
             const person_identified = await this.getStatesAsync("*.person_identified");
-            Object.keys(person_identified).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (person_identified)
+                Object.keys(person_identified).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
         } catch (error) {
         }
         try {
             const last_captured_pic_url = await this.getStatesAsync("*.last_captured_pic_url");
-            Object.keys(last_captured_pic_url).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (last_captured_pic_url)
+                Object.keys(last_captured_pic_url).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
         } catch (error) {
         }
         try {
             const last_captured_pic_html = await this.getStatesAsync("*.last_captured_pic_html");
-            Object.keys(last_captured_pic_html).forEach(async id => {
-                await this.delObjectAsync(id);
-            });
+            if (last_captured_pic_html)
+                Object.keys(last_captured_pic_html).forEach(async id => {
+                    await this.delObjectAsync(id);
+                });
         } catch (error) {
         }
         // End
@@ -334,10 +341,12 @@ export class EufySecurity extends utils.Adapter {
 
     private async initializeEvents(state: string): Promise<void> {
         const states = await this.getStatesAsync(`*.${state}`);
-        for (const id of Object.keys(states)) {
-            const state = states[id];
-            if (!!state && state.val === true) {
-                await this.setStateAsync(id, { val: false, ack: true });
+        if (states) {
+            for (const id of Object.keys(states)) {
+                const state = states[id];
+                if (!!state && state.val === true) {
+                    await this.setStateAsync(id, { val: false, ack: true });
+                }
             }
         }
     }
@@ -350,8 +359,10 @@ export class EufySecurity extends utils.Adapter {
             try {
                 if (state !== undefined) {
                     const states = await this.getStatesAsync(`*.${serialnr}.${state}`);
-                    for (const id of Object.keys(states)) {
-                        await this.setStateAsync(id, { val: false, ack: true });
+                    if (states) {
+                        for (const id of Object.keys(states)) {
+                            await this.setStateAsync(id, { val: false, ack: true });
+                        }
                     }
                 }
             } catch (error) {
@@ -442,6 +453,9 @@ export class EufySecurity extends utils.Adapter {
 
                     const device = this.eufy.getDevice("T8114P0220223A5A");
                     await this.eufy.getStation("T8010P23201721F8").cancelDownload(device!);
+
+                    //const device = this.eufy.getDevice("T8410P2021100D6C");
+                    //await this.eufy.getStation("T8410P2021100D6C").setPanAndTilt(device!, 4, 2 /* Right */);
 
                     //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
                     //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();

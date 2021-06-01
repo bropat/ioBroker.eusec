@@ -173,6 +173,9 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.5.5 (2021-06-01)
+* (bropat) Fixed regression in p2p protocol
+
 ### 0.5.4 (2021-05-26)
 * (bropat) Fixed issue with video corruption in p2p livestream
 * (bropat) Updated versions of the package dependencies

@@ -339,27 +339,30 @@ const handleUpdate = function (adapter, log, old_version) {
         if (old_version <= 0.31) {
             try {
                 const watermark = yield adapter.getStatesAsync("*.watermark");
-                Object.keys(watermark).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield adapter.delObjectAsync(id);
-                }));
+                if (watermark)
+                    Object.keys(watermark).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield adapter.delObjectAsync(id);
+                    }));
             }
             catch (error) {
                 log.error("Version 0.3.1 - watermark: Error:", error);
             }
             try {
                 const state = yield adapter.getStatesAsync("*.state");
-                Object.keys(state).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield adapter.delObjectAsync(id);
-                }));
+                if (state)
+                    Object.keys(state).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield adapter.delObjectAsync(id);
+                    }));
             }
             catch (error) {
                 log.error("Version 0.3.1 - state: Error:", error);
             }
             try {
                 const wifi_rssi = yield adapter.getStatesAsync("*.wifi_rssi");
-                Object.keys(wifi_rssi).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield adapter.delObjectAsync(id);
-                }));
+                if (wifi_rssi)
+                    Object.keys(wifi_rssi).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield adapter.delObjectAsync(id);
+                    }));
             }
             catch (error) {
                 log.error("Version 0.3.1 - wifi_rssi: Error:", error);
@@ -371,14 +374,15 @@ const handleUpdate = function (adapter, log, old_version) {
                     return __awaiter(this, void 0, void 0, function* () {
                         try {
                             const states = yield adapter.getStatesAsync(`*.${state}`);
-                            Object.keys(states).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                                yield adapter.extendObjectAsync(id, {
-                                    type: "state",
-                                    common: {
-                                        role: role
-                                    }
-                                }, {});
-                            }));
+                            if (states)
+                                Object.keys(states).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                                    yield adapter.extendObjectAsync(id, {
+                                        type: "state",
+                                        common: {
+                                            role: role
+                                        }
+                                    }, {});
+                                }));
                         }
                         catch (error) {
                             log.error(`state: ${state} role: ${role} - Error:`, error);
@@ -430,14 +434,15 @@ const handleUpdate = function (adapter, log, old_version) {
                     return __awaiter(this, void 0, void 0, function* () {
                         try {
                             const states = yield adapter.getStatesAsync(`*.${state}`);
-                            Object.keys(states).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                                yield adapter.extendObjectAsync(id, {
-                                    type: "state",
-                                    common: {
-                                        role: role
-                                    }
-                                }, {});
-                            }));
+                            if (states)
+                                Object.keys(states).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                                    yield adapter.extendObjectAsync(id, {
+                                        type: "state",
+                                        common: {
+                                            role: role
+                                        }
+                                    }, {});
+                                }));
                         }
                         catch (error) {
                             log.error(`state: ${state} role: ${role} - Error:`, error);

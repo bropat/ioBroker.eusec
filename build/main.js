@@ -123,58 +123,65 @@ class EufySecurity extends utils.Adapter {
             // Remove old states of previous adapter versions
             try {
                 const schedule_modes = yield this.getStatesAsync("*.schedule_mode");
-                Object.keys(schedule_modes).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (schedule_modes)
+                    Object.keys(schedule_modes).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
             }
             catch (error) {
             }
             try {
                 const push_notifications = yield this.getStatesAsync("push_notification.*");
-                Object.keys(push_notifications).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (push_notifications)
+                    Object.keys(push_notifications).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
                 yield this.delObjectAsync("push_notification");
             }
             catch (error) {
             }
             try {
                 const last_camera_url = yield this.getStatesAsync("*.last_camera_url");
-                Object.keys(last_camera_url).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (last_camera_url)
+                    Object.keys(last_camera_url).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
             }
             catch (error) {
             }
             try {
                 const captured_pic_url = yield this.getStatesAsync("*.captured_pic_url");
-                Object.keys(captured_pic_url).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (captured_pic_url)
+                    Object.keys(captured_pic_url).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
             }
             catch (error) {
             }
             try {
                 const person_identified = yield this.getStatesAsync("*.person_identified");
-                Object.keys(person_identified).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (person_identified)
+                    Object.keys(person_identified).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
             }
             catch (error) {
             }
             try {
                 const last_captured_pic_url = yield this.getStatesAsync("*.last_captured_pic_url");
-                Object.keys(last_captured_pic_url).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (last_captured_pic_url)
+                    Object.keys(last_captured_pic_url).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
             }
             catch (error) {
             }
             try {
                 const last_captured_pic_html = yield this.getStatesAsync("*.last_captured_pic_html");
-                Object.keys(last_captured_pic_html).forEach((id) => __awaiter(this, void 0, void 0, function* () {
-                    yield this.delObjectAsync(id);
-                }));
+                if (last_captured_pic_html)
+                    Object.keys(last_captured_pic_html).forEach((id) => __awaiter(this, void 0, void 0, function* () {
+                        yield this.delObjectAsync(id);
+                    }));
             }
             catch (error) {
             }
@@ -316,10 +323,12 @@ class EufySecurity extends utils.Adapter {
     initializeEvents(state) {
         return __awaiter(this, void 0, void 0, function* () {
             const states = yield this.getStatesAsync(`*.${state}`);
-            for (const id of Object.keys(states)) {
-                const state = states[id];
-                if (!!state && state.val === true) {
-                    yield this.setStateAsync(id, { val: false, ack: true });
+            if (states) {
+                for (const id of Object.keys(states)) {
+                    const state = states[id];
+                    if (!!state && state.val === true) {
+                        yield this.setStateAsync(id, { val: false, ack: true });
+                    }
                 }
             }
         });
@@ -331,8 +340,10 @@ class EufySecurity extends utils.Adapter {
                 try {
                     if (state !== undefined) {
                         const states = yield this.getStatesAsync(`*.${serialnr}.${state}`);
-                        for (const id of Object.keys(states)) {
-                            yield this.setStateAsync(id, { val: false, ack: true });
+                        if (states) {
+                            for (const id of Object.keys(states)) {
+                                yield this.setStateAsync(id, { val: false, ack: true });
+                            }
                         }
                     }
                 }
@@ -416,6 +427,8 @@ class EufySecurity extends utils.Adapter {
                         //await this.eufy.getStation("T8010P23201721F8").startDownload("/media/mmcblk0p1/Camera00/20201231171631.dat");
                         const device = this.eufy.getDevice("T8114P0220223A5A");
                         yield this.eufy.getStation("T8010P23201721F8").cancelDownload(device);
+                        //const device = this.eufy.getDevice("T8410P2021100D6C");
+                        //await this.eufy.getStation("T8410P2021100D6C").setPanAndTilt(device!, 4, 2 /* Right */);
                         //await this.eufy.getApi().sendVerifyCode(VerfyCodeTypes.TYPE_PUSH);
                         //await this.eufy.getStation("T8010P23201721F8").getCameraInfo();
                         //await this.eufy.getStation("T8010P23201721F8").setGuardMode(2);
