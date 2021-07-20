@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.5.0",
-    "eufy-security-client": "^0.8.3",
+    "eufy-security-client": "^0.9.3",
     "axios": "^0.21.1",
     "ffmpeg-static": "^4.3.0",
     "fluent-ffmpeg": "^2.1.2",
