@@ -1,4 +1,6 @@
-import { IStoppablePromise } from "./interfaces";
+import { PropertyName } from "eufy-security-client";
+
+import { IRoleMapping, IStoppablePromise } from "./interfaces";
 
 export const DataLocation = {
     LIVESTREAM: "live",
@@ -13,6 +15,24 @@ export const IMAGE_FILE_PNG_EXT = ".png";
 
 export type StoppablePromise = IStoppablePromise<void>;
 
+export const RoleMapping: IRoleMapping = {
+    [PropertyName.Name]: "info.name",
+    [PropertyName.StationMacAddress]: "info.mac",
+    [PropertyName.StationLANIpAddress]: "info.ip",
+    [PropertyName.DeviceState]: "info.status",
+    [PropertyName.DeviceBattery]: "value.battery",
+    [PropertyName.DeviceBatteryTemp]: "value.temperature",
+    [PropertyName.DeviceMotionDetected]: "sensor.motion",
+    [PropertyName.DevicePersonDetected]: "sensor.motion",
+    [PropertyName.DeviceRinging]: "sensor",
+    [PropertyName.DeviceCryingDetected]: "sensor.noise",
+    [PropertyName.DeviceSoundDetected]: "sensor.noise",
+    [PropertyName.DevicePetDetected]: "sensor",
+    [PropertyName.DeviceSensorOpen]: "sensor",
+    [PropertyName.DeviceBatteryLow]: "indicator.lowbat",
+    [PropertyName.DeviceLockStatus]: "info.status",
+}
+
 export const DeviceStateID = {
     NAME: "name",
     MODEL: "model",
@@ -26,8 +46,8 @@ export const CameraStateID = {
     ...DeviceStateID,
     STATE: "state",
     MAC_ADDRESS: "mac_address",
-    LAST_EVENT_PICTURE_URL: "last_event_pic_url",
-    LAST_EVENT_PICTURE_HTML: "last_event_pic_html",
+    LAST_EVENT_PIC_URL: "last_event_pic_url",
+    LAST_EVENT_PIC_HTML: "last_event_pic_html",
     LAST_EVENT_VIDEO_URL: "last_event_video_url",
     LIVESTREAM: "livestream",
     LAST_LIVESTREAM_VIDEO_URL: "last_livestream_video_url",
@@ -51,7 +71,9 @@ export const CameraStateID = {
     MOTION_DETECTION: "motion_detection",
     LED_STATUS: "led_status",
     RTSP_STREAM: "rtsp_stream",
-    RTSP_STREAM_URL: "rtsp_stream_url"
+    RTSP_STREAM_URL: "rtsp_stream_url",
+    TRIGGER_ALARM_SOUND: "trigger_alarm_sound",
+    RESET_ALARM_SOUND: "reset_alarm_sound",
 }
 
 export const StationStateID = {
@@ -61,6 +83,9 @@ export const StationStateID = {
     LAN_IP_ADDRESS: "lan_ip_address",
     MAC_ADDRESS: "mac_address",
     REBOOT: "reboot",
+    CONNECTION: "connection",
+    TRIGGER_ALARM_SOUND: "trigger_alarm_sound",
+    RESET_ALARM_SOUND: "reset_alarm_sound",
 }
 
 export const EntrySensorStateID = {
@@ -96,6 +121,11 @@ export const IndoorCameraStateID = {
     SOUND_DETECTION: "sound_detection",
     PET_DETECTED: "pet_detected",
     PET_DETECTION: "pet_detection",
+    PAN_LEFT: "pan_left",
+    PAN_RIGHT: "pan_right",
+    TILT_UP: "tilt_up",
+    TILT_DOWN: "titl_down",
+    ROTATE_360: "rotate_360",
 }
 
 export const LockStateID = {

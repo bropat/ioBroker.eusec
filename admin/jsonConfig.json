@@ -1,0 +1,124 @@
+{
+    "type": "tabs",
+    "i18n": true,
+    "items": {
+      "mainTab": {
+        "type": "panel",
+        "label": "Main settings",
+        "items": {
+          "authHeader": {
+            "type": "header",
+            "text": "Authentication settings",
+            "size": 1,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12
+          },
+          "username": {
+            "newLine": true,
+            "type": "text",
+            "label": "Username",
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
+          },
+          "password": {
+            "type": "password",
+            "label": "Password",
+            "visible": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
+          },
+          "otherHeader": {
+            "newLine": true,
+            "type": "header",
+            "text": "Other settings",
+            "size": 1,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12
+          },
+          "pollingInterval": {
+            "newLine": true,
+            "type": "number",
+            "min": 1,
+            "label": "Polling interval (min)",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "eventDuration": {
+            "type": "number",
+            "min": 1,
+            "max": 120,
+            "label": "Time in seconds before event reset",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "alarmSoundDuration": {
+            "type": "number",
+            "min": 1,
+            "label": "Alarm sound duration (sec)",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "p2pConnectionType": {
+            "newLine": true,
+            "type": "select",
+            "label": "P2P connection type",
+            "options": [
+              {
+                "label": "Prefer local connection",
+                "value": "prefer_local"
+              },
+              {
+                "label": "Only local connection",
+                "value": "only_local"
+              },
+              {
+                "label": "Quickest connection",
+                "value": "quickest"
+              }
+            ],
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "acceptInvitations": {
+            "newLine": true,
+            "type": "checkbox",
+            "label": "Accept incoming invitations",
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
+          }
+        }
+      },
+      "liveTab": {
+        "type": "panel",
+        "label": "Livestream settings",
+        "items": {
+          "maxLivestreamDuration": {
+            "type": "number",
+            "label": "Max camera livestream duration (sec)",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          }
+        }
+      }
+    }
+}

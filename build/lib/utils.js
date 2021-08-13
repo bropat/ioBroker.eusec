@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertCamelCaseToSnakeCase = exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.getState = exports.isEmpty = exports.setStateChangedAsync = void 0;
+exports.convertCamelCaseToSnakeCase = exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.isEmpty = exports.setStateChangedAsync = void 0;
 const axios_1 = __importDefault(require("axios"));
 const eufy_security_client_1 = require("eufy-security-client");
 const path_1 = __importDefault(require("path"));
@@ -43,42 +43,6 @@ const isEmpty = function (str) {
     return true;
 };
 exports.isEmpty = isEmpty;
-const getState = function (type) {
-    //TODO: Extend the implementation as soon as new p2p commands are implemented!
-    switch (type) {
-        case eufy_security_client_1.CommandType.CMD_SET_ARMING:
-            return types_1.StationStateID.GUARD_MODE;
-        case eufy_security_client_1.CommandType.CMD_DEVS_SWITCH:
-            return types_1.CameraStateID.ENABLED;
-        case eufy_security_client_1.CommandType.CMD_SET_DEVS_OSD:
-            return types_1.CameraStateID.WATERMARK;
-        case eufy_security_client_1.CommandType.CMD_EAS_SWITCH:
-            return types_1.CameraStateID.ANTITHEFT_DETECTION;
-        case eufy_security_client_1.CommandType.CMD_IRCUT_SWITCH:
-            return types_1.CameraStateID.AUTO_NIGHTVISION;
-        case eufy_security_client_1.CommandType.CMD_PIR_SWITCH:
-        case eufy_security_client_1.CommandType.CMD_INDOOR_DET_SET_MOTION_DETECT_ENABLE:
-            return types_1.CameraStateID.MOTION_DETECTION;
-        case eufy_security_client_1.CommandType.CMD_NAS_SWITCH:
-            return types_1.CameraStateID.RTSP_STREAM;
-        case eufy_security_client_1.CommandType.CMD_DEV_LED_SWITCH:
-        case eufy_security_client_1.CommandType.CMD_INDOOR_LED_SWITCH:
-        case eufy_security_client_1.CommandType.CMD_BAT_DOORBELL_SET_LED_ENABLE:
-            return types_1.CameraStateID.LED_STATUS;
-        case eufy_security_client_1.CommandType.CMD_INDOOR_DET_SET_SOUND_DETECT_ENABLE:
-            return types_1.IndoorCameraStateID.SOUND_DETECTION;
-        case eufy_security_client_1.CommandType.CMD_INDOOR_DET_SET_PET_ENABLE:
-            return types_1.IndoorCameraStateID.PET_DETECTION;
-    }
-    switch (type) {
-        case eufy_security_client_1.ParamType.COMMAND_MOTION_DETECTION_PACKAGE:
-            return types_1.CameraStateID.MOTION_DETECTION;
-        case eufy_security_client_1.ParamType.COMMAND_LED_NIGHT_OPEN:
-            return types_1.CameraStateID.LED_STATUS;
-    }
-    return null;
-};
-exports.getState = getState;
 const getImage = async function (url) {
     const response = await axios_1.default({
         method: "GET",
@@ -125,7 +89,6 @@ const saveImage = async function (adapter, url, station_sn, device_sn, location)
                     fs_extra_1.default.mkdirSync(filePath, { mode: 0o775, recursive: true });
                 }
                 await fs_extra_1.default.writeFile(path_1.default.join(filePath, fileName), data).then(() => {
-                    //await adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`, data).then(() => {
                     result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`;
                     result.imageHtml = exports.getImageAsHTML(data);
                 }).catch(error => {
@@ -361,8 +324,8 @@ const handleUpdate = async function (adapter, log, old_version) {
             await changeRole(adapter, types_1.CameraStateID.MOTION_DETECTED, "sensor.motion");
             await changeRole(adapter, types_1.CameraStateID.PERSON_DETECTED, "sensor.motion");
             await changeRole(adapter, types_1.CameraStateID.LAST_PERSON_IDENTIFIED, "text");
-            await changeRole(adapter, types_1.CameraStateID.LAST_EVENT_PICTURE_URL, "url");
-            await changeRole(adapter, types_1.CameraStateID.LAST_EVENT_PICTURE_HTML, "html");
+            await changeRole(adapter, types_1.CameraStateID.LAST_EVENT_PIC_URL, "url");
+            await changeRole(adapter, types_1.CameraStateID.LAST_EVENT_PIC_HTML, "html");
             await changeRole(adapter, types_1.CameraStateID.LAST_EVENT_VIDEO_URL, "url");
             await changeRole(adapter, types_1.DoorbellStateID.RINGING, "sensor");
             await changeRole(adapter, types_1.IndoorCameraStateID.SOUND_DETECTION, "switch.enable");
@@ -421,6 +384,26 @@ const handleUpdate = async function (adapter, log, old_version) {
         }
         catch (error) {
             log.error("Version 0.4.2 - Files - Error:", error);
+        }
+    }
+    else if (old_version <= 0.6) {
+        try {
+            const all = await adapter.getDevicesAsync();
+            if (all)
+                Object.values(all).forEach(async (device) => {
+                    log.warn(`Version 0.6.0: WARN: device: ${device._id}`);
+                    await adapter.delObjectAsync(device._id, { recursive: true });
+                });
+            const channels = await adapter.getChannelsOfAsync();
+            if (channels)
+                Object.values(channels).forEach(async (channel) => {
+                    log.warn(`Version 0.6.0: WARN: channel: ${channel._id}`);
+                    if (channel.common.name !== "info")
+                        await adapter.delObjectAsync(channel._id);
+                });
+        }
+        catch (error) {
+            log.error("Version 0.6.0: Error:", error);
         }
     }
 };

@@ -107,7 +107,7 @@
             <h6 class="translate sub-title">Other settings</h6>
             <div class="row">
                 <div class="col s6 l2 input-field">
-                    <input class="value" min="10" type="number" id="pollingInterval" />
+                    <input class="value" min="1" type="number" id="pollingInterval" />
                     <label for="pollingInterval" class="translate">Polling interval (min)</label>
                 </div>
                 <div class="col s6 l2 input-field">
@@ -123,6 +123,16 @@
                         <option value="quickest" class="translate">Quickest connection</option>
                     </select>
                     <label for="p2pConnectionType" class="translate">P2P connection type</label>
+                </div>
+                <div class="input-field col m4 l3">
+                    <input class="value" id="acceptInvitations" type="checkbox" />
+                    <label for="acceptInvitations" class="translate">Accept incoming invitations</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s6 l2 input-field">
+                    <input class="value" min="1" type="number" id="alarmSoundDuration" />
+                    <label for="alarmSoundDuration" class="translate">Alarm sound duration (sec)</label>
                 </div>
             </div>
         </div>

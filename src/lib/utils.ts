@@ -1,6 +1,5 @@
-import * as crypto from "crypto";
 import axios, { AxiosResponse } from "axios";
-import { CommandType, Device, ParamType } from "eufy-security-client";
+import { CommandType, Device } from "eufy-security-client";
 import path from "path";
 import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
@@ -8,24 +7,6 @@ import * as utils from "@iobroker/adapter-core";
 import { CameraStateID, DoorbellStateID, EntrySensorStateID, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, KeyPadStateID, MotionSensorStateID, StationStateID } from "./types";
 import { ImageResponse } from "./interfaces";
 import { ioBrokerLogger } from "./log";
-
-export const decrypt = (key: string, value: string): string => {
-    let result = "";
-    for (let i = 0; i < value.length; ++i) {
-        result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-    }
-    return result;
-}
-
-export const generateUDID = function(): string {
-    return crypto.randomBytes(8).readBigUInt64BE().toString(16);
-};
-
-export const generateSerialnumber = function(length: number): string {
-    return crypto.randomBytes(length/2).toString("hex");
-};
-
-export const md5 = (contents: string): string => crypto.createHash("md5").update(contents).digest("hex");
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const setStateChangedAsync = async function(adapter: ioBroker.Adapter, id: string, value: any): ioBroker.SetStateChangedPromise {
@@ -40,42 +21,6 @@ export const isEmpty = function(str: string | null | undefined): boolean {
     }
     return true;
 };
-
-export const getState = function(type: CommandType | ParamType): string | null {
-    //TODO: Extend the implementation as soon as new p2p commands are implemented!
-    switch(type) {
-        case CommandType.CMD_SET_ARMING:
-            return StationStateID.GUARD_MODE;
-        case CommandType.CMD_DEVS_SWITCH:
-            return CameraStateID.ENABLED;
-        case CommandType.CMD_SET_DEVS_OSD:
-            return CameraStateID.WATERMARK;
-        case CommandType.CMD_EAS_SWITCH:
-            return CameraStateID.ANTITHEFT_DETECTION;
-        case CommandType.CMD_IRCUT_SWITCH:
-            return CameraStateID.AUTO_NIGHTVISION;
-        case CommandType.CMD_PIR_SWITCH:
-        case CommandType.CMD_INDOOR_DET_SET_MOTION_DETECT_ENABLE:
-            return CameraStateID.MOTION_DETECTION;
-        case CommandType.CMD_NAS_SWITCH:
-            return CameraStateID.RTSP_STREAM;
-        case CommandType.CMD_DEV_LED_SWITCH:
-        case CommandType.CMD_INDOOR_LED_SWITCH:
-        case CommandType.CMD_BAT_DOORBELL_SET_LED_ENABLE:
-            return CameraStateID.LED_STATUS;
-        case CommandType.CMD_INDOOR_DET_SET_SOUND_DETECT_ENABLE:
-            return IndoorCameraStateID.SOUND_DETECTION;
-        case CommandType.CMD_INDOOR_DET_SET_PET_ENABLE:
-            return IndoorCameraStateID.PET_DETECTION;
-    }
-    switch(type) {
-        case ParamType.COMMAND_MOTION_DETECTION_PACKAGE:
-            return CameraStateID.MOTION_DETECTION;
-        case ParamType.COMMAND_LED_NIGHT_OPEN:
-            return CameraStateID.LED_STATUS;
-    }
-    return null;
-}
 
 export const getImage = async function(url: string): Promise<AxiosResponse> {
     const response = await axios({
@@ -126,7 +71,6 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
                 }
 
                 await fse.writeFile(path.join(filePath, fileName), data).then(() => {
-                //await adapter.writeFileAsync(adapter.namespace, `${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`, data).then(() => {
                     result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${IMAGE_FILE_JPEG_EXT}`;
                     result.imageHtml = getImageAsHTML(data);
                 }).catch(error => {
@@ -352,8 +296,8 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             await changeRole(adapter, CameraStateID.MOTION_DETECTED, "sensor.motion");
             await changeRole(adapter, CameraStateID.PERSON_DETECTED, "sensor.motion");
             await changeRole(adapter, CameraStateID.LAST_PERSON_IDENTIFIED, "text");
-            await changeRole(adapter, CameraStateID.LAST_EVENT_PICTURE_URL, "url");
-            await changeRole(adapter, CameraStateID.LAST_EVENT_PICTURE_HTML, "html");
+            await changeRole(adapter, CameraStateID.LAST_EVENT_PIC_URL, "url");
+            await changeRole(adapter, CameraStateID.LAST_EVENT_PIC_HTML, "html");
             await changeRole(adapter, CameraStateID.LAST_EVENT_VIDEO_URL, "url");
             await changeRole(adapter, DoorbellStateID.RINGING, "sensor");
             await changeRole(adapter, IndoorCameraStateID.SOUND_DETECTION, "switch.enable");
@@ -409,5 +353,29 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
         } catch (error) {
             log.error("Version 0.4.2 - Files - Error:", error);
         }
+    } else if (old_version <= 0.6) {
+        try {
+            const all = await adapter.getDevicesAsync();
+            if (all)
+                Object.values(all).forEach(async device => {
+                    log.warn(`Version 0.6.0: WARN: device: ${device._id}`);
+                    await adapter.delObjectAsync(device._id, { recursive: true });
+                });
+            const channels = await adapter.getChannelsOfAsync();
+            if (channels)
+                Object.values(channels).forEach(async channel => {
+                    log.warn(`Version 0.6.0: WARN: channel: ${channel._id}`);
+                    if (channel.common.name !== "info")
+                        await adapter.delObjectAsync(channel._id);
+                });
+        } catch (error) {
+            log.error("Version 0.6.0: Error:", error);
+        }
     }
+};
+
+export const convertCamelCaseToSnakeCase = function (value: string): string {
+    return value.replace(/[A-Z]/g, (letter, index) => {
+        return index == 0 ? letter.toLowerCase() : "_" + letter.toLowerCase();
+    });
 };

@@ -1,0 +1,17 @@
+{
+    "Main settings": "主要设定",
+    "Authentication settings": "验证设定",
+    "Username": "帳號",
+    "Password": "密码",
+    "Other settings": "其他设定",
+    "Polling interval (min)": "轮询间隔（分钟）",
+    "Time in seconds before event reset": "事件重置之前的时间（以秒为单位）",
+    "P2P connection type": "P2P连接类型",
+    "Prefer local connection": "倾向于本地连接",
+    "Only local connection": "仅本地连接",
+    "Quickest connection": "最快的连接",
+    "Accept incoming invitations": "接受收到的邀请",
+    "Alarm sound duration (sec)": "警报声持续时间（秒",
+    "Livestream settings": "直播设置",
+    "Max camera livestream duration (sec)": "相机直播的最大持续时间（秒）"
+}

@@ -92,15 +92,20 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
     return new Promise((resolve, reject) => {
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
+            videoStream.on("error", (error) => {
+                log.error("ffmpegStreamToHls(): Videostream Error", error);
+            });
+            audioStream.on("error", (error) => {
+                log.error("ffmpegStreamToHls(): Audiostream Error", error);
+            });
             const uVideoStream = exports.StreamInput(namespace, videoStream);
             const uAudioStream = exports.StreamInput(namespace, audioStream);
             let videoFormat = "h264";
-            let audioFormat = "aac";
+            let audioFormat = "";
             const options = [
                 "-hls_init_time 0",
                 "-hls_time 2",
                 "-hls_segment_type mpegts",
-                "-absf aac_adtstoasc",
                 //"-start_number 1",
                 "-sc_threshold 0",
                 `-g ${metadata.videoFPS}`,
@@ -122,18 +127,24 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
                     audioFormat = "aac";
                     break;
             }
-            fluent_ffmpeg_1.default()
+            const command = fluent_ffmpeg_1.default()
                 .withProcessOptions({
                 detached: true
             })
                 .input(uVideoStream.url)
                 .inputFormat(videoFormat)
-                .inputFps(metadata.videoFPS)
-                .input(uAudioStream.url)
-                .inputFormat(audioFormat)
-                .videoCodec("copy")
-                .audioCodec("copy")
-                .output(output)
+                .inputFps(metadata.videoFPS);
+            if (audioFormat !== "") {
+                command.input(uAudioStream.url)
+                    .inputFormat(audioFormat)
+                    .videoCodec("copy")
+                    .audioCodec("copy");
+                options.push("-absf aac_adtstoasc");
+            }
+            else {
+                log.warn(`ffmpegStreamToHls(): Not support audio codec or unknown audio codec (${eufy_security_client_1.AudioCodec[metadata.audioCodec]})`);
+            }
+            command.output(output)
                 .addOptions(options)
                 .on("error", function (err, stdout, stderr) {
                 log.error(`ffmpegStreamToHls(): An error occurred: ${err.message}`);
@@ -148,8 +159,8 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
                 uVideoStream.close();
                 uAudioStream.close();
                 resolve();
-            })
-                .run();
+            });
+            command.run();
         }
         catch (error) {
             log.error(`ffmpegStreamToHls(): Error: ${error}`);

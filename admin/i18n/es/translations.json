@@ -1,0 +1,17 @@
+{
+    "Main settings": "Ajustes principales",
+    "Authentication settings": "Configuración de autenticación",
+    "Username": "Nombre de usuario",
+    "Password": "Contraseña",
+    "Other settings": "Otros ajustes",
+    "Polling interval (min)": "Intervalo de sondeo (min)",
+    "Time in seconds before event reset": "Tiempo en segundos antes del reinicio del evento",
+    "P2P connection type": "Tipo de conexión P2P",
+    "Prefer local connection": "Prefiero la conexión local",
+    "Only local connection": "Solo conexión local",
+    "Quickest connection": "Conexión más rápida",
+    "Accept incoming invitations": "Aceptar invitaciones entrantes",
+    "Alarm sound duration (sec)": "Duración del sonido de la alarma (s)",
+    "Livestream settings": "Configuración de transmisión en vivo",
+    "Max camera livestream duration (sec)": "Duración máxima de la transmisión en vivo de la cámara (segundos)"
+}

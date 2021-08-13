@@ -1,6 +1,6 @@
 import net from "net";
 import path from "path";
-import ffmpeg from "fluent-ffmpeg";
+import ffmpeg from "@bropat/fluent-ffmpeg";
 import pathToFfmpeg from "ffmpeg-static";
 import { Readable } from "stream";
 import { StreamMetadata, AudioCodec, VideoCodec } from "eufy-security-client";
@@ -70,6 +70,9 @@ export const ffmpegPreviewImage = (config: ioBroker.AdapterConfig, input:string,
             ffmpeg.setFfmpegPath(pathToFfmpeg);
 
             ffmpeg()
+                .withProcessOptions({
+                    detached: true
+                })
                 .addOptions([
                     `-ss ${skip_seconds}`,
                     "-frames:v 1"
@@ -101,16 +104,23 @@ export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: str
         try {
             ffmpeg.setFfmpegPath(pathToFfmpeg);
 
+            videoStream.on("error", (error) => {
+                log.error("ffmpegStreamToHls(): Videostream Error", error);
+            });
+
+            audioStream.on("error", (error) => {
+                log.error("ffmpegStreamToHls(): Audiostream Error", error);
+            });
+
             const uVideoStream = StreamInput(namespace, videoStream);
             const uAudioStream = StreamInput(namespace, audioStream);
 
             let videoFormat = "h264";
-            let audioFormat = "aac";
+            let audioFormat = "";
             const options: string[] = [
                 "-hls_init_time 0",
                 "-hls_time 2",
                 "-hls_segment_type mpegts",
-                "-absf aac_adtstoasc",
                 //"-start_number 1",
                 "-sc_threshold 0",
                 `-g ${metadata.videoFPS}`,
@@ -135,15 +145,23 @@ export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: str
                     break;
             }
 
-            ffmpeg()
+            const command = ffmpeg()
+                .withProcessOptions({
+                    detached: true
+                })
                 .input(uVideoStream.url)
                 .inputFormat(videoFormat)
-                .inputFps(metadata.videoFPS)
-                .input(uAudioStream.url)
-                .inputFormat(audioFormat)
-                .videoCodec("copy")
-                .audioCodec("copy")
-                .output(output)
+                .inputFps(metadata.videoFPS);
+            if (audioFormat !== "") {
+                command.input(uAudioStream.url)
+                    .inputFormat(audioFormat)
+                    .videoCodec("copy")
+                    .audioCodec("copy");
+                options.push("-absf aac_adtstoasc");
+            } else {
+                log.warn(`ffmpegStreamToHls(): Not support audio codec or unknown audio codec (${AudioCodec[metadata.audioCodec]})`);
+            }
+            command.output(output)
                 .addOptions(options)
                 .on("error", function(err, stdout, stderr) {
                     log.error(`ffmpegStreamToHls(): An error occurred: ${err.message}`);
@@ -158,8 +176,8 @@ export const ffmpegStreamToHls = (config: ioBroker.AdapterConfig, namespace: str
                     uVideoStream.close();
                     uAudioStream.close();
                     resolve();
-                })
-                .run();
+                });
+            command.run();
         } catch (error) {
             log.error(`ffmpegStreamToHls(): Error: ${error}`);
             reject(error);
@@ -177,6 +195,9 @@ export const ffmpegRTMPToHls = (config: ioBroker.AdapterConfig, rtmp_url: string
             ffmpeg.setFfmpegPath(pathToFfmpeg);
 
             ffmpegCommand = ffmpeg(rtmp_url)
+                .withProcessOptions({
+                    detached: true
+                })
                 .videoCodec("copy")
                 .audioCodec("copy")
                 .output(output)
@@ -211,7 +232,8 @@ export const ffmpegRTMPToHls = (config: ioBroker.AdapterConfig, rtmp_url: string
 
     rtmpPromise.stop = () => {
         ffmpegCommand.removeAllListeners();
-        ffmpegCommand.kill("SIGINT");
+        //ffmpegCommand.kill("SIGINT");
+        ffmpegCommand.quit();
         resolveCb();
     };
 

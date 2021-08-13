@@ -1,0 +1,17 @@
+{
+    "Main settings": "Основные параметры",
+    "Authentication settings": "Настройки аутентификации",
+    "Username": "Имя пользователя",
+    "Password": "Пароль",
+    "Other settings": "Другие настройки",
+    "Polling interval (min)": "Интервал опроса (мин)",
+    "Time in seconds before event reset": "Время в секундах до сброса события",
+    "P2P connection type": "Тип подключения P2P",
+    "Prefer local connection": "Предпочитает местное подключение",
+    "Only local connection": "Только локальное подключение",
+    "Quickest connection": "Самое быстрое соединение",
+    "Accept incoming invitations": "Принимать входящие приглашения",
+    "Alarm sound duration (sec)": "Длительность звукового сигнала тревоги (сек)",
+    "Livestream settings": "Настройки прямой трансляции",
+    "Max camera livestream duration (sec)": "Максимальная продолжительность прямой трансляции с камеры (сек)"
+}

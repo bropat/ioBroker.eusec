@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.5.5",
+        "version": "0.6.0",
         "news": {
+            "0.6.0": {
+                "en": "Breaking changes - Refactoring to use new driver class with many new features and bugfixing",
+                "de": "Breaking Changes - Refactoring zur Verwendung einer neuen Treiberklasse mit vielen neuen Funktionen und Fehlerbehebungen",
+                "ru": "Критические изменения - рефакторинг для использования нового класса драйвера с множеством новых функций и исправлением ошибок.",
+                "pt": "Quebrando mudanças - Refatoração para usar uma nova classe de driver com muitos novos recursos e correção de bugs",
+                "nl": "Baanbrekende veranderingen - Refactoring om nieuwe driverklasse te gebruiken met veel nieuwe functies en bugfixing",
+                "fr": "Changements de rupture - Refactoring pour utiliser une nouvelle classe de pilotes avec de nombreuses nouvelles fonctionnalités et corrections de bugs",
+                "it": "Modifiche importanti - Refactoring per utilizzare una nuova classe di driver con molte nuove funzionalità e correzione di bug",
+                "es": "Cambios importantes: refactorización para usar una nueva clase de controlador con muchas características nuevas y corrección de errores",
+                "pl": "Przełomowe zmiany - Refaktoryzacja w celu użycia nowej klasy sterownika z wieloma nowymi funkcjami i poprawkami błędów",
+                "zh-cn": "重大更改 - 重构以使用具有许多新功能和错误修复的新驱动程序类"
+            },
             "0.5.5": {
                 "en": "Fixed regression in p2p protocol",
                 "de": "Regression im P2P-Protokoll behoben",
@@ -284,7 +296,11 @@
                 "admin": ">=4.0.9"
             }
         ],
-        "dataFolder": "eufy-security.%INSTANCE%"
+        "dataFolder": "eufy-security.%INSTANCE%",
+        "jsonConfig": true,
+        "adminUI": {
+            "config": "json"
+        }
     },
     "encryptedNative": [
         "password"
@@ -300,7 +316,9 @@
         "verificationMethod": 2,
         "eventDuration": 15,
         "webInstance": "*",
-        "p2pConnectionType": "prefer_local"
+        "p2pConnectionType": "prefer_local",
+        "acceptInvitations": true,
+        "alarmSoundDuration": 60
     },
     "objects": [],
     "instanceObjects": [

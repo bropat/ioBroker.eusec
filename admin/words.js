@@ -181,5 +181,29 @@ systemDictionary = {
         "es": "Tipo de conexión P2P",
         "pl": "Typ połączenia P2P",
         "zh-cn": "P2P连接类型"
+    },
+    "Accept incoming invitations": {
+        "en": "Accept incoming invitations",
+        "de": "Eingehende Einladungen annehmen",
+        "ru": "Принимать входящие приглашения",
+        "pt": "Aceitar os convites recebidos",
+        "nl": "Accepteer inkomende uitnodigingen",
+        "fr": "Accepter les invitations entrantes",
+        "it": "Accetta inviti in arrivo",
+        "es": "Aceptar invitaciones entrantes",
+        "pl": "Przyjmowanie zaproszeń przychodzących",
+        "zh-cn": "接受收到的邀请"
+    },
+    "Alarm sound duration (sec)": {
+        "en": "Alarm sound duration (sec)",
+        "de": "Dauer des Alarmtons (Sek.)",
+        "ru": "Длительность звукового сигнала тревоги (сек)",
+        "pt": "Duração do som do alarme (seg)",
+        "nl": "Duur alarmgeluid (sec)",
+        "fr": "Durée du son de l'alarme (sec)",
+        "it": "Durata del suono dell'allarme (sec)",
+        "es": "Duración del sonido de la alarma (s)",
+        "pl": "Czas trwania dźwięku alarmu (sek.)",
+        "zh-cn": "警报声持续时间（秒"
     }
 };
