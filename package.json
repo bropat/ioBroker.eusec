@@ -1,6 +1,6 @@
 {
   "name": "iobroker.eufy-security",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "ioBroker adapter that integrates Eufy-Security cameras with stations",
   "author": {
     "name": "bropat",
@@ -27,7 +27,7 @@
     "@cospired/i18n-iso-languages": "^3.0.0",
     "@iobroker/adapter-core": "^2.5.1",
     "axios": "^0.21.1",
-    "eufy-security-client": "^1.1.1",
+    "eufy-security-client": "^1.1.2",
     "ffmpeg-static": "^4.4.0",
     "fs-extra": "^10.0.0",
     "i18n-iso-countries": "^6.8.0",

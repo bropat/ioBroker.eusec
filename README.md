@@ -177,6 +177,10 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.6.2 (2021-08-19)
+
+* (bropat) Updated version of the package eufy-security-client (1.1.2)
+
 ### 0.6.1 (2021-08-19)
 
 * (bropat) Fixed issue in the function responsible for the version upgrade (non-updatable states; issue #159)

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.6.1",
+        "version": "0.6.2",
         "news": {
+            "0.6.2": {
+                "en": "Updated version of the package eufy-security-client (1.1.2)",
+                "de": "Version des Pakets eufy-security-client (1.1.2) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (1.1.2)",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.1.2)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.1.2)",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.1.2)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.1.2)",
+                "es": "Versión actualizada del paquete eufy-security-client (1.1.2)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.1.2)",
+                "zh-cn": "包 eufy-security-client (1.1.2) 的更新版本"
+            },
             "0.6.1": {
                 "en": "Fixed issue in the function responsible for the version upgrade",
                 "de": "Problem in der für das Versions-Upgrade zuständigen Funktion behoben",
@@ -218,18 +230,6 @@
                 "es": "Configuración de extensión web fija para servir videos e imágenes",
                 "pl": "Naprawiono ustawienia rozszerzeń internetowych dotyczące udostępniania filmów i zdjęć",
                 "zh-cn": "修复了用于投放视频和图片的Web扩展程序设置"
-            },
-            "0.2.1": {
-                "en": "Fixed battery doorbell start livestream over p2p",
-                "de": "Problem, bei dem die Türklingel der Batterie über p2p gestartet wurde - gefixt",
-                "ru": "Фиксированный дверной звонок батареи запускает прямую трансляцию через p2p",
-                "pt": "A campainha da bateria foi corrigida para iniciar a transmissão ao vivo em p2p",
-                "nl": "Vaste batterij deurbel start livestream via P2P",
-                "fr": "La sonnette à batterie fixe démarre la diffusion en direct sur p2p",
-                "it": "Risolto il problema con il campanello della batteria che avvia il live streaming su p2p",
-                "es": "Timbre de batería fijo inicia transmisión en vivo a través de p2p",
-                "pl": "Naprawiono dzwonek do drzwi baterii rozpoczynający transmisję na żywo przez P2P",
-                "zh-cn": "固定电池门铃通过p2p启动直播"
             }
         },
         "title": "Eufy Security",
