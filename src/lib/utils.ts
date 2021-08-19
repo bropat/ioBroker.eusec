@@ -239,7 +239,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             const watermark = await adapter.getStatesAsync("*.watermark");
             if (watermark)
                 Object.keys(watermark).forEach(async id => {
-                    await adapter.delObjectAsync(id);
+                    await adapter.delObjectAsync(id).catch();
                 });
         } catch (error) {
             log.error("Version 0.3.1 - watermark: Error:", error);
@@ -248,7 +248,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             const state = await adapter.getStatesAsync("*.state");
             if (state)
                 Object.keys(state).forEach(async id => {
-                    await adapter.delObjectAsync(id);
+                    await adapter.delObjectAsync(id).catch();
                 });
         } catch (error) {
             log.error("Version 0.3.1 - state: Error:", error);
@@ -257,12 +257,13 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             const wifi_rssi = await adapter.getStatesAsync("*.wifi_rssi");
             if (wifi_rssi)
                 Object.keys(wifi_rssi).forEach(async id => {
-                    await adapter.delObjectAsync(id);
+                    await adapter.delObjectAsync(id).catch();
                 });
         } catch (error) {
             log.error("Version 0.3.1 - wifi_rssi: Error:", error);
         }
-    } else if (old_version <= 0.41) {
+    }
+    if (old_version <= 0.41) {
         try {
             const changeRole = async function(adapter: ioBroker.Adapter, state: string, role: string): Promise<void> {
                 try {
@@ -274,7 +275,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
                                 common: {
                                     role: role
                                 }
-                            }, {});
+                            }, {}).catch();
                         });
                 } catch (error) {
                     log.error(`state: ${state} role: ${role} - Error:`, error);
@@ -318,7 +319,8 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
         } catch (error) {
             log.error("Version 0.4.1 - Error:", error);
         }
-    } else if (old_version <= 0.42) {
+    }
+    if (old_version <= 0.42) {
         try {
             const changeRole = async function(adapter: ioBroker.Adapter, state: string, role: string): Promise<void> {
                 try {
@@ -330,7 +332,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
                                 common: {
                                     role: role
                                 }
-                            }, {});
+                            }, {}).catch();
                         });
                 } catch (error) {
                     log.error(`state: ${state} role: ${role} - Error:`, error);
@@ -353,23 +355,31 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
         } catch (error) {
             log.error("Version 0.4.2 - Files - Error:", error);
         }
-    } else if (old_version <= 0.6) {
+    }
+    if (old_version <= 0.61) {
         try {
-            const all = await adapter.getDevicesAsync();
-            if (all)
-                Object.values(all).forEach(async device => {
-                    log.warn(`Version 0.6.0: WARN: device: ${device._id}`);
-                    await adapter.delObjectAsync(device._id, { recursive: true });
+            const all = await adapter.getStatesAsync("T*");
+            if (all) {
+                Object.keys(all).forEach(async id => {
+                    await adapter.delObjectAsync(id, { recursive: false }).catch();
                 });
+            }
             const channels = await adapter.getChannelsOfAsync();
-            if (channels)
+            if (channels) {
                 Object.values(channels).forEach(async channel => {
-                    log.warn(`Version 0.6.0: WARN: channel: ${channel._id}`);
-                    if (channel.common.name !== "info")
-                        await adapter.delObjectAsync(channel._id);
+                    if (channel.common.name !== "info") {
+                        await adapter.delObjectAsync(channel._id, {recursive: false}).catch();
+                    }
                 });
+            }
+            const devices = await adapter.getDevicesAsync();
+            if (devices) {
+                Object.values(devices).forEach(async device => {
+                    await adapter.delObjectAsync(device._id, {recursive: false}).catch();
+                });
+            }
         } catch (error) {
-            log.error("Version 0.6.0: Error:", error);
+            log.error("Version 0.6.1: Error:", error);
         }
     }
 };

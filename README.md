@@ -177,6 +177,11 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.6.1 (2021-08-19)
+
+* (bropat) Fixed issue in the function responsible for the version upgrade (non-updatable states; issue #159)
+* (bropat) Tried to fix issue #157 and issue #140
+
 ### 0.6.0 (2021-08-13)
 
 * (bropat) **Breaking Changes** Switched to the new managed driver class - All states will be dropped and recreated (Note: some states where renamed)

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.6.0",
+        "version": "0.6.1",
         "news": {
+            "0.6.1": {
+                "en": "Fixed issue in the function responsible for the version upgrade",
+                "de": "Problem in der für das Versions-Upgrade zuständigen Funktion behoben",
+                "ru": "Исправлена проблема в функции, отвечающей за обновление версии",
+                "pt": "Corrigido problema na função responsável pela atualização de versão",
+                "nl": "Probleem opgelost in de functie die verantwoordelijk is voor de versie-upgrade",
+                "fr": "Correction d'un problème dans la fonction responsable de la mise à niveau de version",
+                "it": "Risolto problema nella funzione responsabile dell'aggiornamento della versione",
+                "es": "Problema solucionado en la función responsable de la actualización de la versión",
+                "pl": "Naprawiono błąd w funkcji odpowiedzialnej za aktualizację wersji",
+                "zh-cn": "修复负责版本升级的函数中的问题"
+            },
             "0.6.0": {
                 "en": "Breaking changes - Refactoring to use new driver class with many new features and bugfixing",
                 "de": "Breaking Changes - Refactoring zur Verwendung einer neuen Treiberklasse mit vielen neuen Funktionen und Fehlerbehebungen",
@@ -218,18 +230,6 @@
                 "es": "Timbre de batería fijo inicia transmisión en vivo a través de p2p",
                 "pl": "Naprawiono dzwonek do drzwi baterii rozpoczynający transmisję na żywo przez P2P",
                 "zh-cn": "固定电池门铃通过p2p启动直播"
-            },
-            "0.2.0": {
-                "en": "P2P livestream over HLS",
-                "de": "P2P-Livestream über HLS",
-                "ru": "P2P прямая трансляция через HLS",
-                "pt": "Transmissão ao vivo P2P por HLS",
-                "nl": "P2P livestream via HLS",
-                "fr": "Diffusion en direct P2P sur HLS",
-                "it": "Livestream P2P su HLS",
-                "es": "Transmisión en vivo P2P a través de HLS",
-                "pl": "Transmisja na żywo P2P przez HLS",
-                "zh-cn": "通过HLS进行P2P直播"
             }
         },
         "title": "Eufy Security",

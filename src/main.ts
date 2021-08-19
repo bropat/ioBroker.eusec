@@ -101,6 +101,7 @@ export class EufySecurity extends utils.Adapter {
             },
             native: {},
         });
+        await this.setStateAsync("info.connection", { val: false, ack: true });
         await this.setObjectNotExistsAsync("info.push_connection", {
             type: "state",
             common: {
@@ -712,7 +713,9 @@ export class EufySecurity extends utils.Adapter {
     }
 
     private async onDeviceRemoved(device: Device): Promise<void> {
-        this.delStateAsync(device.getStateID("", 0));
+        this.delObjectAsync(device.getStateID("", 0), { recursive: true }).catch((error) => {
+            this.logger.error(`Error deleting removed device`, error);
+        });
     }
 
     private async onStationAdded(station: Station): Promise<void> {
@@ -794,7 +797,9 @@ export class EufySecurity extends utils.Adapter {
     }
 
     private async onStationRemoved(station: Station): Promise<void> {
-        this.delStateAsync(station.getStateID("", 0));
+        this.delObjectAsync(station.getStateID("", 0), { recursive: true }).catch((error) => {
+            this.logger.error(`Error deleting removed station`, error);
+        });
     }
 
     private downloadEventVideo(device: Device, event_time: number, full_path: string | undefined, cipher_id: number | undefined): void {
@@ -835,7 +840,7 @@ export class EufySecurity extends utils.Adapter {
                         this.logger.error(`Device ${device.getSerial()} - saveImageStates(): url ${message.pic_url}`);
                     });
                 }
-                if (message.push_count === 1)
+                if ((message.push_count === 1 || message.push_count === undefined) && (message.file_path !== undefined && message.file_path !== "" && message.cipher !== undefined))
                     this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
             }
         } catch (error) {
@@ -848,10 +853,46 @@ export class EufySecurity extends utils.Adapter {
     }
 
     private async onConnect(): Promise<void> {
+        await this.setObjectNotExistsAsync("info", {
+            type: "channel",
+            common: {
+                name: "info"
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("info.connection", {
+            type: "state",
+            common: {
+                name: "Global connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
         await this.setStateAsync("info.connection", { val: true, ack: true });
     }
 
     private async onClose(): Promise<void> {
+        await this.setObjectNotExistsAsync("info", {
+            type: "channel",
+            common: {
+                name: "info"
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("info.connection", {
+            type: "state",
+            common: {
+                name: "Global connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
         await this.setStateAsync("info.connection", { val: false, ack: true });
     }
 
@@ -859,12 +900,48 @@ export class EufySecurity extends utils.Adapter {
         return this.persistentData;
     }
 
-    private onPushConnect(): void {
-        this.setStateAsync("info.push_connection", { val: true, ack: true });
+    private async onPushConnect(): Promise<void> {
+        await this.setObjectNotExistsAsync("info", {
+            type: "channel",
+            common: {
+                name: "info"
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("info.push_connection", {
+            type: "state",
+            common: {
+                name: "Push notification connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync("info.push_connection", { val: true, ack: true });
     }
 
-    private onPushClose(): void {
-        this.setStateAsync("info.push_connection", { val: false, ack: true });
+    private async onPushClose(): Promise<void> {
+        await this.setObjectNotExistsAsync("info", {
+            type: "channel",
+            common: {
+                name: "info"
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("info.push_connection", {
+            type: "state",
+            common: {
+                name: "Push notification connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync("info.push_connection", { val: false, ack: true });
     }
     private async onStationCommandResult(station: Station, result: CommandResult): Promise<void> {
         if (result.return_code === 0) {
@@ -1001,23 +1078,23 @@ export class EufySecurity extends utils.Adapter {
         const file_path = getDataFilePath(this, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
         await sleep(2000);
         const rtmpPromise: StoppablePromise = ffmpegRTMPToHls(this.config, url, file_path, this.logger);
-        rtmpPromise.then(() => {
+        rtmpPromise.then(async () => {
             if (fse.pathExistsSync(file_path)) {
-                removeFiles(this, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
+                await removeFiles(this, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
                 return true;
             }
             return false;
         })
-            .then((result) => {
+            .then(async (result) => {
                 if (result)
-                    moveFiles(this, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+                    await moveFiles(this, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
                 return result;
             })
-            .then((result) => {
+            .then(async (result) => {
                 if (result) {
                     const filename_without_ext = getDataFilePath(this, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
                     if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
-                        ffmpegPreviewImage(this.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.logger, 5.5)
+                        await ffmpegPreviewImage(this.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.logger, 5.5)
                             .then(() => {
                                 this.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`, ack: true });
                                 try {
@@ -1033,9 +1110,9 @@ export class EufySecurity extends utils.Adapter {
                             });
                 }
             })
-            .catch((error) => {
+            .catch(async (error) => {
                 this.logger.error(`Station: ${station.getSerial()} device: ${device.getSerial()} - Error - Stopping livestream...`, error);
-                this.eufy.stopCloudLivestream(device.getSerial());
+                await this.eufy.stopCloudLivestream(device.getSerial());
             });
         this.rtmpFFmpegPromise.set(device.getSerial(), rtmpPromise);
     }
@@ -1055,25 +1132,25 @@ export class EufySecurity extends utils.Adapter {
         try {
             const file_path = getDataFilePath(this, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
             await removeFiles(this, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial()).catch();
-            ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
-                .then(() => {
+            await ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
+                .then(async () => {
                     if (fse.pathExistsSync(file_path)) {
-                        removeFiles(this, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
+                        await removeFiles(this, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
                         return true;
                     }
                     return false;
                 })
-                .then((result) => {
+                .then(async (result) => {
                     if (result)
-                        moveFiles(this, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
+                        await moveFiles(this, station.getSerial(), device.getSerial(), DataLocation.LIVESTREAM, DataLocation.LAST_LIVESTREAM);
                     return result;
                 })
-                .then((result) => {
+                .then(async (result) => {
                     if (result) {
                         const filename_without_ext = getDataFilePath(this, station.getSerial(), DataLocation.LAST_LIVESTREAM, device.getSerial());
                         this.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_VIDEO_URL), { val: `/${this.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, ack: true });
                         if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
-                            ffmpegPreviewImage(this.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.logger)
+                            await ffmpegPreviewImage(this.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.logger)
                                 .then(() => {
                                     this.setStateAsync(device.getStateID(CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.namespace}/${station.getSerial()}/${DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`, ack: true });
                                     try {
@@ -1089,15 +1166,15 @@ export class EufySecurity extends utils.Adapter {
                                 });
                     }
                 })
-                .catch((error) => {
+                .catch(async (error) => {
                     this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
-                    this.eufy.stopStationLivestream(device.getSerial());
+                    await this.eufy.stopStationLivestream(device.getSerial());
                 });
 
             this.setStateAsync(device.getStateID(CameraStateID.LIVESTREAM), { val: `/${this.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, ack: true });
         } catch(error) {
             this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
-            this.eufy.stopStationLivestream(device.getSerial());
+            await this.eufy.stopStationLivestream(device.getSerial());
         }
     }
 
@@ -1114,25 +1191,25 @@ export class EufySecurity extends utils.Adapter {
             await removeFiles(this, station.getSerial(), DataLocation.TEMP, device.getSerial()).catch();
             const file_path = getDataFilePath(this, station.getSerial(), DataLocation.TEMP, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
 
-            ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
-                .then(() => {
+            await ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
+                .then(async () => {
                     if (fse.pathExistsSync(file_path)) {
-                        removeFiles(this, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
+                        await removeFiles(this, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
                         return true;
                     }
                     return false;
                 })
-                .then((result) => {
+                .then(async (result) => {
                     if (result)
-                        moveFiles(this, station.getSerial(), device.getSerial(), DataLocation.TEMP, DataLocation.LAST_EVENT);
+                        await moveFiles(this, station.getSerial(), device.getSerial(), DataLocation.TEMP, DataLocation.LAST_EVENT);
                     return result;
                 })
-                .then((result) => {
+                .then(async (result) => {
                     if (result) {
                         const filename_without_ext = getDataFilePath(this, station.getSerial(), DataLocation.LAST_EVENT, device.getSerial());
                         setStateWithTimestamp(this, device.getStateID(CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, undefined, "url");
                         if (fse.pathExistsSync(`${filename_without_ext}${STREAM_FILE_NAME_EXT}`))
-                            ffmpegPreviewImage(this.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.logger)
+                            await ffmpegPreviewImage(this.config, `${filename_without_ext}${STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${IMAGE_FILE_JPEG_EXT}`, this.logger)
                                 .then(() => {
                                     setStateWithTimestamp(this, device.getStateID(CameraStateID.LAST_EVENT_PIC_URL), "Last event picture URL", `/${this.namespace}/${station.getSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}${IMAGE_FILE_JPEG_EXT}`, undefined, "url");
                                     try {
@@ -1149,13 +1226,13 @@ export class EufySecurity extends utils.Adapter {
                                 });
                     }
                 })
-                .catch((error) => {
+                .catch(async (error) => {
                     this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Cancelling download...`, error);
-                    this.eufy.cancelStationDownload(device.getSerial());
+                    await this.eufy.cancelStationDownload(device.getSerial());
                 });
         } catch(error) {
             this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Cancelling download...`, error);
-            this.eufy.cancelStationDownload(device.getSerial());
+            await this.eufy.cancelStationDownload(device.getSerial());
         }
     }
 
@@ -1163,12 +1240,34 @@ export class EufySecurity extends utils.Adapter {
         setStateChangedWithTimestamp(this, device.getStateID(CameraStateID.RTSP_STREAM_URL), value, modified);
     }
 
-    private onStationConnect(station: Station): void {
-        this.setStateAsync(station.getStateID(StationStateID.CONNECTION), { val: true, ack: true });
+    private async onStationConnect(station: Station): Promise<void> {
+        await this.setObjectNotExistsAsync(station.getStateID(StationStateID.CONNECTION), {
+            type: "state",
+            common: {
+                name: "Connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync(station.getStateID(StationStateID.CONNECTION), { val: true, ack: true });
     }
 
-    private onStationClose(station: Station): void {
-        this.setStateAsync(station.getStateID(StationStateID.CONNECTION), { val: false, ack: true });
+    private async onStationClose(station: Station): Promise<void> {
+        await this.setObjectNotExistsAsync(station.getStateID(StationStateID.CONNECTION), {
+            type: "state",
+            common: {
+                name: "Connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync(station.getStateID(StationStateID.CONNECTION), { val: false, ack: true });
     }
 
     private onTFARequest(): void {
