@@ -44,7 +44,7 @@ const isEmpty = function (str) {
 };
 exports.isEmpty = isEmpty;
 const getImage = async function (url) {
-    const response = await axios_1.default({
+    const response = await (0, axios_1.default)({
         method: "GET",
         url: url,
         responseType: "arraybuffer",
@@ -78,7 +78,7 @@ const saveImage = async function (adapter, url, station_sn, device_sn, location)
     };
     try {
         if (url) {
-            const response = await exports.getImage(url);
+            const response = await (0, exports.getImage)(url);
             result.status = response.status;
             result.statusText = response.statusText;
             if (response.status === 200) {
@@ -90,7 +90,7 @@ const saveImage = async function (adapter, url, station_sn, device_sn, location)
                 }
                 await fs_extra_1.default.writeFile(path_1.default.join(filePath, fileName), data).then(() => {
                     result.imageUrl = `/${adapter.namespace}/${station_sn}/${location}/${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`;
-                    result.imageHtml = exports.getImageAsHTML(data);
+                    result.imageHtml = (0, exports.getImageAsHTML)(data);
                 }).catch(error => {
                     adapter.log.error(`saveImage(): writeFile Error: ${error} - url: ${url}`);
                 });
@@ -109,7 +109,7 @@ const setStateChangedWithTimestamp = async function (adapter, id, value, timesta
     if (obj) {
         if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
             obj.native.timestamp = timestamp;
-            await exports.setStateChangedAsync(adapter, id, value);
+            await (0, exports.setStateChangedAsync)(adapter, id, value);
             await adapter.setObject(id, obj);
         }
     }
@@ -143,12 +143,12 @@ const setStateWithTimestamp = async function (adapter, state_id, common_name, va
 };
 exports.setStateWithTimestamp = setStateWithTimestamp;
 const saveImageStates = async function (adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, retry = 1) {
-    const image_data = await exports.saveImage(adapter, url, station_sn, device_sn, location);
+    const image_data = await (0, exports.saveImage)(adapter, url, station_sn, device_sn, location);
     if (image_data.status === 404) {
         if (retry < 6) {
             adapter.log.info(`Retry get image in ${5 * retry} seconds from url: ${url} (retry_count: ${retry} error: ${image_data.statusText} message: ${image_data.statusText})...`);
             setTimeout(() => {
-                exports.saveImageStates(adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
+                (0, exports.saveImageStates)(adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
             }, 5 * 1000 * retry);
         }
         else {
@@ -156,8 +156,8 @@ const saveImageStates = async function (adapter, url, timestamp, station_sn, dev
         }
         return;
     }
-    exports.setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
-    exports.setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
+    (0, exports.setStateWithTimestamp)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
+    (0, exports.setStateWithTimestamp)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
 };
 exports.saveImageStates = saveImageStates;
 const removeFiles = function (adapter, stationSerial, folderName, device_sn) {

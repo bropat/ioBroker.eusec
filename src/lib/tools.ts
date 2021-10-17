@@ -53,8 +53,8 @@ async function translateYandex(text: string, targetLang: string, apiKey: string)
     try {
         const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${apiKey}&text=${encodeURIComponent(text)}&lang=en-${targetLang}`;
         const response = await axios({url, timeout: 15000});
-        if (isArray(response.data?.text)) {
-            return response.data.text[0];
+        if (isArray((response.data as any)?.text)) {
+            return (response.data as any).text[0];
         }
         throw new Error("Invalid response for translate request");
     } catch (e) {
@@ -76,7 +76,7 @@ async function translateGoogle(text: string, targetLang: string): Promise<string
             return response.data[0][0][0];
         }
         throw new Error("Invalid response for translate request");
-    } catch (e) {
+    } catch (e: any) {
         if (e.response?.status === 429) {
             throw new Error(
                 `Could not translate to "${targetLang}": Rate-limited by Google Translate`

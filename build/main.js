@@ -124,7 +124,7 @@ class EufySecurity extends utils.Adapter {
                 eufy_security_client_1.PropertyName.DeviceRinging
             ];
             for (const sensorName of sensorList) {
-                const sensors = await this.getStatesAsync(`*.${utils_1.convertCamelCaseToSnakeCase(sensorName)}`);
+                const sensors = await this.getStatesAsync(`*.${(0, utils_1.convertCamelCaseToSnakeCase)(sensorName)}`);
                 if (sensors)
                     Object.keys(sensors).forEach(async (id) => {
                         await this.setStateAsync(id, { val: false, ack: true });
@@ -148,8 +148,8 @@ class EufySecurity extends utils.Adapter {
         let countryCode = undefined;
         let languageCode = undefined;
         if (systemConfig) {
-            countryCode = i18n_iso_countries_1.getAlpha2Code(systemConfig.common.country, "en");
-            if (i18n_iso_languages_1.isValid(systemConfig.common.language))
+            countryCode = (0, i18n_iso_countries_1.getAlpha2Code)(systemConfig.common.country, "en");
+            if ((0, i18n_iso_languages_1.isValid)(systemConfig.common.language))
                 languageCode = systemConfig.common.language;
         }
         // Handling adapter version update
@@ -157,11 +157,11 @@ class EufySecurity extends utils.Adapter {
             const adapter_info = await this.getForeignObjectAsync(`system.adapter.${this.namespace}`);
             if (adapter_info && adapter_info.common && adapter_info.common.version) {
                 if (this.persistentData.version !== adapter_info.common.version) {
-                    const currentVersion = Number.parseFloat(utils_1.removeLastChar(adapter_info.common.version, "."));
-                    const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat(utils_1.removeLastChar(this.persistentData.version, ".")) : 0;
+                    const currentVersion = Number.parseFloat((0, utils_1.removeLastChar)(adapter_info.common.version, "."));
+                    const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat((0, utils_1.removeLastChar)(this.persistentData.version, ".")) : 0;
                     this.logger.debug(`Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
                     if (previousVersion < currentVersion) {
-                        await utils_1.handleUpdate(this, this.logger, previousVersion);
+                        await (0, utils_1.handleUpdate)(this, this.logger, previousVersion);
                         this.persistentData.version = adapter_info.common.version;
                         this.writePersistentData();
                     }
@@ -414,19 +414,40 @@ class EufySecurity extends utils.Adapter {
     async createAndSetState(device, property) {
         if (property.name !== eufy_security_client_1.PropertyName.Type && property.name !== eufy_security_client_1.PropertyName.DeviceStationSN) {
             const state = this.getStateCommon(property);
-            const id = device.getStateID(utils_1.convertCamelCaseToSnakeCase(property.name));
-            await this.setObjectNotExistsAsync(id, {
-                type: "state",
-                common: state,
-                native: {
-                    key: property.key,
-                    commandId: property.commandId,
-                    name: property.name,
-                },
-            });
+            const id = device.getStateID((0, utils_1.convertCamelCaseToSnakeCase)(property.name));
+            const obj = await this.getObjectAsync(id);
+            if (obj) {
+                let changed = false;
+                if (obj.native.name !== undefined && obj.native.name !== property.name) {
+                    obj.native.name = property.name;
+                    changed = true;
+                }
+                if (obj.native.key !== undefined && obj.native.key !== property.key) {
+                    obj.native.key = property.key;
+                    changed = true;
+                }
+                if (obj.native.commandId !== undefined && obj.native.commandId !== property.commandId) {
+                    obj.native.commandId = property.commandId;
+                    changed = true;
+                }
+                if (changed) {
+                    await this.setObjectAsync(id, obj);
+                }
+            }
+            else {
+                await this.setObjectNotExistsAsync(id, {
+                    type: "state",
+                    common: state,
+                    native: {
+                        key: property.key,
+                        commandId: property.commandId,
+                        name: property.name,
+                    },
+                });
+            }
             const value = device.getPropertyValue(property.name);
             if (value !== undefined)
-                await utils_1.setStateChangedWithTimestamp(this, id, value.value, value.timestamp);
+                await (0, utils_1.setStateChangedWithTimestamp)(this, id, value.value, value.timestamp);
         }
     }
     async onDeviceAdded(device) {
@@ -534,7 +555,7 @@ class EufySecurity extends utils.Adapter {
             // Last event picture
             const last_camera_url = device.getPropertyValue(eufy_security_client_1.PropertyName.DevicePictureUrl);
             if (last_camera_url !== undefined)
-                utils_1.saveImageStates(this, last_camera_url.value, last_camera_url.timestamp, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture").catch(() => {
+                (0, utils_1.saveImageStates)(this, last_camera_url.value, last_camera_url.timestamp, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture").catch(() => {
                     this.logger.error(`State LAST_EVENT_PICTURE_URL of device ${device.getSerial()} - saveImageStates(): url ${last_camera_url.value}`);
                 });
         }
@@ -753,12 +774,12 @@ class EufySecurity extends utils.Adapter {
     downloadEventVideo(device, event_time, full_path, cipher_id) {
         this.logger.debug(`Device: ${device.getSerial()} full_path: ${full_path} cipher_id: ${cipher_id}`);
         try {
-            if (!utils_1.isEmpty(full_path) && cipher_id !== undefined) {
+            if (!(0, utils_1.isEmpty)(full_path) && cipher_id !== undefined) {
                 const station = this.eufy.getStation(device.getStationSerial());
                 if (station !== undefined) {
                     if (this.downloadEvent[device.getSerial()])
                         clearTimeout(this.downloadEvent[device.getSerial()]);
-                    let videoLength = utils_1.getVideoClipLength(device);
+                    let videoLength = (0, utils_1.getVideoClipLength)(device);
                     const time_passed = (new Date().getTime() - new Date(event_time).getTime()) / 1000;
                     if (time_passed >= videoLength)
                         videoLength = 1;
@@ -779,8 +800,8 @@ class EufySecurity extends utils.Adapter {
         try {
             if (message.device_sn !== undefined) {
                 const device = this.eufy.getDevice(message.device_sn);
-                if (!utils_1.isEmpty(message.pic_url)) {
-                    await utils_1.saveImageStates(this, message.pic_url, message.event_time, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
+                if (!(0, utils_1.isEmpty)(message.pic_url)) {
+                    await (0, utils_1.saveImageStates)(this, message.pic_url, message.event_time, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
                         this.logger.error(`Device ${device.getSerial()} - saveImageStates(): url ${message.pic_url}`);
                     });
                 }
@@ -944,7 +965,7 @@ class EufySecurity extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    utils_1.setStateChangedWithTimestamp(this, state, value.value, value.timestamp);
+                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
                     return;
                 }
             }
@@ -957,7 +978,7 @@ class EufySecurity extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    utils_1.setStateChangedWithTimestamp(this, state, value.value, value.timestamp);
+                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
                     switch (name) {
                         case eufy_security_client_1.PropertyName.DeviceRTSPStream:
                             if (value.value === false) {
@@ -1020,31 +1041,31 @@ class EufySecurity extends utils.Adapter {
     }
     async onCloudLivestreamStart(station, device, url) {
         this.setStateAsync(device.getStateID(types_1.CameraStateID.LIVESTREAM), { val: url, ack: true });
-        const file_path = utils_1.getDataFilePath(this, station.getSerial(), types_1.DataLocation.LIVESTREAM, `${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`);
-        await utils_1.sleep(2000);
-        const rtmpPromise = video_1.ffmpegRTMPToHls(this.config, url, file_path, this.logger);
+        const file_path = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.LIVESTREAM, `${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`);
+        await (0, utils_1.sleep)(2000);
+        const rtmpPromise = (0, video_1.ffmpegRTMPToHls)(this.config, url, file_path, this.logger);
         rtmpPromise.then(async () => {
             if (fs_extra_1.default.pathExistsSync(file_path)) {
-                await utils_1.removeFiles(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
+                await (0, utils_1.removeFiles)(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
                 return true;
             }
             return false;
         })
             .then(async (result) => {
             if (result)
-                await utils_1.moveFiles(this, station.getSerial(), device.getSerial(), types_1.DataLocation.LIVESTREAM, types_1.DataLocation.LAST_LIVESTREAM);
+                await (0, utils_1.moveFiles)(this, station.getSerial(), device.getSerial(), types_1.DataLocation.LIVESTREAM, types_1.DataLocation.LAST_LIVESTREAM);
             return result;
         })
             .then(async (result) => {
             if (result) {
-                const filename_without_ext = utils_1.getDataFilePath(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
+                const filename_without_ext = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
                 if (fs_extra_1.default.pathExistsSync(`${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`))
-                    await video_1.ffmpegPreviewImage(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger, 5.5)
+                    await (0, video_1.ffmpegPreviewImage)(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger, 5.5)
                         .then(() => {
                         this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${types_1.IMAGE_FILE_JPEG_EXT}`, ack: true });
                         try {
                             if (fs_extra_1.default.existsSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)) {
-                                this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: utils_1.getImageAsHTML(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)), ack: true });
+                                this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: (0, utils_1.getImageAsHTML)(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)), ack: true });
                             }
                         }
                         catch (error) {
@@ -1073,32 +1094,33 @@ class EufySecurity extends utils.Adapter {
     }
     async onStationLivestreamStart(station, device, metadata, videostream, audiostream) {
         try {
-            const file_path = utils_1.getDataFilePath(this, station.getSerial(), types_1.DataLocation.LIVESTREAM, `${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`);
-            await utils_1.removeFiles(this, station.getSerial(), types_1.DataLocation.LIVESTREAM, device.getSerial()).catch();
-            await video_1.ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
+            const file_path = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.LIVESTREAM, `${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`);
+            await (0, utils_1.removeFiles)(this, station.getSerial(), types_1.DataLocation.LIVESTREAM, device.getSerial()).catch();
+            this.setStateAsync(device.getStateID(types_1.CameraStateID.LIVESTREAM), { val: `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LIVESTREAM}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, ack: true });
+            await (0, video_1.ffmpegStreamToHls)(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
                 .then(async () => {
                 if (fs_extra_1.default.pathExistsSync(file_path)) {
-                    await utils_1.removeFiles(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
+                    await (0, utils_1.removeFiles)(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
                     return true;
                 }
                 return false;
             })
                 .then(async (result) => {
                 if (result)
-                    await utils_1.moveFiles(this, station.getSerial(), device.getSerial(), types_1.DataLocation.LIVESTREAM, types_1.DataLocation.LAST_LIVESTREAM);
+                    await (0, utils_1.moveFiles)(this, station.getSerial(), device.getSerial(), types_1.DataLocation.LIVESTREAM, types_1.DataLocation.LAST_LIVESTREAM);
                 return result;
             })
                 .then(async (result) => {
                 if (result) {
-                    const filename_without_ext = utils_1.getDataFilePath(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
+                    const filename_without_ext = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.LAST_LIVESTREAM, device.getSerial());
                     this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_VIDEO_URL), { val: `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, ack: true });
                     if (fs_extra_1.default.pathExistsSync(`${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`))
-                        await video_1.ffmpegPreviewImage(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger)
+                        await (0, video_1.ffmpegPreviewImage)(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger)
                             .then(() => {
                             this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_URL), { val: `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_LIVESTREAM}/${device.getSerial()}${types_1.IMAGE_FILE_JPEG_EXT}`, ack: true });
                             try {
                                 if (fs_extra_1.default.existsSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)) {
-                                    this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: utils_1.getImageAsHTML(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)), ack: true });
+                                    this.setStateAsync(device.getStateID(types_1.CameraStateID.LAST_LIVESTREAM_PIC_HTML), { val: (0, utils_1.getImageAsHTML)(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)), ack: true });
                                 }
                             }
                             catch (error) {
@@ -1114,7 +1136,6 @@ class EufySecurity extends utils.Adapter {
                 this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
                 await this.eufy.stopStationLivestream(device.getSerial());
             });
-            this.setStateAsync(device.getStateID(types_1.CameraStateID.LIVESTREAM), { val: `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LIVESTREAM}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, ack: true });
         }
         catch (error) {
             this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
@@ -1129,33 +1150,33 @@ class EufySecurity extends utils.Adapter {
     }
     async onStationDownloadStart(station, device, metadata, videostream, audiostream) {
         try {
-            await utils_1.removeFiles(this, station.getSerial(), types_1.DataLocation.TEMP, device.getSerial()).catch();
-            const file_path = utils_1.getDataFilePath(this, station.getSerial(), types_1.DataLocation.TEMP, `${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`);
-            await video_1.ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
+            await (0, utils_1.removeFiles)(this, station.getSerial(), types_1.DataLocation.TEMP, device.getSerial()).catch();
+            const file_path = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.TEMP, `${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`);
+            await (0, video_1.ffmpegStreamToHls)(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
                 .then(async () => {
                 if (fs_extra_1.default.pathExistsSync(file_path)) {
-                    await utils_1.removeFiles(this, station.getSerial(), types_1.DataLocation.LAST_EVENT, device.getSerial());
+                    await (0, utils_1.removeFiles)(this, station.getSerial(), types_1.DataLocation.LAST_EVENT, device.getSerial());
                     return true;
                 }
                 return false;
             })
                 .then(async (result) => {
                 if (result)
-                    await utils_1.moveFiles(this, station.getSerial(), device.getSerial(), types_1.DataLocation.TEMP, types_1.DataLocation.LAST_EVENT);
+                    await (0, utils_1.moveFiles)(this, station.getSerial(), device.getSerial(), types_1.DataLocation.TEMP, types_1.DataLocation.LAST_EVENT);
                 return result;
             })
                 .then(async (result) => {
                 if (result) {
-                    const filename_without_ext = utils_1.getDataFilePath(this, station.getSerial(), types_1.DataLocation.LAST_EVENT, device.getSerial());
-                    utils_1.setStateWithTimestamp(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, undefined, "url");
+                    const filename_without_ext = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.LAST_EVENT, device.getSerial());
+                    (0, utils_1.setStateWithTimestamp)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, undefined, "url");
                     if (fs_extra_1.default.pathExistsSync(`${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`))
-                        await video_1.ffmpegPreviewImage(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger)
+                        await (0, video_1.ffmpegPreviewImage)(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger)
                             .then(() => {
-                            utils_1.setStateWithTimestamp(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), "Last event picture URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.IMAGE_FILE_JPEG_EXT}`, undefined, "url");
+                            (0, utils_1.setStateWithTimestamp)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), "Last event picture URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.IMAGE_FILE_JPEG_EXT}`, undefined, "url");
                             try {
                                 if (fs_extra_1.default.existsSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)) {
-                                    const image_data = utils_1.getImageAsHTML(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`));
-                                    utils_1.setStateWithTimestamp(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture HTML image", image_data, undefined, "html");
+                                    const image_data = (0, utils_1.getImageAsHTML)(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`));
+                                    (0, utils_1.setStateWithTimestamp)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture HTML image", image_data, undefined, "html");
                                 }
                             }
                             catch (error) {
@@ -1178,7 +1199,7 @@ class EufySecurity extends utils.Adapter {
         }
     }
     onStationRTSPUrl(station, device, value, modified) {
-        utils_1.setStateChangedWithTimestamp(this, device.getStateID(types_1.CameraStateID.RTSP_STREAM_URL), value, modified);
+        (0, utils_1.setStateChangedWithTimestamp)(this, device.getStateID(types_1.CameraStateID.RTSP_STREAM_URL), value, modified);
     }
     async onStationConnect(station) {
         await this.setObjectNotExistsAsync(station.getStateID(types_1.StationStateID.CONNECTION), {

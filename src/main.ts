@@ -442,15 +442,35 @@ export class EufySecurity extends utils.Adapter {
         if (property.name !== PropertyName.Type && property.name !== PropertyName.DeviceStationSN) {
             const state = this.getStateCommon(property);
             const id: string = device.getStateID(convertCamelCaseToSnakeCase(property.name));
-            await this.setObjectNotExistsAsync(id, {
-                type: "state",
-                common: state,
-                native: {
-                    key: property.key,
-                    commandId: property.commandId,
-                    name: property.name,
-                },
-            });
+            const obj = await this.getObjectAsync(id);
+            if (obj) {
+                let changed = false;
+                if ( obj.native.name !== undefined && obj.native.name !== property.name) {
+                    obj.native.name = property.name;
+                    changed = true;
+                }
+                if ( obj.native.key !== undefined && obj.native.key !== property.key) {
+                    obj.native.key = property.key;
+                    changed = true;
+                }
+                if ( obj.native.commandId !== undefined && obj.native.commandId !== property.commandId) {
+                    obj.native.commandId = property.commandId;
+                    changed = true;
+                }
+                if (changed) {
+                    await this.setObjectAsync(id, obj);
+                }
+            } else {
+                await this.setObjectNotExistsAsync(id, {
+                    type: "state",
+                    common: state,
+                    native: {
+                        key: property.key,
+                        commandId: property.commandId,
+                        name: property.name,
+                    },
+                });
+            }
             const value = device.getPropertyValue(property.name);
             if (value !== undefined)
                 await setStateChangedWithTimestamp(this, id, value.value, value.timestamp);
@@ -1132,6 +1152,7 @@ export class EufySecurity extends utils.Adapter {
         try {
             const file_path = getDataFilePath(this, station.getSerial(), DataLocation.LIVESTREAM, `${device.getSerial()}${STREAM_FILE_NAME_EXT}`);
             await removeFiles(this, station.getSerial(), DataLocation.LIVESTREAM, device.getSerial()).catch();
+            this.setStateAsync(device.getStateID(CameraStateID.LIVESTREAM), { val: `/${this.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, ack: true });
             await ffmpegStreamToHls(this.config, this.namespace, metadata, videostream, audiostream, file_path, this.logger)
                 .then(async () => {
                     if (fse.pathExistsSync(file_path)) {
@@ -1170,8 +1191,6 @@ export class EufySecurity extends utils.Adapter {
                     this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
                     await this.eufy.stopStationLivestream(device.getSerial());
                 });
-
-            this.setStateAsync(device.getStateID(CameraStateID.LIVESTREAM), { val: `/${this.namespace}/${station.getSerial()}/${DataLocation.LIVESTREAM}/${device.getSerial()}${STREAM_FILE_NAME_EXT}`, ack: true });
         } catch(error) {
             this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
             await this.eufy.stopStationLivestream(device.getSerial());

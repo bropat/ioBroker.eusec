@@ -61,7 +61,7 @@ async function translateYandex(text, targetLang, apiKey) {
     }
     try {
         const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${apiKey}&text=${encodeURIComponent(text)}&lang=en-${targetLang}`;
-        const response = await axios_1.default({ url, timeout: 15000 });
+        const response = await (0, axios_1.default)({ url, timeout: 15000 });
         if (isArray((_a = response.data) === null || _a === void 0 ? void 0 : _a.text)) {
             return response.data.text[0];
         }
@@ -80,7 +80,7 @@ async function translateGoogle(text, targetLang) {
     var _a;
     try {
         const url = `http://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}&ie=UTF-8&oe=UTF-8`;
-        const response = await axios_1.default({ url, timeout: 15000 });
+        const response = await (0, axios_1.default)({ url, timeout: 15000 });
         if (isArray(response.data)) {
             // we got a valid response
             return response.data[0][0][0];

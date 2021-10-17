@@ -15,7 +15,7 @@ const utils_1 = require("./utils");
 class UniversalStream {
     constructor(namespace, onSocket) {
         let sockpath = "";
-        const unique_sock_id = utils_1.lowestUnusedNumber([...UniversalStream.socks], 1);
+        const unique_sock_id = (0, utils_1.lowestUnusedNumber)([...UniversalStream.socks], 1);
         UniversalStream.socks.add(unique_sock_id);
         this.sock_id = unique_sock_id;
         if (process.platform === "win32") {
@@ -26,7 +26,7 @@ class UniversalStream {
         }
         else {
             const pipeName = `${namespace}.${unique_sock_id}.sock`;
-            sockpath = path_1.default.join(os_1.tmpdir(), pipeName);
+            sockpath = path_1.default.join((0, os_1.tmpdir)(), pipeName);
             this.url = "unix:" + sockpath;
             try {
                 if (fs_extra_1.default.existsSync(sockpath))
@@ -57,7 +57,7 @@ const ffmpegPreviewImage = (config, input, output, log, skip_seconds = 2.0) => {
     return new Promise((resolve, reject) => {
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
-            fluent_ffmpeg_1.default()
+            (0, fluent_ffmpeg_1.default)()
                 .withProcessOptions({
                 detached: true
             })
@@ -98,8 +98,8 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
             audioStream.on("error", (error) => {
                 log.error("ffmpegStreamToHls(): Audiostream Error", error);
             });
-            const uVideoStream = exports.StreamInput(namespace, videoStream);
-            const uAudioStream = exports.StreamInput(namespace, audioStream);
+            const uVideoStream = (0, exports.StreamInput)(namespace, videoStream);
+            const uAudioStream = (0, exports.StreamInput)(namespace, audioStream);
             let videoFormat = "h264";
             let audioFormat = "";
             const options = [
@@ -127,7 +127,7 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
                     audioFormat = "aac";
                     break;
             }
-            const command = fluent_ffmpeg_1.default()
+            const command = (0, fluent_ffmpeg_1.default)()
                 .withProcessOptions({
                 detached: true
             })
@@ -176,7 +176,7 @@ const ffmpegRTMPToHls = (config, rtmp_url, output, log) => {
         resolveCb = resolve;
         try {
             fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
-            ffmpegCommand = fluent_ffmpeg_1.default(rtmp_url)
+            ffmpegCommand = (0, fluent_ffmpeg_1.default)(rtmp_url)
                 .withProcessOptions({
                 detached: true
             })

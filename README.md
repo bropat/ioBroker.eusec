@@ -37,105 +37,105 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
 * Downloads event video when push notification is received (async)
 * Takes jpeg thumbnail of the livestream or downloaded video
 * Base station:
-    * States:
-        * Configured Guard mode
-        * Current Guard mode
-        * Name
-        * Model
-        * Serial number
-        * Software version
-        * Hardware version
-        * MAC address
-        * LAN ip address
-    * Actions:
-        * Change guard mode
-        * Trigger alarm sound
-        * Reset alarm sound
-        * Reboot station
-    * Events:
-        * Alarm mode change
+  * States:
+    * Configured Guard mode
+    * Current Guard mode
+    * Name
+    * Model
+    * Serial number
+    * Software version
+    * Hardware version
+    * MAC address
+    * LAN ip address
+  * Actions:
+    * Change guard mode
+    * Trigger alarm sound
+    * Reset alarm sound
+    * Reboot station
+  * Events:
+    * Alarm mode change
 * Camera:
-    * States: 
-        * Online / offline etc.
-        * Battery %
-        * Battery temperature
-        * Name
-        * Model
-        * Serial number
-        * Software version
-        * Hardware version
-        * MAC address
-        * Wifi RSSI
-        * Filtered false events since last charge
-        * Saved/Recorded events since last charge
-        * Total events since last charge
-        * Used days since last charge
-        * And lot's more...
-    * Actions:
-        * Start livestream (hls; supports also local livestream)
-        * Stop livestream (hls)
-        * Enable/disable device
-        * Enable/disable auto night vision 
-        * Enable/disable led (only camera 2 products, indoor cameras, floodlight camera, solo cameras and doorbells)
-        * Enable/disable anti-theft detection (only camera 2 products)
-        * Enable/disable motion detection
-        * Enable/disable pet detection (only indoor cameras)
-        * Enable/disable sound detection (only indoor cameras)
-        * Enable/disable RTSP stream (only camera2 products, indoor cameras and solo cameras)
-        * Change video watermark setting
-        * And lot's more...
-    * Events:
-        * Motion detected
-        * Person detected
-        * Ringing (only Doorbell)
-        * Crying detected (only Indoor cameras)
-        * Sound detected (only Indoor cameras)
-        * Pet detected (only Indoor cameras)
+  * States:
+    * Online / offline etc.
+    * Battery %
+    * Battery temperature
+    * Name
+    * Model
+    * Serial number
+    * Software version
+    * Hardware version
+    * MAC address
+    * Wifi RSSI
+    * Filtered false events since last charge
+    * Saved/Recorded events since last charge
+    * Total events since last charge
+    * Used days since last charge
+    * And lot's more...
+  * Actions:
+    * Start livestream (hls; supports also local livestream)
+    * Stop livestream (hls)
+    * Enable/disable device
+    * Enable/disable auto night vision
+    * Enable/disable led (only camera 2 products, indoor cameras, floodlight camera, solo cameras and doorbells)
+    * Enable/disable anti-theft detection (only camera 2 products)
+    * Enable/disable motion detection
+    * Enable/disable pet detection (only indoor cameras)
+    * Enable/disable sound detection (only indoor cameras)
+    * Enable/disable RTSP stream (only camera2 products, indoor cameras and solo cameras)
+    * Change video watermark setting
+    * And lot's more...
+  * Events:
+    * Motion detected
+    * Person detected
+    * Ringing (only Doorbell)
+    * Crying detected (only Indoor cameras)
+    * Sound detected (only Indoor cameras)
+    * Pet detected (only Indoor cameras)
 * Sensor:
-    * Entry sensor:
-        * States: 
-            * Online / offline etc.
-            * Low battery
-            * Name
-            * Model
-            * Serial number
-            * Software version
-            * Hardware version
-        * Events: 
-            * Open / closed
-    * Motion sensor:
-        * States:
-            * Online / offline etc.
-            * Low battery
-            * Name
-            * Model
-            * Serial number
-            * Software version
-            * Hardware version
-        * Events:
-            * Motion detected
+  * Entry sensor:
+    * States:
+      * Online / offline etc.
+      * Low battery
+      * Name
+      * Model
+      * Serial number
+      * Software version
+      * Hardware version
+    * Events:
+      * Open / closed
+  * Motion sensor:
+    * States:
+      * Online / offline etc.
+      * Low battery
+      * Name
+      * Model
+      * Serial number
+      * Software version
+      * Hardware version
+    * Events:
+      * Motion detected
 * Keypad:
-    * States:
-        * Online / offline etc.
-        * Low battery
-        * Name
-        * Model
-        * Serial number
-        * Software version
-        * Hardware version
+  * States:
+    * Online / offline etc.
+    * Low battery
+    * Name
+    * Model
+    * Serial number
+    * Software version
+    * Hardware version
 * Lock:
-    * States:
-        * Online / offline etc.
-        * Battery %
-        * Lock status
-        * Name
-        * Model
-        * Serial number
-        * Software version
-        * Hardware version
-        * Wifi RSSI
-    * Actions:
-        * Lock/unlock
+  * States:
+    * Online / offline etc.
+    * Battery %
+    * Lock status
+    * Name
+    * Model
+    * Serial number
+    * Software version
+    * Hardware version
+    * Wifi RSSI
+  * Actions:
+    * Lock/unlock
 * more to come...
 
 ## Configuration
@@ -154,7 +154,9 @@ See [here](./docs/en/README.md)
 * eufyCam 2C (T8113)
 * eufyCam 2 Pro (T8140)
 * eufyCam 2C Pro (T8141)
+* SoloCam E40 (T8131)
 * Floodlight (T8420)
+* Floodlight (T8422)
 * Wired Doorbell 2k (T8200)
 * Wired Doorbell 1080p (T8201)
 * Battery Doorbell 2K (T8210)
@@ -166,6 +168,7 @@ See [here](./docs/en/README.md)
 * Indoor Cam Pan&Tilt 1080p (T8411)
 * Indoor Cam 1080p (T8401)
 * Smart Lock Front Door (T8500)
+* Keypad (T8960)
 
 If more devices work (or also not) please report them by opening a GitHub issue.
 
@@ -176,6 +179,19 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.7.0 (2021-10-17)
+
+* (bropat) Added support for Floodlight T8422
+* (bropat) Added support for SoloCam E40 (T8131)
+* (bropat) Added new properties for solo cameras: battery, batteryTemperature, wifiSignalLevel, state, chargingStatus, lastChargingDays, lastChargingRecordedEvents, lastChargingTotalEvents, batteryUsageLastWeek
+* (bropat) Fixed issue #169
+* (bropat) Fixed issue #167
+* (bropat) Fixed issue #151
+* (bropat) Fixed push notifications for solo cameras (motion and person detection)
+* (bropat) Updated version of the package eufy-security-client (1.2.0)
+* (bropat) Updated versions of the package dependencies
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.2.0)
 
 ### 0.6.2 (2021-08-19)
 
@@ -386,7 +402,7 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 * (bropat) Last livestream is always saved and is still available later
 * (bropat) Implemented device and station parameter refresh over P2P
 * (bropat) Revised push notification implementation
-* (bropat) Fixed issue [#71](https://github.com/bropat/ioBroker.eufy-security/issues/71) by implementing retry mechanism on HTTP error 404 (max. 5 retries with increasing delay) 
+* (bropat) Fixed issue [#71](https://github.com/bropat/ioBroker.eufy-security/issues/71) by implementing retry mechanism on HTTP error 404 (max. 5 retries with increasing delay)
 * (bropat) Fixed issue [#12](https://github.com/bropat/ioBroker.eufy-security/issues/12)
 * (bropat) Eufy client library extracted as standalone library and adapters ported to new shared library: [eufy-security-client](https://www.npmjs.com/package/eufy-security-client)
 * (bropat) Removed following states: last_captured_pic_url, last_captured_pic_html

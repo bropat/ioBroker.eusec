@@ -62,7 +62,7 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
             result.status = response.status;
             result.statusText = response.statusText;
             if (response.status === 200) {
-                const data = Buffer.from(response.data);
+                const data = Buffer.from(response.data as string);
                 const fileName = `${device_sn}${IMAGE_FILE_JPEG_EXT}`;
                 const filePath = path.join(utils.getAbsoluteInstanceDataDir(adapter), station_sn, location);
 
