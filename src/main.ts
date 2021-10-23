@@ -997,7 +997,7 @@ export class EufySecurity extends utils.Adapter {
                         this.setStateAsync(state, { ...states[state] as ioBroker.State, ack: true });
                 }
             } else if (result.command_type !== CommandType.CMD_CAMERA_INFO) {
-                this.logger.debug(`No mapping for state <> command_type - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
+                this.logger.debug(`No mapping for state found for resulting command - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
             }
         } else if (result.return_code !== 0 && result.command_type === CommandType.CMD_START_REALTIME_MEDIA) {
             this.logger.debug(`Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
@@ -1053,7 +1053,7 @@ export class EufySecurity extends utils.Adapter {
             const device = this.eufy.getDevice(device_sn);
             const station = this.eufy.getStation(device.getStationSerial());
 
-            if (this.eufy.isStationConnected(device.getStationSerial())) {
+            if (station.isConnected() || station.isEnergySavingDevice()) {
                 if (!station.isLiveStreaming(device)) {
                     this.eufy.startStationLivestream(device_sn);
                 } else {

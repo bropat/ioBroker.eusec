@@ -180,6 +180,11 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.7.1 (2021-10-23)
+
+* (bropat) Updated version of the package eufy-security-client (1.2.1)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.2.1)
+
 ### 0.7.0 (2021-10-17)
 
 * (bropat) Added support for Floodlight T8422

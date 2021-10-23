@@ -941,7 +941,7 @@ class EufySecurity extends utils.Adapter {
                 }
             }
             else if (result.command_type !== eufy_security_client_1.CommandType.CMD_CAMERA_INFO) {
-                this.logger.debug(`No mapping for state <> command_type - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
+                this.logger.debug(`No mapping for state found for resulting command - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
             }
         }
         else if (result.return_code !== 0 && result.command_type === eufy_security_client_1.CommandType.CMD_START_REALTIME_MEDIA) {
@@ -996,7 +996,7 @@ class EufySecurity extends utils.Adapter {
         try {
             const device = this.eufy.getDevice(device_sn);
             const station = this.eufy.getStation(device.getStationSerial());
-            if (this.eufy.isStationConnected(device.getStationSerial())) {
+            if (station.isConnected() || station.isEnergySavingDevice()) {
                 if (!station.isLiveStreaming(device)) {
                     this.eufy.startStationLivestream(device_sn);
                 }
