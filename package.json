@@ -26,7 +26,7 @@
     "@bropat/fluent-ffmpeg": "^2.1.3",
     "@cospired/i18n-iso-languages": "^3.1.1",
     "@iobroker/adapter-core": "^2.5.1",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "eufy-security-client": "^1.2.1",
     "ffmpeg-static": "^4.4.0",
     "fs-extra": "^10.0.0",
