@@ -31,7 +31,7 @@
     "ffmpeg-static": "^4.4.0",
     "fs-extra": "^10.0.0",
     "i18n-iso-countries": "^6.8.0",
-    "mime": "^2.5.2",
+    "mime": "^3.0.0",
     "ts-log": "^2.2.3"
   },
   "devDependencies": {
