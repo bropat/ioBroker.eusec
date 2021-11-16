@@ -155,8 +155,9 @@ See [here](./docs/en/README.md)
 * eufyCam 2 Pro (T8140)
 * eufyCam 2C Pro (T8141)
 * SoloCam E40 (T8131)
-* Floodlight (T8420)
-* Floodlight (T8422)
+* Floodlight Camera (T8420)
+* Floodlight Cam (T8422)
+* Floodlight Cam 2 (T8424)
 * Wired Doorbell 2k (T8200)
 * Wired Doorbell 1080p (T8201)
 * Battery Doorbell 2K (T8210)
@@ -179,6 +180,13 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.7.2 (2021-11-16)
+
+* (bropat) Updated version of the package eufy-security-client (1.2.3)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.2.3)
+* (bropat) Changed ioBroker.admin dependency to ">=4.0.10"
+* (bropat) Updated versions of the package dependencies
 
 ### 0.7.1 (2021-10-23)
 

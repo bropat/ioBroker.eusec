@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.7.1",
+        "version": "0.7.2",
         "news": {
+            "0.7.2": {
+                "en": "Updated version of the package eufy-security-client (1.2.3)",
+                "de": "Version des Pakets eufy-security-client (1.2.3) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (1.2.3)",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.2.3)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.2.3)",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.2.3)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.2.3)",
+                "es": "Versión actualizada del paquete eufy-security-client (1.2.3)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.2.3)",
+                "zh-cn": "包 eufy-security-client (1.2.3) 的更新版本"
+            },
             "0.7.1": {
                 "en": "Updated version of the package eufy-security-client (1.2.1)",
                 "de": "Version des Pakets eufy-security-client (1.2.1) aktualisiert",
@@ -218,18 +230,6 @@
                 "es": "Se corrigió una posible condición de carrera que interrumpía en algún momento la transmisión en vivo.",
                 "pl": "Naprawiono możliwy stan wyścigu, który czasami przerywał transmisję na żywo",
                 "zh-cn": "修复了可能导致直播中断的比赛条件"
-            },
-            "0.2.4": {
-                "en": "Fixed issue #86",
-                "de": "Problem Nr. 86 behoben",
-                "ru": "Исправленная проблема # 86",
-                "pt": "Problema nº 86 corrigido",
-                "nl": "Probleem # 86 opgelost",
-                "fr": "Problème résolu n ° 86",
-                "it": "Risolto il problema # 86",
-                "es": "Problema solucionado # 86",
-                "pl": "Naprawiono problem nr 86",
-                "zh-cn": "已修复问题86"
             }
         },
         "title": "Eufy Security",
@@ -293,7 +293,7 @@
         ],
         "globalDependencies": [
             {
-                "admin": ">=4.0.9"
+                "admin": ">=4.0.10"
             }
         ],
         "dataFolder": "eufy-security.%INSTANCE%",
