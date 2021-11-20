@@ -181,6 +181,15 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.7.3 (2021-11-20)
+
+* (bropat) Implemented new encrypted authentication mechanism (API v2)
+* (bropat) Dropped old plaintext authentication mechanism (API v1)
+* (bropat) Fixed issue #191
+* (bropat) Updated version of the package eufy-security-client (1.3.0)
+
+**Note:** If you have 2FA enabled, you will need to authenticate again after this update.
+
 ### 0.7.2 (2021-11-16)
 
 * (bropat) Updated version of the package eufy-security-client (1.2.3)
