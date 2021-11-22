@@ -181,6 +181,11 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.7.4 (2021-11-22)
+
+* (bropat) Implemented captcha authentication mechanism (API v2)
+* (bropat) Updated version of the package eufy-security-client (1.4.0)
+
 ### 0.7.3 (2021-11-20)
 
 * (bropat) Implemented new encrypted authentication mechanism (API v2)

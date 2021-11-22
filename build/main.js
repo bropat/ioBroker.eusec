@@ -47,6 +47,7 @@ class EufySecurity extends utils.Adapter {
             version: ""
         };
         this.rtmpFFmpegPromise = new Map();
+        this.captchaId = null;
         const data_dir = utils.getAbsoluteInstanceDataDir(this);
         this.persistentFile = path.join(data_dir, "adapter.json");
         if (!fs_extra_1.default.existsSync(data_dir))
@@ -67,6 +68,17 @@ class EufySecurity extends utils.Adapter {
             common: {
                 name: "2FA verification code",
                 type: "number",
+                role: "state",
+                read: true,
+                write: true,
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("captcha", {
+            type: "state",
+            common: {
+                name: "Enter captcha",
+                type: "string",
                 role: "state",
                 read: true,
                 write: true,
@@ -144,6 +156,7 @@ class EufySecurity extends utils.Adapter {
             this.logger.debug("No stored data from last exit found.", error);
         }
         this.subscribeStates("verify_code");
+        this.subscribeStates("captcha");
         const systemConfig = await this.getForeignObjectAsync("system.config");
         let countryCode = undefined;
         let languageCode = undefined;
@@ -213,6 +226,7 @@ class EufySecurity extends utils.Adapter {
         this.eufy.on("station connect", (station) => this.onStationConnect(station));
         this.eufy.on("station close", (station) => this.onStationClose(station));
         this.eufy.on("tfa request", () => this.onTFARequest());
+        this.eufy.on("captcha request", (captchaId, captcha) => this.onCaptchaRequest(captchaId, captcha));
         //TODO: Implement station alarm event
         //this.eufy.on("station alarm event", );
         await this.eufy.connect();
@@ -273,6 +287,13 @@ class EufySecurity extends utils.Adapter {
                 if (this.eufy) {
                     this.logger.info(`Verification code received, send it. (verify_code: ${state.val})`);
                     this.eufy.connect(state.val);
+                    await this.delStateAsync(id);
+                }
+            }
+            else if (station_sn == "captcha") {
+                if (this.eufy) {
+                    this.logger.info(`Captcha received, send it. (captcha: ${state.val})`);
+                    this.eufy.connect(state.val, this.captchaId);
                     await this.delStateAsync(id);
                 }
             }
@@ -1231,6 +1252,11 @@ class EufySecurity extends utils.Adapter {
     }
     onTFARequest() {
         this.logger.warn(`Two factor authentication request received, please enter valid verification code in state ${this.namespace}.verify_code`);
+    }
+    onCaptchaRequest(captchaId, captcha) {
+        this.captchaId = captchaId;
+        this.logger.warn(`Captcha authentication request received, please enter valid captcha in state ${this.namespace}.captcha`);
+        this.logger.warn(`Captcha: <img src="${captcha}">`);
     }
 }
 exports.EufySecurity = EufySecurity;

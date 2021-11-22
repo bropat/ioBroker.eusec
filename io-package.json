@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.7.3",
+        "version": "0.7.4",
         "news": {
+            "0.7.4": {
+                "en": "Updated version of the package eufy-security-client (1.4.0)",
+                "de": "Version des Pakets eufy-security-client (1.4.0) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (1.4.0)",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.4.0)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.4.0)",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.4.0)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.4.0)",
+                "es": "Versión actualizada del paquete eufy-security-client (1.4.0)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.4.0)",
+                "zh-cn": "包 eufy-security-client (1.4.0) 的更新版本"
+            },
             "0.7.3": {
                 "en": "Updated version of the package eufy-security-client (1.3.0)",
                 "de": "Version des Pakets eufy-security-client (1.3.0) aktualisiert",
@@ -218,18 +230,6 @@
                 "es": "Se corrigió la regresión en la transmisión en vivo con el códec h265",
                 "pl": "Naprawiono regresję podczas transmisji na żywo z kodekiem h265",
                 "zh-cn": "使用H265编解码器修复了实时流的回归"
-            },
-            "0.3.0": {
-                "en": "Implemented feature request #81, #88 and asynchronous download of event videos including some fixes",
-                "de": "Implementierte Feature-Anforderung Nr. 81, Nr. 88 und asynchrones Herunterladen von Ereignisvideos einschließlich einiger Korrekturen",
-                "ru": "Реализован запрос функции # 81, # 88 и асинхронная загрузка видео событий, включая некоторые исправления.",
-                "pt": "Solicitação de recurso implementada nº 81, nº 88 e download assíncrono de vídeos de eventos, incluindo algumas correções",
-                "nl": "Functieverzoek # 81, # 88 geïmplementeerd en asynchrone download van evenementvideo's inclusief enkele fixes",
-                "fr": "Implémentation de la demande de fonctionnalité n ° 81, n ° 88 et du téléchargement asynchrone des vidéos d'événements, y compris des correctifs",
-                "it": "Richiesta di funzionalità implementata n. 81, n. 88 e download asincrono di video di eventi, comprese alcune correzioni",
-                "es": "Solicitud de función implementada # 81, # 88 y descarga asincrónica de videos de eventos, incluidas algunas correcciones",
-                "pl": "Zaimplementowano żądanie funkcji # 81, # 88 i asynchroniczne pobieranie filmów z wydarzeń, w tym kilka poprawek",
-                "zh-cn": "已实现功能请求＃81，＃88和事件视频的异步下载，包括一些修复程序"
             }
         },
         "title": "Eufy Security",
