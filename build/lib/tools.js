@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.translateText = exports.isArray = exports.isObject = void 0;
-const axios_1 = __importDefault(require("axios"));
+const got_1 = __importDefault(require("got"));
 /**
  * Tests whether the given variable is a real object and not an Array
  * @param it The variable to test
@@ -61,9 +61,9 @@ async function translateYandex(text, targetLang, apiKey) {
     }
     try {
         const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${apiKey}&text=${encodeURIComponent(text)}&lang=en-${targetLang}`;
-        const response = await (0, axios_1.default)({ url, timeout: 15000 });
-        if (isArray((_a = response.data) === null || _a === void 0 ? void 0 : _a.text)) {
-            return response.data.text[0];
+        const response = await (0, got_1.default)({ url, timeout: 15000 });
+        if (isArray((_a = response.body) === null || _a === void 0 ? void 0 : _a.text)) {
+            return response.body.text[0];
         }
         throw new Error("Invalid response for translate request");
     }
@@ -80,10 +80,10 @@ async function translateGoogle(text, targetLang) {
     var _a;
     try {
         const url = `http://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}&ie=UTF-8&oe=UTF-8`;
-        const response = await (0, axios_1.default)({ url, timeout: 15000 });
-        if (isArray(response.data)) {
+        const response = await (0, got_1.default)({ url, timeout: 15000 });
+        if (isArray(response.body)) {
             // we got a valid response
-            return response.data[0][0][0];
+            return response.body[0][0][0];
         }
         throw new Error("Invalid response for translate request");
     }

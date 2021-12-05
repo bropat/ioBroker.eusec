@@ -77,7 +77,7 @@ export class EufySecurity extends utils.Adapter {
             type: "state",
             common: {
                 name: "2FA verification code",
-                type: "number",
+                type: "string",
                 role: "state",
                 read: true,
                 write: true,

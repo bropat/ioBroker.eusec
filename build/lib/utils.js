@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertCamelCaseToSnakeCase = exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.isEmpty = exports.setStateChangedAsync = void 0;
-const axios_1 = __importDefault(require("axios"));
+const got_1 = __importDefault(require("got"));
 const eufy_security_client_1 = require("eufy-security-client");
 const path_1 = __importDefault(require("path"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
@@ -44,12 +44,14 @@ const isEmpty = function (str) {
 };
 exports.isEmpty = isEmpty;
 const getImage = async function (url) {
-    const response = await (0, axios_1.default)({
+    const response = await (0, got_1.default)(url, {
         method: "GET",
-        url: url,
-        responseType: "arraybuffer",
-        validateStatus: function (_status) {
-            return true;
+        responseType: "buffer",
+        http2: true,
+        throwHttpErrors: false,
+        retry: {
+            limit: 3,
+            methods: ["GET"]
         }
     });
     return response;
@@ -79,10 +81,10 @@ const saveImage = async function (adapter, url, station_sn, device_sn, location)
     try {
         if (url) {
             const response = await (0, exports.getImage)(url);
-            result.status = response.status;
-            result.statusText = response.statusText;
-            if (response.status === 200) {
-                const data = Buffer.from(response.data);
+            result.status = response.statusCode;
+            result.statusText = response.statusMessage ? response.statusMessage : "";
+            if (result.status === 200) {
+                const data = response.body;
                 const fileName = `${device_sn}${types_1.IMAGE_FILE_JPEG_EXT}`;
                 const filePath = path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), station_sn, location);
                 if (!fs_extra_1.default.existsSync(filePath)) {
@@ -115,7 +117,7 @@ const setStateChangedWithTimestamp = async function (adapter, id, value, timesta
     }
 };
 exports.setStateChangedWithTimestamp = setStateChangedWithTimestamp;
-const setStateWithTimestamp = async function (adapter, state_id, common_name, value, timestamp = new Date().getTime() - 15 * 60 * 1000, role = "text", type = "string") {
+const setStateWithTimestamp = async function (adapter, state_id, common_name, value, timestamp = new Date().getTime() - 60 * 1000, role = "text", type = "string") {
     const obj = await adapter.getObjectAsync(state_id);
     if (obj) {
         if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
@@ -156,8 +158,10 @@ const saveImageStates = async function (adapter, url, timestamp, station_sn, dev
         }
         return;
     }
-    (0, exports.setStateWithTimestamp)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
-    (0, exports.setStateWithTimestamp)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
+    else if (image_data.status === 200) {
+        (0, exports.setStateWithTimestamp)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
+        (0, exports.setStateWithTimestamp)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
+    }
 };
 exports.saveImageStates = saveImageStates;
 const removeFiles = function (adapter, stationSerial, folderName, device_sn) {
@@ -411,6 +415,24 @@ const handleUpdate = async function (adapter, log, old_version) {
         }
         catch (error) {
             log.error("Version 0.6.1: Error:", error);
+        }
+    }
+    if (old_version <= 0.74) {
+        try {
+            await adapter.setObjectAsync("verify_code", {
+                type: "state",
+                common: {
+                    name: "2FA verification code",
+                    type: "string",
+                    role: "state",
+                    read: true,
+                    write: true,
+                },
+                native: {},
+            });
+        }
+        catch (error) {
+            log.error("Version 0.7.4: Error:", error);
         }
     }
 };

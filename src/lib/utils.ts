@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import got, { Response } from "got";
 import { CommandType, Device } from "eufy-security-client";
 import path from "path";
 import fse from "fs-extra";
@@ -22,16 +22,17 @@ export const isEmpty = function(str: string | null | undefined): boolean {
     return true;
 };
 
-export const getImage = async function(url: string): Promise<AxiosResponse> {
-    const response = await axios({
+export const getImage = async function(url: string): Promise<Response<Buffer>> {
+    const response = await got(url, {
         method: "GET",
-        url: url,
-        responseType: "arraybuffer",
-        validateStatus: function (_status) {
-            return true;
+        responseType: "buffer",
+        http2: true,
+        throwHttpErrors: false,
+        retry: {
+            limit: 3,
+            methods: ["GET"]
         }
     });
-
     return response;
 }
 
@@ -59,10 +60,10 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
     try {
         if (url) {
             const response = await getImage(url);
-            result.status = response.status;
-            result.statusText = response.statusText;
-            if (response.status === 200) {
-                const data = Buffer.from(response.data as string);
+            result.status = response.statusCode;
+            result.statusText = response.statusMessage ? response.statusMessage : "";
+            if (result.status === 200) {
+                const data = response.body;
                 const fileName = `${device_sn}${IMAGE_FILE_JPEG_EXT}`;
                 const filePath = path.join(utils.getAbsoluteInstanceDataDir(adapter), station_sn, location);
 
@@ -97,7 +98,7 @@ export const setStateChangedWithTimestamp = async function(adapter: ioBroker.Ada
     }
 };
 
-export const setStateWithTimestamp = async function(adapter: ioBroker.Adapter, state_id: string, common_name: string, value: string, timestamp:number = new Date().getTime() - 15 * 60 * 1000, role = "text", type: "string" | "number" | "boolean" | "object" | "array" | "mixed" | "file" | undefined = "string"): Promise<void> {
+export const setStateWithTimestamp = async function(adapter: ioBroker.Adapter, state_id: string, common_name: string, value: string, timestamp:number = new Date().getTime() - 60 * 1000, role = "text", type: "string" | "number" | "boolean" | "object" | "array" | "mixed" | "file" | undefined = "string"): Promise<void> {
     const obj = await adapter.getObjectAsync(state_id);
     if (obj) {
         if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
@@ -136,9 +137,10 @@ export const saveImageStates = async function(adapter: ioBroker.Adapter, url: st
             adapter.log.warn(`Could not download the image within 5 attempts from url: ${url} (error: ${image_data.statusText} message: ${image_data.statusText})`);
         }
         return;
+    } else if (image_data.status === 200) {
+        setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
+        setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
     }
-    setStateWithTimestamp(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
-    setStateWithTimestamp(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
 }
 
 export const removeFiles = function(adapter: ioBroker.Adapter, stationSerial: string, folderName: string, device_sn: string): Promise<void> {
@@ -380,6 +382,23 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             }
         } catch (error) {
             log.error("Version 0.6.1: Error:", error);
+        }
+    }
+    if (old_version <= 0.74) {
+        try {
+            await adapter.setObjectAsync("verify_code", {
+                type: "state",
+                common: {
+                    name: "2FA verification code",
+                    type: "string",
+                    role: "state",
+                    read: true,
+                    write: true,
+                },
+                native: {},
+            });
+        } catch (error) {
+            log.error("Version 0.7.4: Error:", error);
         }
     }
 };

@@ -1,4 +1,4 @@
-import axios from "axios";
+import got from "got";
 
 /**
  * Tests whether the given variable is a real object and not an Array
@@ -52,9 +52,9 @@ async function translateYandex(text: string, targetLang: string, apiKey: string)
     }
     try {
         const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${apiKey}&text=${encodeURIComponent(text)}&lang=en-${targetLang}`;
-        const response = await axios({url, timeout: 15000});
-        if (isArray((response.data as any)?.text)) {
-            return (response.data as any).text[0];
+        const response = await got({url, timeout: 15000});
+        if (isArray((response.body as any)?.text)) {
+            return (response.body as any).text[0];
         }
         throw new Error("Invalid response for translate request");
     } catch (e) {
@@ -70,10 +70,10 @@ async function translateYandex(text: string, targetLang: string, apiKey: string)
 async function translateGoogle(text: string, targetLang: string): Promise<string> {
     try {
         const url = `http://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}&ie=UTF-8&oe=UTF-8`;
-        const response = await axios({url, timeout: 15000});
-        if (isArray(response.data)) {
+        const response = await got({url, timeout: 15000});
+        if (isArray(response.body)) {
             // we got a valid response
-            return response.data[0][0][0];
+            return response.body[0][0][0];
         }
         throw new Error("Invalid response for translate request");
     } catch (e: any) {

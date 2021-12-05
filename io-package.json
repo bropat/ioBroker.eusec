@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.7.4",
+        "version": "0.7.5",
         "news": {
+            "0.7.5": {
+                "en": "Fixed issue #195 and #202",
+                "de": "Problem Nr. 195 und Nr. 202 behoben",
+                "ru": "Исправлена проблема № 195 и № 202.",
+                "pt": "Correção do problema nº 195 e nº 202",
+                "nl": "Probleem #195 en #202 opgelost",
+                "fr": "Problèmes résolus #195 et #202",
+                "it": "Risolto il problema #195 e #202",
+                "es": "Problema solucionado #195 y #202",
+                "pl": "Naprawiono problem #195 i #202",
+                "zh-cn": "修复了＃195和＃202问题"
+            },
             "0.7.4": {
                 "en": "Updated version of the package eufy-security-client (1.4.0)",
                 "de": "Version des Pakets eufy-security-client (1.4.0) aktualisiert",
@@ -218,18 +230,6 @@
                 "es": "Se agregaron nuevas funciones p2p y se aplicaron algunas correcciones de errores",
                 "pl": "Dodano nowe funkcje p2p i poprawiono kilka błędów",
                 "zh-cn": "添加了新的p2p功能并应用了一些错误修复"
-            },
-            "0.3.1": {
-                "en": "Fixed regression on livestream with h265 codec",
-                "de": "Regression im Livestream mit h265-Codec behoben",
-                "ru": "Исправлена регрессия в прямом эфире с кодеком h265",
-                "pt": "Regressão corrigida na transmissão ao vivo com codec h265",
-                "nl": "Vaste regressie op livestream met h265-codec",
-                "fr": "Correction de la régression sur la diffusion en direct avec le codec h265",
-                "it": "Risolto il problema con la regressione in live streaming con il codec h265",
-                "es": "Se corrigió la regresión en la transmisión en vivo con el códec h265",
-                "pl": "Naprawiono regresję podczas transmisji na żywo z kodekiem h265",
-                "zh-cn": "使用H265编解码器修复了实时流的回归"
             }
         },
         "title": "Eufy Security",

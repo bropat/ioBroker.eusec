@@ -181,6 +181,11 @@ Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column
 
 ## Changelog
 
+### 0.7.5 (2021-12-05)
+
+* (bropat) Fixed issue #195
+* (bropat) Fixed issue #202
+
 ### 0.7.4 (2021-11-22)
 
 * (bropat) Implemented captcha authentication mechanism (API v2)
