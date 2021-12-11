@@ -1,32 +1,101 @@
 ---
 name: Bug report
 about: Something is not working as it should
-title: ''
-labels: ''
-assignees: ''
----
-
-**Describe the bug**  
-A clear and concise description of what the bug is.
-
-**To Reproduce**  
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '...'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**  
-A clear and concise description of what you expected to happen.
-
-**Screenshots & Logfiles**  
-If applicable, add screenshots and logfiles to help explain your problem.
-
-**Versions:**  
- - Adapter version: <adapter-version>
- - JS-Controller version: <js-controller-version> <!-- determine this with `iobroker -v` on the console -->
- - Node version: <node-version> <!-- determine this with `node -v` on the console -->
- - Operating system: <os-name>
-
-**Additional context**  
-Add any other context about the problem here.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: adapter_version
+    attributes:
+      label: Adapter version
+      description: Get the version with `iobroker version eufy-security` on the console
+      placeholder: ex. 0.7.5
+    validations:
+      required: true
+  - type: input
+    id: jscontroller_version
+    attributes:
+      label: JS-Controller version
+      description: Get the version with `iobroker version` on the console
+      placeholder: ex. 3.3.21
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node version
+      description: Get the version with `node -v` on the console
+      placeholder: ex. 14.15.1
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node version
+      description: Get the version with `node -v` on the console
+      placeholder: ex. 14.15.1
+    validations:
+      required: true
+  - type: dropdown
+    id: os_type
+    attributes:
+      label: Operating System type
+      description: Which operating system type is used?
+      options:
+        - Linux
+        - Unix
+        - Windows
+        - Mac OS X
+        - Docker
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os_version
+    attributes:
+      label: Operating system version
+      description: Please fill out the operating system name and version
+      placeholder: ex. Debian 10.10
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: how-reproduce
+    attributes:
+      label: To reproduce
+      description: Steps to reproduce the behavior
+      placeholder: Tell us how to reproduce!
+      value: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots-and-logfiles
+    attributes:
+      label: Screenshots & Logfiles
+      description: If applicable, add screenshots and logfiles to help explain your problem.
+      placeholder: Post some screenshots, logfiles, etc.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+      placeholder: Add any other context about the problem here.
+    validations:
+      required: false
