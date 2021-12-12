@@ -32,14 +32,6 @@ body:
       placeholder: ex. 14.15.1
     validations:
       required: true
-  - type: input
-    id: node_version
-    attributes:
-      label: Node version
-      description: Get the version with `node -v` on the console
-      placeholder: ex. 14.15.1
-    validations:
-      required: true
   - type: dropdown
     id: os_type
     attributes:
