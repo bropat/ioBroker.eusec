@@ -3,9 +3,10 @@
 
 [![NPM version](https://img.shields.io/npm/v/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
+![Node version requirement](https://img.shields.io/node/v/iobroker.eufy-security)
 ![Number of Installations (latest)](https://iobroker.live/badges/eufy-security-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/eufy-security-stable.svg)
-[![Dependency Status](https://img.shields.io/david/bropat/iobroker.eufy-security.svg)](https://david-dm.org/bropat/iobroker.eufy-security)
+[![Dependency Status](https://img.shields.io/librariesio/release/npm/iobroker.eufy-security)](https://libraries.io/npm/iobroker.eufy-security)
 [![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.eufy-security/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.eufy-security)
 
 **Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.eufy-security.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.eufy-security)
@@ -14,11 +15,12 @@ Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/
 
 [![NPM](https://nodei.co/npm/iobroker.eufy-security.png?downloads=true)](https://nodei.co/npm/iobroker.eufy-security/)
 
-This adapter uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices.
+This is an [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices.
 
 If you appreciate my work and progress and want to support me, you can do it here:
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E332Q6Z)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/pbroetto)
 
 ## Description
 
@@ -138,46 +140,19 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
     * Lock/unlock
 * more to come...
 
-## Configuration
+## Documentation
 
-See [here](./docs/en/README.md)
+Look [here](https://bropat.github.io/ioBroker.eufy-security/)
 
 ## Known working devices
 
-* HomeBase (T8001)
-* HomeBase E (T8002)
-* HomeBase 2 (T8010)
-* Smart Lock Wi-Fi Bridge (T8021)
-* eufyCam (T8111)
-* eufyCam E (T8112)
-* eufyCam 2 (T8114)
-* eufyCam 2C (T8113)
-* eufyCam 2 Pro (T8140)
-* eufyCam 2C Pro (T8141)
-* SoloCam E40 (T8131)
-* Floodlight Camera (T8420)
-* Floodlight Cam (T8422)
-* Floodlight Cam 2 (T8424)
-* Wired Doorbell 2k (T8200)
-* Wired Doorbell 1080p (T8201)
-* Battery Doorbell 2K (T8210)
-* Battery Doorbell 1080p (T8222)
-* Entry Sensor (T8900)
-* Motion sensor (T8910)
-* Indoor Cam Pan&Tilt 2K (T8410)
-* Indoor Cam 2K (T8400)
-* Indoor Cam Pan&Tilt 1080p (T8411)
-* Indoor Cam 1080p (T8401)
-* Smart Lock Front Door (T8500)
-* Keypad (T8960)
-
-If more devices work (or also not) please report them by opening a GitHub issue.
+Information about supported devices can be found [here](https://github.com/bropat/eufy-security-client#known-working-devices).
 
 ## How to report issues and feature requests
 
 Please use GitHub issues for this.
 
-Best is to set the adapter to Debug log mode (Instances -> Expert mode -> Column Log level or see [here](https://github.com/bropat/ioBroker.eufy-security/wiki/Howto-enable-debug)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
+Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.eufy-security/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
 
