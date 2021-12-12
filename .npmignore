@@ -39,3 +39,6 @@ admin/i18n
 
 # maintenance scripts
 maintenance/**
+
+# Exclude documentation
+docs
