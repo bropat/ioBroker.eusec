@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.8.0",
+        "version": "0.8.1",
         "news": {
+            "0.8.1": {
+                "en": "Updated version of the package eufy-security-client (1.6.2)\n\nFixed issue #219",
+                "de": "Version des Pakets eufy-security-client (1.6.2) aktualisiert\nProblem #219 behoben",
+                "ru": "Обновленная версия пакета eufy-security-client (1.6.2)\nИсправлена проблема №219",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.6.2)\nEdição fixa #219",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.2)\nProbleem #219 opgelost",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.6.2)\nCorrection du problème n°219",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.2)\nRisolto il problema #219",
+                "es": "Versión actualizada del paquete eufy-security-client (1.6.2)\nCorregido el problema #219",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.2)\nNaprawiono błąd #219",
+                "zh-cn": "包 eufy-security-client (1.6.2) 的更新版本\n修正了问题#219"
+            },
             "0.8.0": {
                 "en": "Updated version of the package eufy-security-client (1.6.1)\nAdded support for Smart Lock Touch & Wifi (T8520)\nAdded option to enable/disable \"Automatically download video\"\nAdded new state to retrieve received captcha in HTML format \"received_captcha_html\"\nFixed issue #199\nFixed issue #217",
                 "de": "Version des Pakets eufy-security-client (1.6.1) aktualisiert\nUnterstützung für Smart Lock Touch & Wifi hinzugefügt (T8520)\nOption zum Aktivieren/Deaktivieren von \"Automatisches Herunterladen von Videos\" hinzugefügt\nNeuer Status hinzugefügt, um empfangene Captcha im HTML-Format abzurufen \"received_captcha_html\"\nProblem #199 behoben\nProblem #217 behoben",
@@ -206,18 +218,6 @@
                 "es": "Mejoras de código para publicar el adaptador en el repositorio central",
                 "pl": "Udoskonalenia kodu dotyczące publikowania adaptera w centralnym repozytorium",
                 "zh-cn": "用于将适配器发布到中央存储库的代码增强"
-            },
-            "0.4.2": {
-                "en": "Corrected state roles based on ioBroker documentation",
-                "de": "Korrigierte Statusrollen basierend auf der ioBroker-Dokumentation",
-                "ru": "Исправлены государственные роли на основе документации ioBroker.",
-                "pt": "Funções de estado corrigidas com base na documentação do ioBroker",
-                "nl": "Statusrollen gecorrigeerd op basis van ioBroker-documentatie",
-                "fr": "Rôles d'état corrigés sur la base de la documentation ioBroker",
-                "it": "Ruoli di stato corretti in base alla documentazione di ioBroker",
-                "es": "Roles estatales corregidos según la documentación de ioBroker",
-                "pl": "Poprawione role stanu na podstawie dokumentacji ioBroker",
-                "zh-cn": "根据ioBroker文档更正了状态角色"
             }
         },
         "title": "Eufy Security",

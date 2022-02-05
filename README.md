@@ -156,6 +156,12 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 0.8.1 (2022-02-05)
+
+* (bropat) Fixed MQTT connection issue (error: 5; #219)
+* (bropat) Updated version of the package eufy-security-client (1.6.2)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.6.2)
+
 ### 0.8.0 (2022-02-05)
 
 * (bropat) Added support for Smart Lock Touch & Wifi (T8520; #138)
