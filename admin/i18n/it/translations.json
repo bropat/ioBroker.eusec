@@ -13,5 +13,6 @@
     "Accept incoming invitations": "Accetta inviti in arrivo",
     "Alarm sound duration (sec)": "Durata del suono dell'allarme (sec)",
     "Livestream settings": "Impostazioni live streaming",
-    "Max camera livestream duration (sec)": "Durata massima del live streaming della videocamera (sec)"
+    "Max camera livestream duration (sec)": "Durata massima del live streaming della videocamera (sec)",
+    "Automatically download video": "Scarica automaticamente il video"
 }

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eufy-security",
-        "version": "0.7.5",
+        "version": "0.8.0",
         "news": {
+            "0.8.0": {
+                "en": "Updated version of the package eufy-security-client (1.6.1)\nAdded support for Smart Lock Touch & Wifi (T8520)\nAdded option to enable/disable \"Automatically download video\"\nAdded new state to retrieve received captcha in HTML format \"received_captcha_html\"\nFixed issue #199\nFixed issue #217",
+                "de": "Version des Pakets eufy-security-client (1.6.1) aktualisiert\nUnterstützung für Smart Lock Touch & Wifi hinzugefügt (T8520)\nOption zum Aktivieren/Deaktivieren von \"Automatisches Herunterladen von Videos\" hinzugefügt\nNeuer Status hinzugefügt, um empfangene Captcha im HTML-Format abzurufen \"received_captcha_html\"\nProblem #199 behoben\nProblem #217 behoben",
+                "ru": "Обновленная версия пакета eufy-security-client (1.6.1)\nДобавлена поддержка Smart Lock Touch & Wifi (T8520)\nДобавлена опция включения/отключения \"Автоматическая загрузка видео\"\nДобавлено новое состояние для получения полученной капчи в формате HTML \"received_captcha_html\"\nИсправлена проблема #199\nИсправлена проблема №217",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.6.1)\nSuporte adicional para Smart Lock Touch & Wifi (T8520)\nOpção adicional para activar/desactivar \"Descarregar vídeo automaticamente\".\nAdicionado novo estado para recuperar captcha recebida em formato HTML \"received_captcha_html\"\nEdição fixa #199\nEdição fixa #217",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.1)\nOndersteuning toegevoegd voor Smart Lock Touch & Wifi (T8520)\nOptie toegevoegd om \"Video automatisch downloaden\" in/uit te schakelen\nNieuwe status toegevoegd om ontvangen captcha op te halen in HTML formaat \"received_captcha_html\"\nProbleem #199 opgelost\nProbleem #217 opgelost",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.6.1)\nAjout d'un support pour Smart Lock Touch & Wifi (T8520)\nAjout d'une option pour activer/désactiver \"Téléchargement automatique de la vidéo\".\nAjout d'un nouvel état pour récupérer le captcha reçu au format HTML \"received_captcha_html\".\nCorrection du problème #199\nCorrection du problème n°217",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.1)\nAggiunto il supporto per Smart Lock Touch & Wifi (T8520)\nAggiunta opzione per abilitare/disabilitare \"Scarica automaticamente il video\".\nAggiunto un nuovo stato per recuperare i captcha ricevuti in formato HTML \"received_captcha_html\".\nRisolto il problema #199\nRisolto il problema #217",
+                "es": "Versión actualizada del paquete eufy-security-client (1.6.1)\nAñadido soporte para Smart Lock Touch y Wifi (T8520)\nAñadida la opción de activar/desactivar \"Descarga automática de vídeo\"\nAñadido un nuevo estado para recuperar el captcha recibido en formato HTML \"received_captcha_html\"\nCorregido el problema #199\nCorregido el problema #217",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.1)\nDodano wsparcie dla Smart Lock Touch & Wifi (T8520)\nDodano możliwość włączenia/wyłączenia opcji \"Automatycznie pobieraj wideo\"\nDodano nowy stan, aby pobrać otrzymaną captcha w formacie HTML \"received_captcha_html\"\nNaprawiono błąd #199\nNaprawiono błąd #217",
+                "zh-cn": "包 eufy-security-client (1.6.1) 的更新版本\n增加了对智能锁触摸和Wifi（T8520）的支持\n增加了启用/禁用 \"自动下载视频\" 的选项\n增加了新的状态来检索收到的HTML格式的验证码 \"received_captcha_html\"\n修正了问题#199\n修正了问题#217"
+            },
             "0.7.5": {
                 "en": "Fixed issue #195 and #202",
                 "de": "Problem Nr. 195 und Nr. 202 behoben",
@@ -206,30 +218,6 @@
                 "es": "Roles estatales corregidos según la documentación de ioBroker",
                 "pl": "Poprawione role stanu na podstawie dokumentacji ioBroker",
                 "zh-cn": "根据ioBroker文档更正了状态角色"
-            },
-            "0.4.1": {
-                "en": "Removed legacy password encryption support for admin adapter",
-                "de": "Unterstützung für ältere Kennwortverschlüsselung für Admin-Adapter entfernt",
-                "ru": "Удалена поддержка устаревшего шифрования паролей для адаптера администратора.",
-                "pt": "Suporte de criptografia de senha legado removido para adaptador admin",
-                "nl": "Ondersteuning voor oude wachtwoordversleuteling voor admin-adapter verwijderd",
-                "fr": "Suppression de la prise en charge du chiffrement des mots de passe hérités pour l'adaptateur admin",
-                "it": "Rimosso il supporto per la crittografia delle password legacy per l'adattatore admin",
-                "es": "Se eliminó el soporte de cifrado de contraseña heredado para el adaptador admin",
-                "pl": "Usunięto obsługę wcześniejszego szyfrowania haseł dla adaptera admin",
-                "zh-cn": "删除了对管理员适配器的旧密码加密支持"
-            },
-            "0.4.0": {
-                "en": "Added new p2p features and applied some bugfixing",
-                "de": "Neue P2P-Funktionen hinzugefügt und Bugfixes angewendet",
-                "ru": "Добавлены новые функции p2p и исправлены некоторые ошибки.",
-                "pt": "Adicionados novos recursos p2p e corrigidos alguns bugs",
-                "nl": "Nieuwe p2p-functies toegevoegd en enkele bugfixes toegepast",
-                "fr": "Ajout de nouvelles fonctionnalités p2p et correction de bogues",
-                "it": "Aggiunte nuove funzionalità p2p e applicate alcune correzioni di bug",
-                "es": "Se agregaron nuevas funciones p2p y se aplicaron algunas correcciones de errores",
-                "pl": "Dodano nowe funkcje p2p i poprawiono kilka błędów",
-                "zh-cn": "添加了新的p2p功能并应用了一些错误修复"
             }
         },
         "title": "Eufy Security",
@@ -318,7 +306,8 @@
         "webInstance": "*",
         "p2pConnectionType": "prefer_local",
         "acceptInvitations": true,
-        "alarmSoundDuration": 60
+        "alarmSoundDuration": 60,
+        "autoDownloadVideo": true
     },
     "objects": [],
     "instanceObjects": [

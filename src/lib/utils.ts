@@ -87,6 +87,7 @@ export const saveImage = async function(adapter: ioBroker.Adapter, url: string, 
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const setStateChangedWithTimestamp = async function(adapter: ioBroker.Adapter, id: string, value: any, timestamp: number): Promise<void> {
+    //TODO: Changed value same timestamp!
     const obj = await adapter.getObjectAsync(id);
     if (obj) {
         if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
@@ -352,8 +353,12 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             log.error("Version 0.4.2 - States - Error:", error);
         }
         try {
-            const files = fse.readdirSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
-            files.map(filename => fse.moveSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
+            if (fse.existsSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace))) {
+                if (!fse.existsSync(utils.getAbsoluteInstanceDataDir(adapter)))
+                    fse.mkdirpSync(utils.getAbsoluteInstanceDataDir(adapter));
+                const files = fse.readdirSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
+                files.map(filename => fse.moveSync(path.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
+            }
         } catch (error) {
             log.error("Version 0.4.2 - Files - Error:", error);
         }

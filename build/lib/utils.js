@@ -107,6 +107,7 @@ const saveImage = async function (adapter, url, station_sn, device_sn, location)
 exports.saveImage = saveImage;
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const setStateChangedWithTimestamp = async function (adapter, id, value, timestamp) {
+    //TODO: Changed value same timestamp!
     const obj = await adapter.getObjectAsync(id);
     if (obj) {
         if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
@@ -383,8 +384,12 @@ const handleUpdate = async function (adapter, log, old_version) {
             log.error("Version 0.4.2 - States - Error:", error);
         }
         try {
-            const files = fs_extra_1.default.readdirSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
-            files.map(filename => fs_extra_1.default.moveSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
+            if (fs_extra_1.default.existsSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace))) {
+                if (!fs_extra_1.default.existsSync(utils.getAbsoluteInstanceDataDir(adapter)))
+                    fs_extra_1.default.mkdirpSync(utils.getAbsoluteInstanceDataDir(adapter));
+                const files = fs_extra_1.default.readdirSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace)).filter(fn => fn.startsWith("T"));
+                files.map(filename => fs_extra_1.default.moveSync(path_1.default.join(utils.getAbsoluteDefaultDataDir(), "files", adapter.namespace, filename), path_1.default.join(utils.getAbsoluteInstanceDataDir(adapter), filename)));
+            }
         }
         catch (error) {
             log.error("Version 0.4.2 - Files - Error:", error);

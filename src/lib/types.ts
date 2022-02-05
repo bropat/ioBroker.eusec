@@ -135,4 +135,5 @@ export const LockStateID = {
     WIFI_RSSI: "wifi_rssi",
     LOCK: "lock",
     LOCK_STATUS: "lock_status",
+    CALIBRATE: "calibrate",
 }

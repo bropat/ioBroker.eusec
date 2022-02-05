@@ -32,6 +32,7 @@ const eufy_security_client_1 = require("eufy-security-client");
 const i18n_iso_countries_1 = require("i18n-iso-countries");
 const i18n_iso_languages_1 = require("@cospired/i18n-iso-languages");
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const util_1 = __importDefault(require("util"));
 const types_1 = require("./lib/types");
 const utils_1 = require("./lib/utils");
 const log_1 = require("./lib/log");
@@ -48,6 +49,7 @@ class EufySecurity extends utils.Adapter {
         };
         this.rtmpFFmpegPromise = new Map();
         this.captchaId = null;
+        this.verify_code = false;
         const data_dir = utils.getAbsoluteInstanceDataDir(this);
         this.persistentFile = path.join(data_dir, "adapter.json");
         if (!fs_extra_1.default.existsSync(data_dir))
@@ -71,6 +73,17 @@ class EufySecurity extends utils.Adapter {
                 role: "state",
                 read: true,
                 write: true,
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("received_captcha_html", {
+            type: "state",
+            common: {
+                name: "Received captcha image HTML",
+                type: "string",
+                role: "state",
+                read: true,
+                write: false,
             },
             native: {},
         });
@@ -116,6 +129,18 @@ class EufySecurity extends utils.Adapter {
             native: {},
         });
         await this.setStateAsync("info.push_connection", { val: false, ack: true });
+        await this.setObjectNotExistsAsync("info.mqtt_connection", {
+            type: "state",
+            common: {
+                name: "MQTT connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync("info.mqtt_connection", { val: false, ack: true });
         try {
             const connection = await this.getStatesAsync("*.connection");
             if (connection)
@@ -211,11 +236,14 @@ class EufySecurity extends utils.Adapter {
         this.eufy.on("push message", (messages) => this.handlePushNotification(messages));
         this.eufy.on("push connect", () => this.onPushConnect());
         this.eufy.on("push close", () => this.onPushClose());
+        this.eufy.on("mqtt connect", () => this.onMQTTConnect());
+        this.eufy.on("mqtt close", () => this.onMQTTClose());
         this.eufy.on("connect", () => this.onConnect());
         this.eufy.on("close", () => this.onClose());
         this.eufy.on("cloud livestream start", (station, device, url) => this.onCloudLivestreamStart(station, device, url));
         this.eufy.on("cloud livestream stop", (station, device) => this.onCloudLivestreamStop(station, device));
         this.eufy.on("device property changed", (device, name, value) => this.onDevicePropertyChanged(device, name, value));
+        this.eufy.on("device property renewed", (device, name, value) => this.onDevicePropertyRenewed(device, name, value));
         this.eufy.on("station command result", (station, result) => this.onStationCommandResult(station, result));
         this.eufy.on("station download start", (station, device, metadata, videostream, audiostream) => this.onStationDownloadStart(station, device, metadata, videostream, audiostream));
         this.eufy.on("station download finish", (station, device) => this.onStationDownloadFinish(station, device));
@@ -223,6 +251,7 @@ class EufySecurity extends utils.Adapter {
         this.eufy.on("station livestream stop", (station, device) => this.onStationLivestreamStop(station, device));
         this.eufy.on("station rtsp url", (station, device, value, modified) => this.onStationRTSPUrl(station, device, value, modified));
         this.eufy.on("station property changed", (station, name, value) => this.onStationPropertyChanged(station, name, value));
+        this.eufy.on("station property renewed", (station, name, value) => this.onStationPropertyRenewed(station, name, value));
         this.eufy.on("station connect", (station) => this.onStationConnect(station));
         this.eufy.on("station close", (station) => this.onStationClose(station));
         this.eufy.on("tfa request", () => this.onTFARequest());
@@ -284,17 +313,20 @@ class EufySecurity extends utils.Adapter {
             const station_sn = values[2];
             const device_type = values[3];
             if (station_sn == "verify_code") {
-                if (this.eufy) {
+                if (this.eufy && this.verify_code) {
                     this.logger.info(`Verification code received, send it. (verify_code: ${state.val})`);
                     this.eufy.connect(state.val);
+                    this.verify_code = false;
                     await this.delStateAsync(id);
                 }
             }
             else if (station_sn == "captcha") {
-                if (this.eufy) {
+                if (this.eufy && this.captchaId) {
                     this.logger.info(`Captcha received, send it. (captcha: ${state.val})`);
                     this.eufy.connect(state.val, this.captchaId);
+                    this.captchaId = null;
                     await this.delStateAsync(id);
+                    await this.delStateAsync("received_captcha_html");
                 }
             }
             else if (device_type == "station") {
@@ -372,6 +404,9 @@ class EufySecurity extends utils.Adapter {
                         case types_1.IndoorCameraStateID.TILT_DOWN:
                             await station.panAndTilt(device, eufy_security_client_1.PanTiltDirection.DOWN);
                             break;
+                        case types_1.LockStateID.CALIBRATE:
+                            await station.calibrateLock(device);
+                            break;
                     }
                 }
                 catch (error) {
@@ -420,12 +455,10 @@ class EufySecurity extends utils.Adapter {
                 break;
             }
             case "string": {
-                //const stringProperty = property as PropertyMetadataString;
                 state.role = types_1.RoleMapping[property.name] !== undefined ? types_1.RoleMapping[property.name] : "text";
                 break;
             }
             case "boolean": {
-                //const booleanProperty = property as PropertyMetadataBoolean;
                 state.role = types_1.RoleMapping[property.name] !== undefined ? types_1.RoleMapping[property.name] : (property.writeable ? "switch.enable" : "state");
                 break;
             }
@@ -451,7 +484,15 @@ class EufySecurity extends utils.Adapter {
                     obj.native.commandId = property.commandId;
                     changed = true;
                 }
+                if (obj.common !== undefined && !util_1.default.isDeepStrictEqual(obj.common, state)) {
+                    changed = true;
+                }
                 if (changed) {
+                    const propertyMetadata = device.getPropertiesMetadata()[property.name];
+                    if (propertyMetadata !== undefined) {
+                        const newState = this.getStateCommon(propertyMetadata);
+                        obj.common = newState;
+                    }
                     await this.setObjectAsync(id, obj);
                 }
             }
@@ -564,6 +605,19 @@ class EufySecurity extends utils.Adapter {
                 type: "state",
                 common: {
                     name: "Tilt Down",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }
+        if (device.hasCommand(eufy_security_client_1.CommandName.DeviceLockCalibration)) {
+            await this.setObjectNotExistsAsync(device.getStateID(types_1.LockStateID.CALIBRATE), {
+                type: "state",
+                common: {
+                    name: "Calibrate Lock",
                     type: "boolean",
                     role: "button.start",
                     read: false,
@@ -827,7 +881,8 @@ class EufySecurity extends utils.Adapter {
                     });
                 }
                 if ((message.push_count === 1 || message.push_count === undefined) && (message.file_path !== undefined && message.file_path !== "" && message.cipher !== undefined))
-                    this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
+                    if (this.config.autoDownloadVideo)
+                        this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
             }
         }
         catch (error) {
@@ -926,46 +981,50 @@ class EufySecurity extends utils.Adapter {
         });
         await this.setStateAsync("info.push_connection", { val: false, ack: true });
     }
+    async onMQTTConnect() {
+        await this.setObjectNotExistsAsync("info", {
+            type: "channel",
+            common: {
+                name: "info"
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("info.mqtt_connection", {
+            type: "state",
+            common: {
+                name: "MQTT connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync("info.mqtt_connection", { val: true, ack: true });
+    }
+    async onMQTTClose() {
+        await this.setObjectNotExistsAsync("info", {
+            type: "channel",
+            common: {
+                name: "info"
+            },
+            native: {},
+        });
+        await this.setObjectNotExistsAsync("info.mqtt_connection", {
+            type: "state",
+            common: {
+                name: "MQTT connection",
+                type: "boolean",
+                role: "indicator.connection",
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync("info.mqtt_connection", { val: false, ack: true });
+    }
     async onStationCommandResult(station, result) {
-        if (result.return_code === 0) {
-            try {
-                let device;
-                if (result.channel === eufy_security_client_1.Station.CHANNEL || result.channel === eufy_security_client_1.Station.CHANNEL_INDOOR) {
-                    device = station;
-                }
-                else {
-                    device = this.eufy.getStationDevice(station.getSerial(), result.channel);
-                }
-                const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
-                for (const state in states) {
-                    if (states[state] !== undefined && states[state] !== null && states[state].ack !== undefined && !states[state].ack) {
-                        const obj = await this.getObjectAsync(state);
-                        if (obj) {
-                            if (obj.native.commandId !== undefined && obj.native.commandId === result.command_type || obj.native.key !== undefined && obj.native.key === result.command_type) {
-                                this.setStateAsync(state, { ...states[state], ack: true });
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (error) {
-                this.logger.error("Acknowledge state on successfull p2p command - Error", error);
-            }
-            if (result.command_type === eufy_security_client_1.CommandType.CMD_DOORLOCK_DATA_PASS_THROUGH) {
-                // TODO: Implement third level of command verification for ESL?
-                const device = this.eufy.getStationDevice(station.getSerial(), result.channel);
-                const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
-                for (const state in states) {
-                    if (!states[state].ack)
-                        this.setStateAsync(state, { ...states[state], ack: true });
-                }
-            }
-            else if (result.command_type !== eufy_security_client_1.CommandType.CMD_CAMERA_INFO) {
-                this.logger.debug(`No mapping for state found for resulting command - station: ${station.getSerial()} result: ${JSON.stringify(result)}`);
-            }
-        }
-        else if (result.return_code !== 0 && result.command_type === eufy_security_client_1.CommandType.CMD_START_REALTIME_MEDIA) {
+        if (result.return_code !== 0 && result.command_type === eufy_security_client_1.CommandType.CMD_START_REALTIME_MEDIA) {
             this.logger.debug(`Station: ${station.getSerial()} command ${eufy_security_client_1.CommandType[result.command_type]} failed with error: ${eufy_security_client_1.ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
             try {
                 const device = this.eufy.getStationDevice(station.getSerial(), result.channel);
@@ -976,7 +1035,7 @@ class EufySecurity extends utils.Adapter {
                 this.logger.error(`Station: ${station.getSerial()} command ${eufy_security_client_1.CommandType[result.command_type]} RTMP fallback failed - Error ${error}`);
             }
         }
-        else {
+        else if (result.return_code !== 0 && result.command_type !== eufy_security_client_1.CommandType.P2P_QUERY_STATUS_IN_LOCK) {
             this.logger.error(`Station: ${station.getSerial()} command ${eufy_security_client_1.CommandType[result.command_type]} failed with error: ${eufy_security_client_1.ErrorCode[result.return_code]} (${result.return_code})`);
         }
     }
@@ -992,6 +1051,19 @@ class EufySecurity extends utils.Adapter {
             }
         }
         this.logger.debug(`onStationPropertyChanged(): Property "${name}" not implemented in this adapter (station: ${station.getSerial()} value: ${JSON.stringify(value)})`);
+    }
+    async onStationPropertyRenewed(station, name, value) {
+        const states = await this.getStatesAsync(`${station.getStateID("", 1)}.*`);
+        for (const state in states) {
+            const obj = await this.getObjectAsync(state);
+            if (obj) {
+                if (obj.native.name !== undefined && obj.native.name === name) {
+                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
+                    return;
+                }
+            }
+        }
+        this.logger.debug(`onStationPropertyRenewed(): Property "${name}" not implemented in this adapter (station: ${station.getSerial()} value: ${JSON.stringify(value)})`);
     }
     async onDevicePropertyChanged(device, name, value) {
         const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
@@ -1012,6 +1084,19 @@ class EufySecurity extends utils.Adapter {
             }
         }
         this.logger.debug(`onDevicePropertyChanged(): Property "${name}" not implemented in this adapter (device: ${device.getSerial()} value: ${JSON.stringify(value)})`);
+    }
+    async onDevicePropertyRenewed(device, name, value) {
+        const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
+        for (const state in states) {
+            const obj = await this.getObjectAsync(state);
+            if (obj) {
+                if (obj.native.name !== undefined && obj.native.name === name) {
+                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
+                    return;
+                }
+            }
+        }
+        this.logger.debug(`onDevicePropertyRenewed(): Property "${name}" not implemented in this adapter (device: ${device.getSerial()} value: ${JSON.stringify(value)})`);
     }
     async startLivestream(device_sn) {
         try {
@@ -1252,11 +1337,13 @@ class EufySecurity extends utils.Adapter {
     }
     onTFARequest() {
         this.logger.warn(`Two factor authentication request received, please enter valid verification code in state ${this.namespace}.verify_code`);
+        this.verify_code = true;
     }
     onCaptchaRequest(captchaId, captcha) {
         this.captchaId = captchaId;
         this.logger.warn(`Captcha authentication request received, please enter valid captcha in state ${this.namespace}.captcha`);
         this.logger.warn(`Captcha: <img src="${captcha}">`);
+        this.setStateAsync("received_captcha_html", { val: `<img src="${captcha}">`, ack: true });
     }
 }
 exports.EufySecurity = EufySecurity;

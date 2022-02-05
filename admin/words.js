@@ -205,5 +205,17 @@ systemDictionary = {
         "es": "Duración del sonido de la alarma (s)",
         "pl": "Czas trwania dźwięku alarmu (sek.)",
         "zh-cn": "警报声持续时间（秒"
+    },
+    "Automatically download video": {
+        "en": "Automatically download video",
+        "de": "Automatisches Herunterladen von Videos",
+        "ru": "Автоматическая загрузка видео",
+        "pt": "Descarregar vídeo automaticamente",
+        "nl": "Video automatisch downloaden",
+        "fr": "Téléchargement automatique de la vidéo",
+        "it": "Scarica automaticamente il video",
+        "es": "Descarga automática de vídeo",
+        "pl": "Automatycznie pobieraj wideo",
+        "zh-cn": "自动下载视频"
     }
 };

@@ -9,6 +9,7 @@ export interface AdapterConfig {
     p2pConnectionType: string;
     acceptInvitations: boolean;
     alarmSoundDuration: number;
+    autoDownloadVideo: boolean;
 }
 
 export interface PersistentData {

@@ -1,6 +1,6 @@
 ![logo](_media/eufy-security.png)
 
-# ioBroker.eufy-security <small>0.7.5</small>
+# ioBroker.eufy-security <small>0.8.0</small>
 
 > An [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices
 

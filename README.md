@@ -156,6 +156,18 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 0.8.0 (2022-02-05)
+
+* (bropat) Added support for Smart Lock Touch & Wifi (T8520; #138)
+* (bropat) Added option to enable/disable "Automatically download video" (#180; #203)
+* (bropat) Added new state to retrieve received captcha in HTML format "received_captcha_html" (#210)
+* (bropat) Updated version of the package eufy-security-client (1.6.1)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.6.1)
+* (bropat) Updated versions of the package dependencies
+* (bropat) Fixed issue #199
+* (bropat) Fixed issue #217
+* (bropat) Some other small bugfixes
+
 ### 0.7.5 (2021-12-05)
 
 * (bropat) Fixed issue #195
