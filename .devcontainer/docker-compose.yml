@@ -3,15 +3,15 @@ version: '3'
 services:
     iobroker:
         build: ./iobroker
-        container_name: iobroker-eufy-security
-        hostname: iobroker-eufy-security
+        container_name: iobroker-eusec
+        hostname: iobroker-eusec
         # This port is only internal, so we can work on this while another instance of ioBroker is running on the host
         expose:
             - 8081
             - 8082
         volumes:
             - ..:/workspace:cached
-            - iobrokerdata-eufy-security:/opt/iobroker
+            - iobrokerdata-eusec:/opt/iobroker
         environment:
             - LANG=en_US.UTF-8
             - LANGUAGE=en_US:en
@@ -26,7 +26,7 @@ services:
             - iobroker
         links:
             - iobroker
-        container_name: nginx-eufy-security
+        container_name: nginx-eusec
         volumes:
             - ./nginx/nginx.conf:/etc/nginx/nginx.conf
             - ..:/workspace:cached
@@ -37,4 +37,4 @@ services:
             - 8082:81
 
 volumes:
-    iobrokerdata-eufy-security:
+    iobrokerdata-eusec:

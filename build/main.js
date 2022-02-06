@@ -25,7 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EufySecurity = void 0;
+exports.euSec = void 0;
 const utils = __importStar(require("@iobroker/adapter-core"));
 const path = __importStar(require("path"));
 const eufy_security_client_1 = require("eufy-security-client");
@@ -37,11 +37,11 @@ const types_1 = require("./lib/types");
 const utils_1 = require("./lib/utils");
 const log_1 = require("./lib/log");
 const video_1 = require("./lib/video");
-class EufySecurity extends utils.Adapter {
+class euSec extends utils.Adapter {
     constructor(options = {}) {
         super({
             ...options,
-            name: "eufy-security",
+            name: "eusec",
         });
         this.downloadEvent = {};
         this.persistentData = {
@@ -1346,13 +1346,13 @@ class EufySecurity extends utils.Adapter {
         this.setStateAsync("received_captcha_html", { val: `<img src="${captcha}">`, ack: true });
     }
 }
-exports.EufySecurity = EufySecurity;
+exports.euSec = euSec;
 if (module.parent) {
     // Export the constructor in compact mode
-    module.exports = (options) => new EufySecurity(options);
+    module.exports = (options) => new euSec(options);
 }
 else {
     // otherwise start the instance directly
-    (() => new EufySecurity())();
+    (() => new euSec())();
 }
 //# sourceMappingURL=main.js.map

@@ -1,6 +1,6 @@
-![logo](_media/eufy-security.png)
+![logo](_media/ioBroker.euSec.png)
 
-# ioBroker.eufy-security <small>0.8.1</small>
+# ioBroker.euSec <small>0.8.2</small>
 
 > An [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices
 
@@ -8,5 +8,5 @@
 - Two factor and captcha authentication
 - And much more...
 
-[GitHub](https://github.com/bropat/ioBroker.eufy-security/)
-[Getting Started](#iobrokereufy-security)
+[GitHub](https://github.com/bropat/ioBroker.euSec/)
+[Getting Started](#iobrokereusec)

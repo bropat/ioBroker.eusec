@@ -1,19 +1,19 @@
-![Logo](admin/eufy-security.png)
-# ioBroker.eufy-security
+![Logo](docs/_media/ioBroker.euSec.png)
+# ioBroker.euSec
 
-[![NPM version](https://img.shields.io/npm/v/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.eufy-security.svg)](https://www.npmjs.com/package/iobroker.eufy-security)
-![Node version requirement](https://img.shields.io/node/v/iobroker.eufy-security)
-![Number of Installations (latest)](https://iobroker.live/badges/eufy-security-installed.svg)
-![Number of Installations (stable)](https://iobroker.live/badges/eufy-security-stable.svg)
-[![Dependency Status](https://img.shields.io/librariesio/release/npm/iobroker.eufy-security)](https://libraries.io/npm/iobroker.eufy-security)
-[![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.eufy-security/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.eufy-security)
+[![NPM version](https://img.shields.io/npm/v/iobroker.eusec.svg)](https://www.npmjs.com/package/iobroker.eusec)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.eusec.svg)](https://www.npmjs.com/package/iobroker.eusec)
+![Node version requirement](https://img.shields.io/node/v/iobroker.eusec)
+![Number of Installations (latest)](https://iobroker.live/badges/eusec-installed.svg)
+![Number of Installations (stable)](https://iobroker.live/badges/eusec-stable.svg)
+[![Dependency Status](https://img.shields.io/librariesio/release/npm/iobroker.eusec)](https://libraries.io/npm/iobroker.eusec)
+[![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.euSec/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.euSec)
 
-**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.eufy-security.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.eufy-security)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.eufy-security?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-eufy-security/)
+**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.euSec.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.euSec)
+Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.euSec?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-euSec/)
 
 
-[![NPM](https://nodei.co/npm/iobroker.eufy-security.png?downloads=true)](https://nodei.co/npm/iobroker.eufy-security/)
+[![NPM](https://nodei.co/npm/iobroker.eusec.png?downloads=true)](https://nodei.co/npm/iobroker.eusec/)
 
 This is an [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices.
 
@@ -157,6 +157,13 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.eufy-security/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.8.2 (2022-02-06)
+
+* (bropat) Renamed Adapter to ioBroker.euSec
+* (bropat) Updated version of the package eufy-security-client (1.6.3)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.6.3)
+* (bropat) Fixed issue #221
 
 ### 0.8.1 (2022-02-05)
 

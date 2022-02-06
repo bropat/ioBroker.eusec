@@ -1,8 +1,8 @@
 {
     "cli": true,
-    "adapterName": "eufy-security",
-    "title": "Eufy Security",
-    "description": "Eufy security description",
+    "adapterName": "euSec",
+    "title": "euSec",
+    "description": "euSec description",
     "keywords": [
         "eufy",
         "eufycam",

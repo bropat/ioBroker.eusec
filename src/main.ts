@@ -6,7 +6,7 @@ import * as utils from "@iobroker/adapter-core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { strict } from "assert";
 import * as path from "path";
-import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity as EufySecurityDriver, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError } from "eufy-security-client";
+import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
 import fse from "fs-extra";
@@ -34,9 +34,9 @@ declare global {
     }
 }
 
-export class EufySecurity extends utils.Adapter {
+export class euSec extends utils.Adapter {
 
-    private eufy!: EufySecurityDriver;
+    private eufy!: EufySecurity;
     private downloadEvent: {
         [index: string]: NodeJS.Timeout;
     } = {};
@@ -53,7 +53,7 @@ export class EufySecurity extends utils.Adapter {
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
-            name: "eufy-security",
+            name: "eusec",
         });
         const data_dir = utils.getAbsoluteInstanceDataDir(this);
         this.persistentFile = path.join(data_dir, "adapter.json");
@@ -242,7 +242,7 @@ export class EufySecurity extends utils.Adapter {
             trustedDeviceName: "IOBROKER",
         };
 
-        this.eufy = new EufySecurityDriver(config, this.logger);
+        this.eufy = new EufySecurity(config, this.logger);
         this.eufy.on("station added", (station: Station) => this.onStationAdded(station));
         this.eufy.on("device added", (device: Device) => this.onDeviceAdded(device));
         this.eufy.on("station removed", (station: Station) => this.onStationRemoved(station));
@@ -1418,8 +1418,8 @@ export class EufySecurity extends utils.Adapter {
 
 if (module.parent) {
     // Export the constructor in compact mode
-    module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new EufySecurity(options);
+    module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new euSec(options);
 } else {
     // otherwise start the instance directly
-    (() => new EufySecurity())();
+    (() => new euSec())();
 }
