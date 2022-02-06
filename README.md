@@ -9,7 +9,7 @@
 [![Dependency Status](https://img.shields.io/librariesio/release/npm/iobroker.eusec)](https://libraries.io/npm/iobroker.eusec)
 [![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.euSec/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.euSec)
 
-**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.euSec.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.euSec)
+**Tests:** ![Test and Release](https://github.com/ioBroker/iobroker.euSec/workflows/Test%20and%20Release/badge.svg)
 Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.euSec?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-euSec/)
 
 
