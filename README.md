@@ -144,7 +144,7 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
 
 ## Documentation
 
-Look [here](https://bropat.github.io/ioBroker.eufy-security/)
+Look [here](https://bropat.github.io/ioBroker.euSec/)
 
 ## Known working devices
 
@@ -154,7 +154,7 @@ Information about supported devices can be found [here](https://github.com/bropa
 
 Please use GitHub issues for this.
 
-Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.eufy-security/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
+Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.euSec/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
 
@@ -241,13 +241,13 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat) **Breaking Changes** Switched to the new managed driver class - All states will be dropped and recreated (Note: some states where renamed)
 * (bropat) Supports Admin 5
 * (bropat) Added new adapter setting "Accept incoming invitations" to automatically accept device invitations
-* (bropat) Added new adapter setting "Alarm sound duration (sec)" used for triggering alarm sound on supported devices/stations ([#76](https://github.com/bropat/ioBroker.eufy-security/issues/76))
+* (bropat) Added new adapter setting "Alarm sound duration (sec)" used for triggering alarm sound on supported devices/stations ([#76](https://github.com/bropat/ioBroker.euSec/issues/76))
 * (bropat) Added enable/disable led setting for camera 1 products
 * (bropat) Added motion detection sensitivity setting for camera 1 products and wired doorbell
 * (bropat) Added motion detection type setting for camera 1 products
 * (bropat) Added motion audio recording setting for camera 1 products and wired doorbell
 * (bropat) Added ringtone volume setting for wired doorbell
-* (bropat) Added enable/disable indoor chime setting for wired doorbell ([#100](https://github.com/bropat/ioBroker.eufy-security/issues/100))
+* (bropat) Added enable/disable indoor chime setting for wired doorbell ([#100](https://github.com/bropat/ioBroker.euSec/issues/100))
 * (bropat) Added notification ring setting for wired doorbell
 * (bropat) Added notification motion setting for wired doorbell
 * (bropat) Added video streaming quality setting for wired doorbell
@@ -258,37 +258,37 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat) Added notification type setting for camera 1 products, solo cameras and wired doorbell
 * (bropat) Added chirp volume setting for entry sensor
 * (bropat) Added chirp tone setting for entry sensor
-* (bropat) Added pan an tilt functionality to supported indoor cameras ([#129](https://github.com/bropat/ioBroker.eufy-security/issues/129))
+* (bropat) Added pan an tilt functionality to supported indoor cameras ([#129](https://github.com/bropat/ioBroker.euSec/issues/129))
 * (bropat) Added error detection if stopping or starting stream that isn't running or already running
 * (bropat) Added new setting "acceptInvitations" to "EufySecurity" to accept invitations automatically
-* (bropat) Added floodlight camera light switch ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added motion detection sensitivity for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added motion detection type for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added floodlight camera light switch ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added motion detection sensitivity for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added motion detection type for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added motion tracking for indoor camera pan & tilt cameras
-* (bropat) Added video stream quality setting for indoor cameras, solo cameras, floodlight cameras and battery doorbell ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added video stream quality setting for indoor cameras, solo cameras, floodlight cameras and battery doorbell ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added video recording quality setting for indoor cameras
 * (bropat) Added WDR setting for battery doorbells
-* (bropat) Added microphone mute setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added audio recording setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added enable/disable speaker setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added speaker volume setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added microphone mute setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added audio recording setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added enable/disable speaker setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added speaker volume setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added power source setting for camera 2 products cameras, eufy cameras and eufy E cameras
 * (bropat) Added power working mode setting for solo cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras
-* (bropat) Added power custom working mode recording clip length setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added power custom working mode recording retrigger interval setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added power custom working mode recording ends if motion stops setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
-* (bropat) Added video streaming quality setting for indoor cameras, solo cameras, floodlight cameras, 2c pro cameras and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added power custom working mode recording clip length setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added power custom working mode recording retrigger interval setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added power custom working mode recording ends if motion stops setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
+* (bropat) Added video streaming quality setting for indoor cameras, solo cameras, floodlight cameras, 2c pro cameras and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added video recording quality setting for indoor 2k cameras and 2c pro cameras
-* (bropat) Added motion detection sensitivity setting for indoor cameras, floodlight cameras and camera 2 products ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added motion detection sensitivity setting for indoor cameras, floodlight cameras and camera 2 products ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added enable/disable motion tracking setting for indoor pan & tilt cameras
-* (bropat) Added motion detection type setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added motion detection type setting for indoor cameras, solo cameras, floodlight cameras, camera 2 products and battery doorbells ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added enable/disable WDR setting for battery doorbells
 * (bropat) Added ringtone volume setting for battery doorbells
-* (bropat) Added enable/disable chime indoor setting for battery doorbells ([#100](https://github.com/bropat/ioBroker.eufy-security/issues/100))
-* (bropat) Added enable/disable chime homebase setting for battery doorbells ([#100](https://github.com/bropat/ioBroker.eufy-security/issues/100))
+* (bropat) Added enable/disable chime indoor setting for battery doorbells ([#100](https://github.com/bropat/ioBroker.euSec/issues/100))
+* (bropat) Added enable/disable chime homebase setting for battery doorbells ([#100](https://github.com/bropat/ioBroker.euSec/issues/100))
 * (bropat) Added chime homebase ringtone volume setting for battery doorbells
 * (bropat) Added chime homebase ringtone type setting for battery doorbells
-* (bropat) Added notification type setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.eufy-security/issues/133))
+* (bropat) Added notification type setting for solo cameras, floodlight cameras, camera 2 products, battery doorbells, eufy cameras and eufy E cameras ([#133](https://github.com/bropat/ioBroker.euSec/issues/133))
 * (bropat) Added enable/disable person notification setting for indoor cameras
 * (bropat) Added enable/disable pet notification setting for indoor cameras
 * (bropat) Added enable/disable all other motion notification setting for indoor cameras
@@ -296,10 +296,10 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat) Added enable/disable crying notification setting for indoor cameras
 * (bropat) Added enable/disable motion notification setting for battery doorbells
 * (bropat) Added enable/disable ring notification setting for battery doorbells
-* (bropat) Added trigger alarm sound for camera 2 products, indoor cameras, solo cameras (incl. new) and floodlight cameras ([#76](https://github.com/bropat/ioBroker.eufy-security/issues/76))
-* (bropat) Added reset alarm sound for camera 2 products, indoor cameras, solo cameras (incl. new) and floodlight cameras ([#76](https://github.com/bropat/ioBroker.eufy-security/issues/76))
-* (bropat) Added trigger alarm sound for homebase 1+2 ([#76](https://github.com/bropat/ioBroker.eufy-security/issues/76))
-* (bropat) Added reset alarm sound for homebase 1+2 ([#76](https://github.com/bropat/ioBroker.eufy-security/issues/76))
+* (bropat) Added trigger alarm sound for camera 2 products, indoor cameras, solo cameras (incl. new) and floodlight cameras ([#76](https://github.com/bropat/ioBroker.euSec/issues/76))
+* (bropat) Added reset alarm sound for camera 2 products, indoor cameras, solo cameras (incl. new) and floodlight cameras ([#76](https://github.com/bropat/ioBroker.euSec/issues/76))
+* (bropat) Added trigger alarm sound for homebase 1+2 ([#76](https://github.com/bropat/ioBroker.euSec/issues/76))
+* (bropat) Added reset alarm sound for homebase 1+2 ([#76](https://github.com/bropat/ioBroker.euSec/issues/76))
 * (bropat) Added alarm tone setting for homebase 1+2
 * (bropat) Added alarm volume setting for homebase 1+2
 * (bropat) Added prompt volume setting for homebase 1+2
@@ -318,10 +318,10 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat) Added enable disable "switch mode with access code" for station with registered keypad
 * (bropat) Added enable disable "auto end alarm" for station with registered keypad
 * (bropat) Added enable disable "turn off alarm with button" for station with registered keypad
-* (bropat) Fixed issue [#98](https://github.com/bropat/ioBroker.eufy-security/issues/98)
-* (bropat) Fixed issue [#140](https://github.com/bropat/ioBroker.eufy-security/issues/140)
-* (bropat) Fixed issue [#146](https://github.com/bropat/ioBroker.eufy-security/issues/146)
-* (bropat) Fixed issue [#117](https://github.com/bropat/ioBroker.eufy-security/issues/117)
+* (bropat) Fixed issue [#98](https://github.com/bropat/ioBroker.euSec/issues/98)
+* (bropat) Fixed issue [#140](https://github.com/bropat/ioBroker.euSec/issues/140)
+* (bropat) Fixed issue [#146](https://github.com/bropat/ioBroker.euSec/issues/146)
+* (bropat) Fixed issue [#117](https://github.com/bropat/ioBroker.euSec/issues/117)
 * (bropat) Many small bugfixes
 * (bropat) Updated versions of the package dependencies
 
@@ -336,19 +336,19 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.5.3 (2021-05-14)
 
-* (bropat) Fixed issue [#121](https://github.com/bropat/ioBroker.eufy-security/issues/121)
-* (bropat) Fixed push notification for indoor and floodlight cams (issue [#130](https://github.com/bropat/ioBroker.eufy-security/issues/130))
-* (bropat) Fixed refresh of properties/settings of standalone devices (issue [#130](https://github.com/bropat/ioBroker.eufy-security/issues/130))
+* (bropat) Fixed issue [#121](https://github.com/bropat/ioBroker.euSec/issues/121)
+* (bropat) Fixed push notification for indoor and floodlight cams (issue [#130](https://github.com/bropat/ioBroker.euSec/issues/130))
+* (bropat) Fixed refresh of properties/settings of standalone devices (issue [#130](https://github.com/bropat/ioBroker.euSec/issues/130))
 * (bropat) Updated versions of the package dependencies
 
 ### 0.5.2 (2021-04-02)
 
-* (bropat) Try to add support for FreeBSD - issue [#106](https://github.com/bropat/ioBroker.eufy-security/issues/106)
+* (bropat) Try to add support for FreeBSD - issue [#106](https://github.com/bropat/ioBroker.euSec/issues/106)
 * (bropat) Updated package dependency ffmpeg-static for FreeBSD support
 
 ### 0.5.1 (2021-04-01)
 
-* (bropat) Fixed issue [#105](https://github.com/bropat/ioBroker.eufy-security/issues/105)
+* (bropat) Fixed issue [#105](https://github.com/bropat/ioBroker.euSec/issues/105)
 
 ### 0.5.0 (2021-03-30)
 
@@ -394,8 +394,8 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.3.0 (2021-03-05)
 
-* (bropat) Implemented feature request [#88](https://github.com/bropat/ioBroker.eufy-security/issues/88): Enable/disable motion detection for camera products
-* (bropat) Implemented feature request [#81](https://github.com/bropat/ioBroker.eufy-security/issues/81): Enable/disable RTSP stream (added also RTSP stream url)
+* (bropat) Implemented feature request [#88](https://github.com/bropat/ioBroker.euSec/issues/88): Enable/disable motion detection for camera products
+* (bropat) Implemented feature request [#81](https://github.com/bropat/ioBroker.euSec/issues/81): Enable/disable RTSP stream (added also RTSP stream url)
 * (bropat) Implemented asynchronous download of event videos when receiving a push notification
 * (bropat) Optimized ffmpeg implementation to only muxing video data to HLS
 * (bropat) Optimized HLS livestream video start delay (10-15 sec.)
@@ -410,7 +410,7 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.2.4 (2021-02-20)
 
-* (bropat) Fixed issue [#86](https://github.com/bropat/ioBroker.eufy-security/issues/86)
+* (bropat) Fixed issue [#86](https://github.com/bropat/ioBroker.euSec/issues/86)
 * (bropat) Fixed not correctly identifying if the livestream is still active or not
 
 ### 0.2.3 (2021-02-17)
@@ -422,12 +422,12 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.2.2 (2021-02-16)
 
-* (bropat) Fixed web extension settings for serving videos and pictures (issue [#79](https://github.com/bropat/ioBroker.eufy-security/issues/78))
+* (bropat) Fixed web extension settings for serving videos and pictures (issue [#79](https://github.com/bropat/ioBroker.euSec/issues/78))
 
 ### 0.2.1 (2021-02-15)
 
 * (bropat) Fixed device_enable state
-* (bropat) Fixed battery doorbell start livestream over p2p (issue [#78](https://github.com/bropat/ioBroker.eufy-security/issues/78))
+* (bropat) Fixed battery doorbell start livestream over p2p (issue [#78](https://github.com/bropat/ioBroker.euSec/issues/78))
 * (bropat) Implemented fallback for failed P2P livestream to RTMP livestream
 
 ### 0.2.0 (2021-02-14)
@@ -436,15 +436,15 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat) Last livestream is always saved and is still available later
 * (bropat) Implemented device and station parameter refresh over P2P
 * (bropat) Revised push notification implementation
-* (bropat) Fixed issue [#71](https://github.com/bropat/ioBroker.eufy-security/issues/71) by implementing retry mechanism on HTTP error 404 (max. 5 retries with increasing delay)
-* (bropat) Fixed issue [#12](https://github.com/bropat/ioBroker.eufy-security/issues/12)
+* (bropat) Fixed issue [#71](https://github.com/bropat/ioBroker.euSec/issues/71) by implementing retry mechanism on HTTP error 404 (max. 5 retries with increasing delay)
+* (bropat) Fixed issue [#12](https://github.com/bropat/ioBroker.euSec/issues/12)
 * (bropat) Eufy client library extracted as standalone library and adapters ported to new shared library: [eufy-security-client](https://www.npmjs.com/package/eufy-security-client)
 * (bropat) Removed following states: last_captured_pic_url, last_captured_pic_html
 * (bropat) Updated versions of the package dependencies
 
 ### 0.1.5 (2021-01-14)
 
-* (bropat) Fixed issue [#50](https://github.com/bropat/ioBroker.eufy-security/issues/50) and [#53](https://github.com/bropat/ioBroker.eufy-security/issues/53)
+* (bropat) Fixed issue [#50](https://github.com/bropat/ioBroker.euSec/issues/50) and [#53](https://github.com/bropat/ioBroker.euSec/issues/53)
 * (bropat) Updated versions of the package dependencies
 
 ### 0.1.4 (2021-01-05)
@@ -455,7 +455,7 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.1.3 (2021-01-02)
 
-* (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.eufy-security/issues/37) and [#41](https://github.com/bropat/ioBroker.eufy-security/issues/41)
+* (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.euSec/issues/37) and [#41](https://github.com/bropat/ioBroker.euSec/issues/41)
 * (bropat) Updated versions of the package dependencies
 
 ### 0.1.2 (2021-01-02)
@@ -467,14 +467,14 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.1.1 (2020-12-29)
 
-* (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.eufy-security/issues/37)
+* (bropat) Fixed issue [#37](https://github.com/bropat/ioBroker.euSec/issues/37)
 * (bropat) Fixed version numbering
 * (bropat) Updated versions of the package dependencies
 
 ### 0.0.9 (2020-12-28)
 
-* (bropat) Finished implementation for feature request: [#1](https://github.com/bropat/ioBroker.eufy-security/issues/1)
-* (bropat) Little progress for feature request: [#5](https://github.com/bropat/ioBroker.eufy-security/issues/5)
+* (bropat) Finished implementation for feature request: [#1](https://github.com/bropat/ioBroker.euSec/issues/1)
+* (bropat) Little progress for feature request: [#5](https://github.com/bropat/ioBroker.euSec/issues/5)
 * (bropat) Now supports also cloud P2P communication if local P2P comunication isn't possible
 * (bropat) Implemented set Guard Mode with CMD_SET_PAYLOAD for certain devices
 * (bropat) Added back USA ip addresses for P2P cloud discovery
@@ -485,7 +485,7 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.0.8 (2020-12-13)
 
-* (bropat) Fixed issue [#16](https://github.com/bropat/ioBroker.eufy-security/issues/16)
+* (bropat) Fixed issue [#16](https://github.com/bropat/ioBroker.euSec/issues/16)
 * (bropat) P2P communication revisited
 * (bropat) Added reconnect functionality for P2P communication
 * (bropat) Added heartbeat for P2P communication
@@ -494,11 +494,11 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ### 0.0.7 (2020-12-08)
 
-* (bropat) Fixed issue [#11](https://github.com/bropat/ioBroker.eufy-security/issues/11)
+* (bropat) Fixed issue [#11](https://github.com/bropat/ioBroker.euSec/issues/11)
 
 ### 0.0.6 (2020-12-06)
 
-* (bropat) Fixed issue [#13](https://github.com/bropat/ioBroker.eufy-security/issues/13)
+* (bropat) Fixed issue [#13](https://github.com/bropat/ioBroker.euSec/issues/13)
 
 ### 0.0.5 (2020-12-05)
 
