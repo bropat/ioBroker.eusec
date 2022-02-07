@@ -7,10 +7,10 @@
 ![Number of Installations (latest)](https://iobroker.live/badges/eusec-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/eusec-stable.svg)
 [![Dependency Status](https://img.shields.io/librariesio/release/npm/iobroker.eusec)](https://libraries.io/npm/iobroker.eusec)
-[![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.euSec/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.euSec)
+[![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.eusec/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.eusec)
 
-**Tests:** ![Test and Release](https://github.com/bropat/ioBroker.euSec/workflows/Test%20and%20Release/badge.svg)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.euSec?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-euSec/)
+**Tests:** ![Test and Release](https://github.com/bropat/ioBroker.eusec/workflows/Test%20and%20Release/badge.svg)
+Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.eusec?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-eusec/)
 
 
 [![NPM](https://nodei.co/npm/iobroker.eusec.png?downloads=true)](https://nodei.co/npm/iobroker.eusec/)
@@ -144,7 +144,7 @@ One Adapter instance will show all devices from one Eufy Cloud account and allow
 
 ## Documentation
 
-Look [here](https://bropat.github.io/ioBroker.euSec/)
+Look [here](https://bropat.github.io/ioBroker.eusec/)
 
 ## Known working devices
 
@@ -154,9 +154,19 @@ Information about supported devices can be found [here](https://github.com/bropa
 
 Please use GitHub issues for this.
 
-Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.euSec/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
+Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.eusec/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.8.3 (2022-02-07)
+
+* (bropat) Updated version of the package eufy-security-client (1.6.4)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.6.4)
+* (bropat) Fixed issue #222
+* (bropat) Fixed issue #224
+* (bropat) Fixed issue #225
+
+**Note:** Selecting the correct country in ioBroker is essential for the devices to be found (should match the setting in the Eufy app).
 
 ### 0.8.2 (2022-02-06)
 

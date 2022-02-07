@@ -1,10 +1,22 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.8.2",
+        "version": "0.8.3",
         "news": {
+            "0.8.3": {
+                "en": "Updated version of the package eufy-security-client (1.6.4)\nFixed issue #222",
+                "de": "Version des Pakets eufy-security-client (1.6.4) aktualisiert\nProblem #222 behoben",
+                "ru": "Обновленная версия пакета eufy-security-client (1.6.4)\nИсправлена проблема №222",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.6.4)\nEdição fixa #222",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.4)\nProbleem #222 opgelost",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.6.4)\nCorrection du problème n°222",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.4)\nRisolto il problema #222",
+                "es": "Versión actualizada del paquete eufy-security-client (1.6.4)\nCorregido el problema #222",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.4)\nNaprawiono błąd #222",
+                "zh-cn": "包 eufy-security-client (1.6.4) 的更新版本\n修正了问题#222"
+            },
             "0.8.2": {
-                "en": "Renamed Adapter to ioBroker.euSec\nUpdated version of the package eufy-security-client (1.6.3)\n\nFixed issue #221",
+                "en": "Renamed Adapter to ioBroker.euSec\nUpdated version of the package eufy-security-client (1.6.3)\nFixed issue #221",
                 "de": "Umbenennung des Adapters in ioBroker.euSec\nVersion des Pakets eufy-security-client (1.6.3) aktualisiert\nProblem #221 behoben",
                 "ru": "Переименовать адаптер в ioBroker.euSec\nОбновленная версия пакета eufy-security-client (1.6.3)\nИсправлена проблема №221",
                 "pt": "Renomeado Adaptador para ioBroker.euSec\nVersão atualizada do pacote eufy-security-client (1.6.3)\nEdição fixa #221",
@@ -16,7 +28,7 @@
                 "zh-cn": "重新命名适配器为ioBroker.euSec\n包 eufy-security-client (1.6.3) 的更新版本\n修正了问题#221"
             },
             "0.8.1": {
-                "en": "Updated version of the package eufy-security-client (1.6.2)\n\nFixed issue #219",
+                "en": "Updated version of the package eufy-security-client (1.6.2)\nFixed issue #219",
                 "de": "Version des Pakets eufy-security-client (1.6.2) aktualisiert\nProblem #219 behoben",
                 "ru": "Обновленная версия пакета eufy-security-client (1.6.2)\nИсправлена проблема №219",
                 "pt": "Versão atualizada do pacote eufy-security-client (1.6.2)\nEdição fixa #219",
@@ -153,10 +165,10 @@
         "license": "MIT",
         "platform": "Javascript/Node.js",
         "main": "build/main.js",
-        "icon": "admin/euSec.png",
+        "icon": "eusec.png",
         "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/bropat/ioBroker.euSec/master/admin/euSec.png",
-        "readme": "https://github.com/bropat/ioBroker.euSec/blob/master/README.md",
+        "extIcon": "https://raw.githubusercontent.com/bropat/ioBroker.eusec/master/admin/eusec.png",
+        "readme": "https://github.com/bropat/ioBroker.eusec/blob/master/README.md",
         "loglevel": "info",
         "mode": "daemon",
         "type": "alarm",
