@@ -3,6 +3,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/iobroker.eusec.svg)](https://www.npmjs.com/package/iobroker.eusec)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.eusec.svg)](https://www.npmjs.com/package/iobroker.eusec)
+[![Total Downloads](https://img.shields.io/npm/dt/iobroker.eusec.svg)](https://www.npmjs.com/package/iobroker.eusec)
 ![Node version requirement](https://img.shields.io/node/v/iobroker.eusec)
 ![Number of Installations (latest)](https://iobroker.live/badges/eusec-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/eusec-stable.svg)
@@ -157,6 +158,12 @@ Please use GitHub issues for this.
 Best is to set the adapter to Debug log mode (see [here](https://bropat.github.io/ioBroker.eusec/#/debugging)). Then please get the logfile from disk (subdirectory "log" in ioBroker installation directory and not from Admin because Admin cuts the lines).
 
 ## Changelog
+
+### 0.8.5 (2022-02-12)
+
+* (bropat) Fixed issue #222
+* (bropat) Updated version of the package eufy-security-client (1.6.6)
+* (bropat) Further details can be found in the changelog of eufy-security-client (1.6.6)
 
 ### 0.8.4 (2022-02-08)
 

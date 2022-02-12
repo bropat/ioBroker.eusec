@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.8.4",
+        "version": "0.8.5",
         "news": {
+            "0.8.5": {
+                "en": "Updated version of the package eufy-security-client (1.6.6)\nFixed issue #222",
+                "de": "Version des Pakets eufy-security-client (1.6.6) aktualisiert\nProblem #222 behoben",
+                "ru": "Обновленная версия пакета eufy-security-client (1.6.6)\nИсправлена проблема №222",
+                "pt": "Versão atualizada do pacote eufy-security-client (1.6.6)\nEdição fixa #222",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.6)\nProbleem #222 opgelost",
+                "fr": "Version mise à jour du paquet eufy-security-client (1.6.6)\nCorrection du problème n°222",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.6)\nRisolto il problema #222",
+                "es": "Versión actualizada del paquete eufy-security-client (1.6.6)\nCorregido el problema #222",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.6)\nNaprawiono błąd #222",
+                "zh-cn": "包 eufy-security-client (1.6.6) 的更新版本\n修正了问题#222"
+            },
             "0.8.4": {
                 "en": "Updated version of the package eufy-security-client (1.6.5)\nFixed issue #228",
                 "de": "Version des Pakets eufy-security-client (1.6.5) aktualisiert\nProblem #228 behoben",
@@ -98,18 +110,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (1.3.0)",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.3.0)",
                 "zh-cn": "包 eufy-security-client (1.3.0) 的更新版本"
-            },
-            "0.7.2": {
-                "en": "Updated version of the package eufy-security-client (1.2.3)",
-                "de": "Version des Pakets eufy-security-client (1.2.3) aktualisiert",
-                "ru": "Обновленная версия пакета eufy-security-client (1.2.3)",
-                "pt": "Versão atualizada do pacote eufy-security-client (1.2.3)",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.2.3)",
-                "fr": "Version mise à jour du paquet eufy-security-client (1.2.3)",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.2.3)",
-                "es": "Versión actualizada del paquete eufy-security-client (1.2.3)",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.2.3)",
-                "zh-cn": "包 eufy-security-client (1.2.3) 的更新版本"
             }
         },
         "title": "euSec",
