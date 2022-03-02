@@ -28,7 +28,7 @@
     "@iobroker/adapter-core": "^2.5.1",
     "got": "^11.8.3",
     "eufy-security-client": "^1.6.6",
-    "ffmpeg-static": "^4.4.1",
+    "ffmpeg-static": "^5.0.0",
     "fs-extra": "^10.0.0",
     "i18n-iso-countries": "^7.3.0",
     "mime": "^3.0.0",
