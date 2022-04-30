@@ -7,7 +7,6 @@
     "Polling interval (min)": "轮询间隔（分钟）",
     "Time in seconds before event reset": "事件重置之前的时间（以秒为单位）",
     "P2P connection type": "P2P连接类型",
-    "Prefer local connection": "倾向于本地连接",
     "Only local connection": "仅本地连接",
     "Quickest connection": "最快的连接",
     "Accept incoming invitations": "接受收到的邀请",

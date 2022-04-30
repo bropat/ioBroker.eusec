@@ -98,6 +98,12 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
             audioStream.on("error", (error) => {
                 log.error("ffmpegStreamToHls(): Audiostream Error", error);
             });
+            //TODO: For debugging purposes
+            /*const outputFile = path.resolve(__dirname, "../../test-stream.dump");
+            videoStream.pipe(fse.createWriteStream(outputFile)).on("finish", () => {
+                log.debug("videoStream dump finished!");
+                log.info("Manually test the output by running# ffplay output/test-stream.dump");
+            });*/
             const uVideoStream = (0, exports.StreamInput)(namespace, videoStream);
             const uAudioStream = (0, exports.StreamInput)(namespace, audioStream);
             let videoFormat = "h264";

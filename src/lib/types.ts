@@ -126,6 +126,8 @@ export const IndoorCameraStateID = {
     TILT_UP: "tilt_up",
     TILT_DOWN: "titl_down",
     ROTATE_360: "rotate_360",
+    SET_DEFAULT_ANGLE: "set_default_angle",
+    SET_PRIVACY_ANGLE: "set_privacy_angle",
 }
 
 export const LockStateID = {

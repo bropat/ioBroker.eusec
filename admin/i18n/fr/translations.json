@@ -7,7 +7,6 @@
     "Polling interval (min)": "Intervalle d'interrogation (min)",
     "Time in seconds before event reset": "Temps en secondes avant la réinitialisation de l'événement",
     "P2P connection type": "Type de connexion P2P",
-    "Prefer local connection": "Préférer une connexion locale",
     "Only local connection": "Uniquement connexion locale",
     "Quickest connection": "Connexion la plus rapide",
     "Accept incoming invitations": "Accepter les invitations entrantes",

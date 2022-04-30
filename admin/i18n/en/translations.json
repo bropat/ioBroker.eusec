@@ -7,7 +7,6 @@
     "Polling interval (min)": "Polling interval (min)",
     "Time in seconds before event reset": "Time in seconds before event reset",
     "P2P connection type": "P2P connection type",
-    "Prefer local connection": "Prefer local connection",
     "Only local connection": "Only local connection",
     "Quickest connection": "Quickest connection",
     "Accept incoming invitations": "Accept incoming invitations",

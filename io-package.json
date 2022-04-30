@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.8.5",
+        "version": "0.9.0",
         "news": {
+            "0.9.0": {
+                "en": "Requires node version >= 14.17\nAdded support for Battery Doorbell Dual (T8213)\nAdded support for Video Doorbell Dual (T8203)\nAdded support for IndoorCam Mini (T8414)\nFixed issues #250, #238, #236, #231, #229, #208\nUpdated version of the package eufy-security-client (2.0.0)",
+                "de": "Erfordert Node-Version >= 14.17\nUnterstützung für Battery Doorbell Dual (T8213) hinzugefügt\nUnterstützung für Video Doorbell Dual (T8203) hinzugefügt\nUnterstützung für IndoorCam Mini (T8414) hinzugefügt\nProbleme #250, #238, #236, #231, #229, #208 behoben\nAktualisierte Version des Pakets eufy-security-client (2.0.0)",
+                "ru": "Требуется версия узла >= 14.17\nДобавлена поддержка батарейного дверного звонка Dual (T8213)\nДобавлена поддержка видеодомофона Dual (T8203)\n Добавлена поддержка IndoorCam Mini (T8414)\nИсправлены проблемы #250, #238, #236, #231, #229, #208\nОбновлена версия пакета eufy-security-client (2.0.0)",
+                "pt": "Requer a versão do nó >= 14.17\nAdicionado suporte para Porta Dupla de Bateria (T8213)\nSuporte adicional para Video Doorbell Dual (T8203)\nApoio adicional para IndoorCam Mini (T8414)\nQuestões fixas #250, #238, #236, #231, #229, #208\nVersão actualizada do pacote eufy-security-client (2.0.0)",
+                "nl": "Vereist node versie >= 14.17\nOndersteuning toegevoegd voor batterij deurbel Dual (T8213)\nOndersteuning toegevoegd voor Video Doorbell Dual (T8203)\nOndersteuning toegevoegd voor IndoorCam Mini (T8414)\nProblemen opgelost #250, #238, #236, #231, #229, #208\nBijgewerkte versie van het pakket eufy-security-client (2.0.0)",
+                "fr": "Nécessite une version du nœud >= 14.17\nAjout de la prise en charge de la sonnette à pile double (T8213)\nPrise en charge ajoutée pour la sonnette vidéo double (T8203)\nPrise en charge ajoutée pour IndoorCam Mini (T8414)\nCorrection des problèmes #250, #238, #236, #231, #229, #208\nVersion mise à jour du paquet eufy-security-client (2.0.0)",
+                "it": "Richiede una versione di node >= 14.17\nAggiunto il supporto per Battery Doorbell Dual (T8213)\nAggiunto supporto per Video Doorbell Dual (T8203)\nAggiunto il supporto per IndoorCam Mini (T8414)\nRisolti i problemi #250, #238, #236, #231, #229, #208\nAggiornata la versione del pacchetto eufy-security-client (2.0.0)",
+                "es": "Requiere una versión de nodo >= 14.17\nAñadido soporte para el Timbre de Batería Dual (T8213)\nAñadido el soporte para el Video Timbre Dual (T8203)\nAñadido soporte para IndoorCam Mini (T8414)\nCorregidos los problemas #250, #238, #236, #231, #229, #208\nActualizada la versión del paquete eufy-security-client (2.0.0)",
+                "pl": "Wymaga wersji węzła >= 14.17\nDodano obsługę podwójnego dzwonka do drzwi na baterie (T8213)\nDodano obsługę podwójnego dzwonka do drzwi z funkcją wideo (T8203)\nDodano obsługę kamery IndoorCam Mini (T8414)\nPoprawiono błędy #250, #238, #236, #231, #229, #208\nZaktualizowano wersję pakietu eufy-security-client (2.0.0)",
+                "zh-cn": "要求节点版本>=14.17\n增加了对双电池门铃(T8213)的支持\n增加了对视频门铃Dual（T8203）的支持\n增加了对IndoorCam Mini (T8414)的支持\n修复了#250, #238, #236, #231, #229, #208的问题。\n更新了软件包eufy-security-client的版本（2.0.0）"
+            },
             "0.8.5": {
                 "en": "Updated version of the package eufy-security-client (1.6.6)\nFixed issue #222",
                 "de": "Version des Pakets eufy-security-client (1.6.6) aktualisiert\nProblem #222 behoben",
@@ -74,42 +86,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (1.6.1)\nAñadido soporte para Smart Lock Touch y Wifi (T8520)\nAñadida la opción de activar/desactivar \"Descarga automática de vídeo\"\nAñadido un nuevo estado para recuperar el captcha recibido en formato HTML \"received_captcha_html\"\nCorregido el problema #199\nCorregido el problema #217",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.1)\nDodano wsparcie dla Smart Lock Touch & Wifi (T8520)\nDodano możliwość włączenia/wyłączenia opcji \"Automatycznie pobieraj wideo\"\nDodano nowy stan, aby pobrać otrzymaną captcha w formacie HTML \"received_captcha_html\"\nNaprawiono błąd #199\nNaprawiono błąd #217",
                 "zh-cn": "包 eufy-security-client (1.6.1) 的更新版本\n增加了对智能锁触摸和Wifi（T8520）的支持\n增加了启用/禁用 \"自动下载视频\" 的选项\n增加了新的状态来检索收到的HTML格式的验证码 \"received_captcha_html\"\n修正了问题#199\n修正了问题#217"
-            },
-            "0.7.5": {
-                "en": "Fixed issue #195 and #202",
-                "de": "Problem Nr. 195 und Nr. 202 behoben",
-                "ru": "Исправлена проблема № 195 и № 202.",
-                "pt": "Correção do problema nº 195 e nº 202",
-                "nl": "Probleem #195 en #202 opgelost",
-                "fr": "Problèmes résolus #195 et #202",
-                "it": "Risolto il problema #195 e #202",
-                "es": "Problema solucionado #195 y #202",
-                "pl": "Naprawiono problem #195 i #202",
-                "zh-cn": "修复了＃195和＃202问题"
-            },
-            "0.7.4": {
-                "en": "Updated version of the package eufy-security-client (1.4.0)",
-                "de": "Version des Pakets eufy-security-client (1.4.0) aktualisiert",
-                "ru": "Обновленная версия пакета eufy-security-client (1.4.0)",
-                "pt": "Versão atualizada do pacote eufy-security-client (1.4.0)",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.4.0)",
-                "fr": "Version mise à jour du paquet eufy-security-client (1.4.0)",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.4.0)",
-                "es": "Versión actualizada del paquete eufy-security-client (1.4.0)",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.4.0)",
-                "zh-cn": "包 eufy-security-client (1.4.0) 的更新版本"
-            },
-            "0.7.3": {
-                "en": "Updated version of the package eufy-security-client (1.3.0)",
-                "de": "Version des Pakets eufy-security-client (1.3.0) aktualisiert",
-                "ru": "Обновленная версия пакета eufy-security-client (1.3.0)",
-                "pt": "Versão atualizada do pacote eufy-security-client (1.3.0)",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.3.0)",
-                "fr": "Version mise à jour du paquet eufy-security-client (1.3.0)",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.3.0)",
-                "es": "Versión actualizada del paquete eufy-security-client (1.3.0)",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.3.0)",
-                "zh-cn": "包 eufy-security-client (1.3.0) 的更新版本"
             }
         },
         "title": "euSec",

@@ -4,7 +4,11 @@
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -192,29 +196,23 @@ class euSec extends utils.Adapter {
         }
         // Handling adapter version update
         try {
-            const adapter_info = await this.getForeignObjectAsync(`system.adapter.${this.namespace}`);
-            if (adapter_info && adapter_info.common && adapter_info.common.version) {
-                if (this.persistentData.version !== adapter_info.common.version) {
-                    const currentVersion = Number.parseFloat((0, utils_1.removeLastChar)(adapter_info.common.version, "."));
-                    const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat((0, utils_1.removeLastChar)(this.persistentData.version, ".")) : 0;
-                    this.logger.debug(`Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
-                    if (previousVersion < currentVersion) {
-                        await (0, utils_1.handleUpdate)(this, this.logger, previousVersion);
-                        this.persistentData.version = adapter_info.common.version;
-                        this.writePersistentData();
-                    }
+            if (this.persistentData.version !== this.version) {
+                const currentVersion = Number.parseFloat((0, utils_1.removeLastChar)(this.version, "."));
+                const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat((0, utils_1.removeLastChar)(this.persistentData.version, ".")) : 0;
+                this.logger.debug(`Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
+                if (previousVersion < currentVersion) {
+                    await (0, utils_1.handleUpdate)(this, this.logger, previousVersion);
+                    this.persistentData.version = this.version;
+                    this.writePersistentData();
                 }
             }
         }
         catch (error) {
             this.logger.error(`Handling of adapter update - Error:`, error);
         }
-        let connectionType = eufy_security_client_1.P2PConnectionType.PREFER_LOCAL;
+        let connectionType = eufy_security_client_1.P2PConnectionType.QUICKEST;
         if (this.config.p2pConnectionType === "only_local") {
             connectionType = eufy_security_client_1.P2PConnectionType.ONLY_LOCAL;
-        }
-        else if (this.config.p2pConnectionType === "quickest") {
-            connectionType = eufy_security_client_1.P2PConnectionType.QUICKEST;
         }
         const config = {
             username: this.config.username,
@@ -228,7 +226,7 @@ class euSec extends utils.Adapter {
             acceptInvitations: this.config.acceptInvitations,
             trustedDeviceName: "IOBROKER",
         };
-        this.eufy = new eufy_security_client_1.EufySecurity(config, this.logger);
+        this.eufy = await eufy_security_client_1.EufySecurity.initialize(config, this.logger);
         this.eufy.on("station added", (station) => this.onStationAdded(station));
         this.eufy.on("device added", (device) => this.onDeviceAdded(device));
         this.eufy.on("station removed", (station) => this.onStationRemoved(station));
@@ -243,19 +241,18 @@ class euSec extends utils.Adapter {
         this.eufy.on("cloud livestream start", (station, device, url) => this.onCloudLivestreamStart(station, device, url));
         this.eufy.on("cloud livestream stop", (station, device) => this.onCloudLivestreamStop(station, device));
         this.eufy.on("device property changed", (device, name, value) => this.onDevicePropertyChanged(device, name, value));
-        this.eufy.on("device property renewed", (device, name, value) => this.onDevicePropertyRenewed(device, name, value));
         this.eufy.on("station command result", (station, result) => this.onStationCommandResult(station, result));
         this.eufy.on("station download start", (station, device, metadata, videostream, audiostream) => this.onStationDownloadStart(station, device, metadata, videostream, audiostream));
         this.eufy.on("station download finish", (station, device) => this.onStationDownloadFinish(station, device));
         this.eufy.on("station livestream start", (station, device, metadata, videostream, audiostream) => this.onStationLivestreamStart(station, device, metadata, videostream, audiostream));
         this.eufy.on("station livestream stop", (station, device) => this.onStationLivestreamStop(station, device));
-        this.eufy.on("station rtsp url", (station, device, value, modified) => this.onStationRTSPUrl(station, device, value, modified));
+        this.eufy.on("station rtsp url", (station, device, value) => this.onStationRTSPUrl(station, device, value));
         this.eufy.on("station property changed", (station, name, value) => this.onStationPropertyChanged(station, name, value));
-        this.eufy.on("station property renewed", (station, name, value) => this.onStationPropertyRenewed(station, name, value));
         this.eufy.on("station connect", (station) => this.onStationConnect(station));
         this.eufy.on("station close", (station) => this.onStationClose(station));
         this.eufy.on("tfa request", () => this.onTFARequest());
         this.eufy.on("captcha request", (captchaId, captcha) => this.onCaptchaRequest(captchaId, captcha));
+        this.eufy.setCameraMaxLivestreamDuration(this.config.maxLivestreamDuration);
         //TODO: Implement station alarm event
         //this.eufy.on("station alarm event", );
         await this.eufy.connect();
@@ -315,7 +312,7 @@ class euSec extends utils.Adapter {
             if (station_sn == "verify_code") {
                 if (this.eufy && this.verify_code) {
                     this.logger.info(`Verification code received, send it. (verify_code: ${state.val})`);
-                    this.eufy.connect(state.val);
+                    await this.eufy.connect({ verifyCode: state.val });
                     this.verify_code = false;
                     await this.delStateAsync(id);
                 }
@@ -323,7 +320,12 @@ class euSec extends utils.Adapter {
             else if (station_sn == "captcha") {
                 if (this.eufy && this.captchaId) {
                     this.logger.info(`Captcha received, send it. (captcha: ${state.val})`);
-                    this.eufy.connect(state.val, this.captchaId);
+                    await this.eufy.connect({
+                        captcha: {
+                            captchaCode: state.val,
+                            captchaId: this.captchaId
+                        }
+                    });
                     this.captchaId = null;
                     await this.delStateAsync(id);
                     await this.delStateAsync("received_captcha_html");
@@ -336,7 +338,7 @@ class euSec extends utils.Adapter {
                         const obj = await this.getObjectAsync(id);
                         if (obj) {
                             if (obj.native.name !== undefined) {
-                                this.eufy.setStationProperty(station_sn, obj.native.name, state.val);
+                                await this.eufy.setStationProperty(station_sn, obj.native.name, state.val);
                                 return;
                             }
                         }
@@ -365,10 +367,10 @@ class euSec extends utils.Adapter {
                     if (obj) {
                         if (obj.native.name !== undefined) {
                             try {
-                                this.eufy.setDeviceProperty(device_sn, obj.native.name, state.val);
+                                await this.eufy.setDeviceProperty(device_sn, obj.native.name, state.val);
                             }
                             catch (error) {
-                                this.logger.error(`Error in setting property value`, error);
+                                this.logger.error(`Error in setting property value (property: ${obj.native.name} value: ${state.val})`, error);
                             }
                             return;
                         }
@@ -378,10 +380,10 @@ class euSec extends utils.Adapter {
                     const device = this.eufy.getDevice(device_sn);
                     switch (device_state_name) {
                         case types_1.CameraStateID.START_STREAM:
-                            this.startLivestream(device_sn);
+                            await this.startLivestream(device_sn);
                             break;
                         case types_1.CameraStateID.STOP_STREAM:
-                            this.stopLivestream(device_sn);
+                            await this.stopLivestream(device_sn);
                             break;
                         case types_1.CameraStateID.TRIGGER_ALARM_SOUND:
                             await station.triggerDeviceAlarmSound(device, this.config.alarmSoundDuration);
@@ -405,7 +407,18 @@ class euSec extends utils.Adapter {
                             await station.panAndTilt(device, eufy_security_client_1.PanTiltDirection.DOWN);
                             break;
                         case types_1.LockStateID.CALIBRATE:
-                            await station.calibrateLock(device);
+                            if (device.isLock()) {
+                                await station.calibrateLock(device);
+                            }
+                            else {
+                                await station.calibrate(device);
+                            }
+                            break;
+                        case types_1.IndoorCameraStateID.SET_DEFAULT_ANGLE:
+                            await station.setDefaultAngle(device);
+                            break;
+                        case types_1.IndoorCameraStateID.SET_PRIVACY_ANGLE:
+                            await station.setPrivacyAngle(device);
                             break;
                     }
                 }
@@ -509,7 +522,7 @@ class euSec extends utils.Adapter {
             }
             const value = device.getPropertyValue(property.name);
             if (value !== undefined)
-                await (0, utils_1.setStateChangedWithTimestamp)(this, id, value.value, value.timestamp);
+                await (0, utils_1.setStateChangedAsync)(this, id, value);
         }
     }
     async onDeviceAdded(device) {
@@ -626,12 +639,51 @@ class euSec extends utils.Adapter {
                 native: {},
             });
         }
+        if (device.hasCommand(eufy_security_client_1.CommandName.DeviceSetDefaultAngle)) {
+            await this.setObjectNotExistsAsync(device.getStateID(types_1.IndoorCameraStateID.SET_DEFAULT_ANGLE), {
+                type: "state",
+                common: {
+                    name: "Set Default Angle",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }
+        if (device.hasCommand(eufy_security_client_1.CommandName.DeviceSetPrivacyAngle)) {
+            await this.setObjectNotExistsAsync(device.getStateID(types_1.IndoorCameraStateID.SET_PRIVACY_ANGLE), {
+                type: "state",
+                common: {
+                    name: "Set Default Angle",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }
+        if (device.hasCommand(eufy_security_client_1.CommandName.DeviceCalibrate)) {
+            await this.setObjectNotExistsAsync(device.getStateID(types_1.LockStateID.CALIBRATE), {
+                type: "state",
+                common: {
+                    name: "Calibrate",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }
         if (device.hasProperty(eufy_security_client_1.PropertyName.DevicePictureUrl)) {
             // Last event picture
             const last_camera_url = device.getPropertyValue(eufy_security_client_1.PropertyName.DevicePictureUrl);
             if (last_camera_url !== undefined)
-                (0, utils_1.saveImageStates)(this, last_camera_url.value, last_camera_url.timestamp, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture").catch(() => {
-                    this.logger.error(`State LAST_EVENT_PICTURE_URL of device ${device.getSerial()} - saveImageStates(): url ${last_camera_url.value}`);
+                (0, utils_1.saveImageStates)(this, last_camera_url, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture").catch(() => {
+                    this.logger.error(`State LAST_EVENT_PICTURE_URL of device ${device.getSerial()} - saveImageStates(): url ${last_camera_url}`);
                 });
         }
         if (device.hasCommand(eufy_security_client_1.CommandName.DeviceStartLivestream)) {
@@ -876,7 +928,7 @@ class euSec extends utils.Adapter {
             if (message.device_sn !== undefined) {
                 const device = this.eufy.getDevice(message.device_sn);
                 if (!(0, utils_1.isEmpty)(message.pic_url)) {
-                    await (0, utils_1.saveImageStates)(this, message.pic_url, message.event_time, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
+                    await (0, utils_1.saveImageStates)(this, message.pic_url, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
                         this.logger.error(`Device ${device.getSerial()} - saveImageStates(): url ${message.pic_url}`);
                     });
                 }
@@ -916,6 +968,7 @@ class euSec extends utils.Adapter {
         await this.setStateAsync("info.connection", { val: true, ack: true });
     }
     async onClose() {
+        this.log.warn("ON CLOSE!!!");
         await this.setObjectNotExistsAsync("info", {
             type: "channel",
             common: {
@@ -1045,25 +1098,12 @@ class euSec extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
+                    await (0, utils_1.setStateChangedAsync)(this, state, value);
                     return;
                 }
             }
         }
         this.logger.debug(`onStationPropertyChanged(): Property "${name}" not implemented in this adapter (station: ${station.getSerial()} value: ${JSON.stringify(value)})`);
-    }
-    async onStationPropertyRenewed(station, name, value) {
-        const states = await this.getStatesAsync(`${station.getStateID("", 1)}.*`);
-        for (const state in states) {
-            const obj = await this.getObjectAsync(state);
-            if (obj) {
-                if (obj.native.name !== undefined && obj.native.name === name) {
-                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
-                    return;
-                }
-            }
-        }
-        this.logger.debug(`onStationPropertyRenewed(): Property "${name}" not implemented in this adapter (station: ${station.getSerial()} value: ${JSON.stringify(value)})`);
     }
     async onDevicePropertyChanged(device, name, value) {
         const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
@@ -1071,10 +1111,10 @@ class euSec extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
+                    await (0, utils_1.setStateChangedAsync)(this, state, value);
                     switch (name) {
                         case eufy_security_client_1.PropertyName.DeviceRTSPStream:
-                            if (value.value === false) {
+                            if (value === false) {
                                 this.delStateAsync(device.getStateID(types_1.CameraStateID.RTSP_STREAM_URL));
                             }
                             break;
@@ -1084,19 +1124,6 @@ class euSec extends utils.Adapter {
             }
         }
         this.logger.debug(`onDevicePropertyChanged(): Property "${name}" not implemented in this adapter (device: ${device.getSerial()} value: ${JSON.stringify(value)})`);
-    }
-    async onDevicePropertyRenewed(device, name, value) {
-        const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
-        for (const state in states) {
-            const obj = await this.getObjectAsync(state);
-            if (obj) {
-                if (obj.native.name !== undefined && obj.native.name === name) {
-                    (0, utils_1.setStateChangedWithTimestamp)(this, state, value.value, value.timestamp);
-                    return;
-                }
-            }
-        }
-        this.logger.debug(`onDevicePropertyRenewed(): Property "${name}" not implemented in this adapter (device: ${device.getSerial()} value: ${JSON.stringify(value)})`);
     }
     async startLivestream(device_sn) {
         try {
@@ -1274,15 +1301,15 @@ class euSec extends utils.Adapter {
                 .then(async (result) => {
                 if (result) {
                     const filename_without_ext = (0, utils_1.getDataFilePath)(this, station.getSerial(), types_1.DataLocation.LAST_EVENT, device.getSerial());
-                    (0, utils_1.setStateWithTimestamp)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, undefined, "url");
+                    (0, utils_1.setStateAsync)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_VIDEO_URL), "Last captured video URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.STREAM_FILE_NAME_EXT}`, "url");
                     if (fs_extra_1.default.pathExistsSync(`${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`))
                         await (0, video_1.ffmpegPreviewImage)(this.config, `${filename_without_ext}${types_1.STREAM_FILE_NAME_EXT}`, `${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`, this.logger)
                             .then(() => {
-                            (0, utils_1.setStateWithTimestamp)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), "Last event picture URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.IMAGE_FILE_JPEG_EXT}`, undefined, "url");
+                            (0, utils_1.setStateAsync)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), "Last event picture URL", `/${this.namespace}/${station.getSerial()}/${types_1.DataLocation.LAST_EVENT}/${device.getSerial()}${types_1.IMAGE_FILE_JPEG_EXT}`, "url");
                             try {
                                 if (fs_extra_1.default.existsSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`)) {
                                     const image_data = (0, utils_1.getImageAsHTML)(fs_extra_1.default.readFileSync(`${filename_without_ext}${types_1.IMAGE_FILE_JPEG_EXT}`));
-                                    (0, utils_1.setStateWithTimestamp)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture HTML image", image_data, undefined, "html");
+                                    (0, utils_1.setStateAsync)(this, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture HTML image", image_data, "html");
                                 }
                             }
                             catch (error) {
@@ -1304,8 +1331,8 @@ class euSec extends utils.Adapter {
             await this.eufy.cancelStationDownload(device.getSerial());
         }
     }
-    onStationRTSPUrl(station, device, value, modified) {
-        (0, utils_1.setStateChangedWithTimestamp)(this, device.getStateID(types_1.CameraStateID.RTSP_STREAM_URL), value, modified);
+    onStationRTSPUrl(station, device, value) {
+        (0, utils_1.setStateChangedAsync)(this, device.getStateID(types_1.CameraStateID.RTSP_STREAM_URL), value);
     }
     async onStationConnect(station) {
         await this.setObjectNotExistsAsync(station.getStateID(types_1.StationStateID.CONNECTION), {

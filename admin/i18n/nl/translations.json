@@ -7,7 +7,6 @@
     "Polling interval (min)": "Polling-interval (min)",
     "Time in seconds before event reset": "Tijd in seconden voordat de gebeurtenis wordt gereset",
     "P2P connection type": "P2P-verbindingstype",
-    "Prefer local connection": "Voorkeur voor lokale verbinding",
     "Only local connection": "Alleen lokale verbinding",
     "Quickest connection": "Snelste verbinding",
     "Accept incoming invitations": "Accepteer inkomende uitnodigingen",

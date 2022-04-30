@@ -22,7 +22,6 @@ See below for more configuration parameters.
 
   | Choosable value | Description |
   | - | - |
-  | Prefer local connection | An attempt is made to establish the P2P connection with the local address of the respective Eufy device; if this is not possible, an attempt is made to establish the connection via the Eufy Cloud. |
   | Only local connection | It will only try to establish the P2P connection with the local address of the respective Eufy device. |
   | Quickest connection | It tries to establish the fastest possible P2P connection with the respective Eufy device, regardless of whether it is local or via the Eufy Cloud. |
 

@@ -134,18 +134,6 @@ systemDictionary = {
         "pl": "Ustawienia transmisji na żywo",
         "zh-cn": "直播设置"
     },
-    "Prefer local connection": {
-        "en": "Prefer local connection",
-        "de": "Lokale Verbindung bevorzugen",
-        "ru": "Предпочитает местное подключение",
-        "pt": "Preferir conexão local",
-        "nl": "Voorkeur voor lokale verbinding",
-        "fr": "Préférer une connexion locale",
-        "it": "Preferire la connessione locale",
-        "es": "Prefiero la conexión local",
-        "pl": "Preferowane połączenie lokalne",
-        "zh-cn": "倾向于本地连接"
-    },
     "Only local connection": {
         "en": "Only local connection",
         "de": "Nur lokale Verbindung",

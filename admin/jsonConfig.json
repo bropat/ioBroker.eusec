@@ -79,10 +79,6 @@
             "label": "P2P connection type",
             "options": [
               {
-                "label": "Prefer local connection",
-                "value": "prefer_local"
-              },
-              {
                 "label": "Only local connection",
                 "value": "only_local"
               },

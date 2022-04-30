@@ -7,7 +7,6 @@
     "Polling interval (min)": "Интервал опроса (мин)",
     "Time in seconds before event reset": "Время в секундах до сброса события",
     "P2P connection type": "Тип подключения P2P",
-    "Prefer local connection": "Предпочитает местное подключение",
     "Only local connection": "Только локальное подключение",
     "Quickest connection": "Самое быстрое соединение",
     "Accept incoming invitations": "Принимать входящие приглашения",

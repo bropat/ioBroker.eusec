@@ -159,6 +159,21 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 0.9.0 (2022-04-30)
+
+* (bropat) Requires node version >= 14.17
+* (bropat) Added support for Battery Doorbell Dual (T8213)
+* (bropat) Added support for Video Doorbell Dual (T8203)
+* (bropat) Added support for IndoorCam Mini (T8414)
+* (bropat) Fixed issue #250
+* (bropat) Fixed issue #238
+* (bropat) Fixed issue #236
+* (bropat) Fixed issue #231
+* (bropat) Fixed issue #229
+* (bropat) Fixed issue #208
+* (bropat) Updated version of the package eufy-security-client (2.0.0)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.0.0)
+
 ### 0.8.5 (2022-02-12)
 
 * (bropat) Fixed issue #222

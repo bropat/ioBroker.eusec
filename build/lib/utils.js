@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -22,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertCamelCaseToSnakeCase = exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateWithTimestamp = exports.setStateChangedWithTimestamp = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.isEmpty = exports.setStateChangedAsync = void 0;
+exports.convertCamelCaseToSnakeCase = exports.handleUpdate = exports.removeLastChar = exports.getVideoClipLength = exports.sleep = exports.lowestUnusedNumber = exports.moveFiles = exports.removeFiles = exports.saveImageStates = exports.setStateAsync = exports.saveImage = exports.getDataFilePath = exports.getImageAsHTML = exports.getImage = exports.isEmpty = exports.setStateChangedAsync = void 0;
 const got_1 = __importDefault(require("got"));
 const eufy_security_client_1 = require("eufy-security-client");
 const path_1 = __importDefault(require("path"));
@@ -105,53 +109,28 @@ const saveImage = async function (adapter, url, station_sn, device_sn, location)
     return result;
 };
 exports.saveImage = saveImage;
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const setStateChangedWithTimestamp = async function (adapter, id, value, timestamp) {
-    //TODO: Changed value same timestamp!
-    const obj = await adapter.getObjectAsync(id);
-    if (obj) {
-        if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
-            obj.native.timestamp = timestamp;
-            await (0, exports.setStateChangedAsync)(adapter, id, value);
-            await adapter.setObject(id, obj);
-        }
-    }
+const setStateAsync = async function (adapter, state_id, common_name, value, role = "text", type = "string") {
+    await adapter.setObjectNotExistsAsync(state_id, {
+        type: "state",
+        common: {
+            name: common_name,
+            type: type,
+            role: role,
+            read: true,
+            write: false,
+        },
+        native: {},
+    });
+    await adapter.setStateAsync(state_id, { val: value, ack: true });
 };
-exports.setStateChangedWithTimestamp = setStateChangedWithTimestamp;
-const setStateWithTimestamp = async function (adapter, state_id, common_name, value, timestamp = new Date().getTime() - 60 * 1000, role = "text", type = "string") {
-    const obj = await adapter.getObjectAsync(state_id);
-    if (obj) {
-        if ((obj.native.timestamp !== undefined && obj.native.timestamp < timestamp) || obj.native.timestamp === undefined) {
-            obj.native.timestamp = timestamp;
-            await adapter.setStateAsync(state_id, { val: value, ack: true });
-            await adapter.setObject(state_id, obj);
-        }
-    }
-    else {
-        await adapter.setObjectNotExistsAsync(state_id, {
-            type: "state",
-            common: {
-                name: common_name,
-                type: type,
-                role: role,
-                read: true,
-                write: false,
-            },
-            native: {
-                timestamp: timestamp
-            },
-        });
-        await adapter.setStateAsync(state_id, { val: value, ack: true });
-    }
-};
-exports.setStateWithTimestamp = setStateWithTimestamp;
-const saveImageStates = async function (adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, retry = 1) {
+exports.setStateAsync = setStateAsync;
+const saveImageStates = async function (adapter, url, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, retry = 1) {
     const image_data = await (0, exports.saveImage)(adapter, url, station_sn, device_sn, location);
     if (image_data.status === 404) {
         if (retry < 6) {
             adapter.log.info(`Retry get image in ${5 * retry} seconds from url: ${url} (retry_count: ${retry} error: ${image_data.statusText} message: ${image_data.statusText})...`);
             setTimeout(() => {
-                (0, exports.saveImageStates)(adapter, url, timestamp, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
+                (0, exports.saveImageStates)(adapter, url, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
             }, 5 * 1000 * retry);
         }
         else {
@@ -160,8 +139,8 @@ const saveImageStates = async function (adapter, url, timestamp, station_sn, dev
         return;
     }
     else if (image_data.status === 200) {
-        (0, exports.setStateWithTimestamp)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, timestamp, "url");
-        (0, exports.setStateWithTimestamp)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, timestamp, "html");
+        (0, exports.setStateAsync)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, "url");
+        (0, exports.setStateAsync)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, "html");
     }
 };
 exports.saveImageStates = saveImageStates;
@@ -228,7 +207,7 @@ const getVideoClipLength = (device) => {
     let length = 60;
     const workingMode = device.getRawProperty(eufy_security_client_1.CommandType.CMD_SET_PIR_POWERMODE);
     if (workingMode !== undefined) {
-        switch (workingMode.value) {
+        switch (workingMode) {
             case "0":
                 if (device.isCamera2Product() || device.isIndoorCamera() || device.isSoloCameras())
                     length = 20;
@@ -242,7 +221,7 @@ const getVideoClipLength = (device) => {
                 const customValue = device.getRawProperty(eufy_security_client_1.CommandType.CMD_DEV_RECORD_TIMEOUT);
                 if (customValue !== undefined) {
                     try {
-                        length = Number.parseInt(customValue.value);
+                        length = Number.parseInt(customValue);
                     }
                     catch (error) {
                     }
