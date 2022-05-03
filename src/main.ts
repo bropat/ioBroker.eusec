@@ -397,7 +397,7 @@ export class euSec extends utils.Adapter {
 
                     const device_state_name = values[5];
                     const station = this.eufy.getStation(station_sn);
-                    const device = this.eufy.getDevice(device_sn);
+                    const device = await this.eufy.getDevice(device_sn);
 
                     switch(device_state_name) {
                         case CameraStateID.START_STREAM:
@@ -976,7 +976,7 @@ export class euSec extends utils.Adapter {
     private async handlePushNotification(message: PushMessage): Promise<void> {
         try {
             if (message.device_sn !== undefined) {
-                const device: Device = this.eufy.getDevice(message.device_sn);
+                const device: Device = await this.eufy.getDevice(message.device_sn);
                 if (!isEmpty(message.pic_url)) {
                     await saveImageStates(this, message.pic_url!, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
                         this.logger.error(`Device ${device.getSerial()} - saveImageStates(): url ${message.pic_url}`);
@@ -1136,7 +1136,7 @@ export class euSec extends utils.Adapter {
         if (result.return_code !== 0 && result.command_type === CommandType.CMD_START_REALTIME_MEDIA) {
             this.logger.debug(`Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
             try {
-                const device = this.eufy.getStationDevice(station.getSerial(), result.channel);
+                const device = await this.eufy.getStationDevice(station.getSerial(), result.channel);
                 if (device.isCamera())
                     this.eufy.startCloudLivestream(device.getSerial());
             } catch (error) {
@@ -1184,7 +1184,7 @@ export class euSec extends utils.Adapter {
 
     private async startLivestream(device_sn: string): Promise<void> {
         try {
-            const device = this.eufy.getDevice(device_sn);
+            const device = await this.eufy.getDevice(device_sn);
             const station = this.eufy.getStation(device.getStationSerial());
 
             if (station.isConnected() || station.isEnergySavingDevice()) {
@@ -1208,7 +1208,7 @@ export class euSec extends utils.Adapter {
 
     private async stopLivestream(device_sn: string): Promise<void> {
         try {
-            const device = this.eufy.getDevice(device_sn);
+            const device = await this.eufy.getDevice(device_sn);
             const station = this.eufy.getStation(device.getStationSerial());
             if (device.isCamera()) {
                 const camera = device as Camera;

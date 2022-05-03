@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.0",
+        "version": "0.9.1",
         "news": {
+            "0.9.1": {
+                "en": "Updated version of the package eufy-security-client (2.0.1)",
+                "de": "Version des Pakets eufy-security-client (2.0.1) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (2.0.1)",
+                "pt": "Versão atualizada do pacote eufy-security-client (2.0.1)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.0.1)",
+                "fr": "Version mise à jour du paquet eufy-security-client (2.0.1)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.0.1)",
+                "es": "Versión actualizada del paquete eufy-security-client (2.0.1)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.0.1)",
+                "zh-cn": "包 eufy-security-client (2.0.1) 的更新版本"
+            },
             "0.9.0": {
                 "en": "Requires node version >= 14.17\nAdded support for Battery Doorbell Dual (T8213)\nAdded support for Video Doorbell Dual (T8203)\nAdded support for IndoorCam Mini (T8414)\nFixed issues #250, #238, #236, #231, #229, #208\nUpdated version of the package eufy-security-client (2.0.0)",
                 "de": "Erfordert Node-Version >= 14.17\nUnterstützung für Battery Doorbell Dual (T8213) hinzugefügt\nUnterstützung für Video Doorbell Dual (T8203) hinzugefügt\nUnterstützung für IndoorCam Mini (T8414) hinzugefügt\nProbleme #250, #238, #236, #231, #229, #208 behoben\nAktualisierte Version des Pakets eufy-security-client (2.0.0)",
@@ -74,18 +86,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (1.6.2)\nCorregido el problema #219",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.2)\nNaprawiono błąd #219",
                 "zh-cn": "包 eufy-security-client (1.6.2) 的更新版本\n修正了问题#219"
-            },
-            "0.8.0": {
-                "en": "Updated version of the package eufy-security-client (1.6.1)\nAdded support for Smart Lock Touch & Wifi (T8520)\nAdded option to enable/disable \"Automatically download video\"\nAdded new state to retrieve received captcha in HTML format \"received_captcha_html\"\nFixed issue #199\nFixed issue #217",
-                "de": "Version des Pakets eufy-security-client (1.6.1) aktualisiert\nUnterstützung für Smart Lock Touch & Wifi hinzugefügt (T8520)\nOption zum Aktivieren/Deaktivieren von \"Automatisches Herunterladen von Videos\" hinzugefügt\nNeuer Status hinzugefügt, um empfangene Captcha im HTML-Format abzurufen \"received_captcha_html\"\nProblem #199 behoben\nProblem #217 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (1.6.1)\nДобавлена поддержка Smart Lock Touch & Wifi (T8520)\nДобавлена опция включения/отключения \"Автоматическая загрузка видео\"\nДобавлено новое состояние для получения полученной капчи в формате HTML \"received_captcha_html\"\nИсправлена проблема #199\nИсправлена проблема №217",
-                "pt": "Versão atualizada do pacote eufy-security-client (1.6.1)\nSuporte adicional para Smart Lock Touch & Wifi (T8520)\nOpção adicional para activar/desactivar \"Descarregar vídeo automaticamente\".\nAdicionado novo estado para recuperar captcha recebida em formato HTML \"received_captcha_html\"\nEdição fixa #199\nEdição fixa #217",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.1)\nOndersteuning toegevoegd voor Smart Lock Touch & Wifi (T8520)\nOptie toegevoegd om \"Video automatisch downloaden\" in/uit te schakelen\nNieuwe status toegevoegd om ontvangen captcha op te halen in HTML formaat \"received_captcha_html\"\nProbleem #199 opgelost\nProbleem #217 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (1.6.1)\nAjout d'un support pour Smart Lock Touch & Wifi (T8520)\nAjout d'une option pour activer/désactiver \"Téléchargement automatique de la vidéo\".\nAjout d'un nouvel état pour récupérer le captcha reçu au format HTML \"received_captcha_html\".\nCorrection du problème #199\nCorrection du problème n°217",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.1)\nAggiunto il supporto per Smart Lock Touch & Wifi (T8520)\nAggiunta opzione per abilitare/disabilitare \"Scarica automaticamente il video\".\nAggiunto un nuovo stato per recuperare i captcha ricevuti in formato HTML \"received_captcha_html\".\nRisolto il problema #199\nRisolto il problema #217",
-                "es": "Versión actualizada del paquete eufy-security-client (1.6.1)\nAñadido soporte para Smart Lock Touch y Wifi (T8520)\nAñadida la opción de activar/desactivar \"Descarga automática de vídeo\"\nAñadido un nuevo estado para recuperar el captcha recibido en formato HTML \"received_captcha_html\"\nCorregido el problema #199\nCorregido el problema #217",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.1)\nDodano wsparcie dla Smart Lock Touch & Wifi (T8520)\nDodano możliwość włączenia/wyłączenia opcji \"Automatycznie pobieraj wideo\"\nDodano nowy stan, aby pobrać otrzymaną captcha w formacie HTML \"received_captcha_html\"\nNaprawiono błąd #199\nNaprawiono błąd #217",
-                "zh-cn": "包 eufy-security-client (1.6.1) 的更新版本\n增加了对智能锁触摸和Wifi（T8520）的支持\n增加了启用/禁用 \"自动下载视频\" 的选项\n增加了新的状态来检索收到的HTML格式的验证码 \"received_captcha_html\"\n修正了问题#199\n修正了问题#217"
             }
         },
         "title": "euSec",

@@ -377,7 +377,7 @@ class euSec extends utils.Adapter {
                     }
                     const device_state_name = values[5];
                     const station = this.eufy.getStation(station_sn);
-                    const device = this.eufy.getDevice(device_sn);
+                    const device = await this.eufy.getDevice(device_sn);
                     switch (device_state_name) {
                         case types_1.CameraStateID.START_STREAM:
                             await this.startLivestream(device_sn);
@@ -926,7 +926,7 @@ class euSec extends utils.Adapter {
     async handlePushNotification(message) {
         try {
             if (message.device_sn !== undefined) {
-                const device = this.eufy.getDevice(message.device_sn);
+                const device = await this.eufy.getDevice(message.device_sn);
                 if (!(0, utils_1.isEmpty)(message.pic_url)) {
                     await (0, utils_1.saveImageStates)(this, message.pic_url, device.getStationSerial(), device.getSerial(), types_1.DataLocation.LAST_EVENT, device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(types_1.CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
                         this.logger.error(`Device ${device.getSerial()} - saveImageStates(): url ${message.pic_url}`);
@@ -1080,7 +1080,7 @@ class euSec extends utils.Adapter {
         if (result.return_code !== 0 && result.command_type === eufy_security_client_1.CommandType.CMD_START_REALTIME_MEDIA) {
             this.logger.debug(`Station: ${station.getSerial()} command ${eufy_security_client_1.CommandType[result.command_type]} failed with error: ${eufy_security_client_1.ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
             try {
-                const device = this.eufy.getStationDevice(station.getSerial(), result.channel);
+                const device = await this.eufy.getStationDevice(station.getSerial(), result.channel);
                 if (device.isCamera())
                     this.eufy.startCloudLivestream(device.getSerial());
             }
@@ -1127,7 +1127,7 @@ class euSec extends utils.Adapter {
     }
     async startLivestream(device_sn) {
         try {
-            const device = this.eufy.getDevice(device_sn);
+            const device = await this.eufy.getDevice(device_sn);
             const station = this.eufy.getStation(device.getStationSerial());
             if (station.isConnected() || station.isEnergySavingDevice()) {
                 if (!station.isLiveStreaming(device)) {
@@ -1153,7 +1153,7 @@ class euSec extends utils.Adapter {
     }
     async stopLivestream(device_sn) {
         try {
-            const device = this.eufy.getDevice(device_sn);
+            const device = await this.eufy.getDevice(device_sn);
             const station = this.eufy.getStation(device.getStationSerial());
             if (device.isCamera()) {
                 const camera = device;
