@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.1",
+        "version": "0.9.2",
         "news": {
+            "0.9.2": {
+                "en": "Updated version of the package eufy-security-client (2.1.0)",
+                "de": "Version des Pakets eufy-security-client (2.1.0) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (2.1.0)",
+                "pt": "Versão atualizada do pacote eufy-security-client (2.1.0)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.1.0)",
+                "fr": "Version mise à jour du paquet eufy-security-client (2.1.0)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.1.0)",
+                "es": "Versión actualizada del paquete eufy-security-client (2.1.0)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.1.0)",
+                "zh-cn": "包 eufy-security-client (2.1.0) 的更新版本"
+            },
             "0.9.1": {
                 "en": "Updated version of the package eufy-security-client (2.0.1)",
                 "de": "Version des Pakets eufy-security-client (2.0.1) aktualisiert",
@@ -74,18 +86,6 @@
                 "es": "Cambio de nombre del adaptador a ioBroker.euSec\nVersión actualizada del paquete eufy-security-client (1.6.3)\nCorregido el problema #221",
                 "pl": "Zmiana nazwy adaptera na ioBroker.euSec\nZaktualizowana wersja pakietu eufy-security-client (1.6.3)\nNaprawiono błąd #221",
                 "zh-cn": "重新命名适配器为ioBroker.euSec\n包 eufy-security-client (1.6.3) 的更新版本\n修正了问题#221"
-            },
-            "0.8.1": {
-                "en": "Updated version of the package eufy-security-client (1.6.2)\nFixed issue #219",
-                "de": "Version des Pakets eufy-security-client (1.6.2) aktualisiert\nProblem #219 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (1.6.2)\nИсправлена проблема №219",
-                "pt": "Versão atualizada do pacote eufy-security-client (1.6.2)\nEdição fixa #219",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.2)\nProbleem #219 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (1.6.2)\nCorrection du problème n°219",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.2)\nRisolto il problema #219",
-                "es": "Versión actualizada del paquete eufy-security-client (1.6.2)\nCorregido el problema #219",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.2)\nNaprawiono błąd #219",
-                "zh-cn": "包 eufy-security-client (1.6.2) 的更新版本\n修正了问题#219"
             }
         },
         "title": "euSec",
