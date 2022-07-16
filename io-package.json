@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.2",
+        "version": "0.9.3",
         "news": {
+            "0.9.3": {
+                "en": "Updated version of the package eufy-security-client (2.1.1)",
+                "de": "Version des Pakets eufy-security-client (2.1.1) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (2.1.1)",
+                "pt": "Versão atualizada do pacote eufy-security-client (2.1.1)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.1.1)",
+                "fr": "Version mise à jour du paquet eufy-security-client (2.1.1)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.1.1)",
+                "es": "Versión actualizada del paquete eufy-security-client (2.1.1)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.1.1)",
+                "zh-cn": "包 eufy-security-client (2.1.1) 的更新版本"
+            },
             "0.9.2": {
                 "en": "Updated version of the package eufy-security-client (2.1.0)",
                 "de": "Version des Pakets eufy-security-client (2.1.0) aktualisiert",
@@ -74,18 +86,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (1.6.4)\nCorregido el problema #222",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.4)\nNaprawiono błąd #222",
                 "zh-cn": "包 eufy-security-client (1.6.4) 的更新版本\n修正了问题#222"
-            },
-            "0.8.2": {
-                "en": "Renamed Adapter to ioBroker.euSec\nUpdated version of the package eufy-security-client (1.6.3)\nFixed issue #221",
-                "de": "Umbenennung des Adapters in ioBroker.euSec\nVersion des Pakets eufy-security-client (1.6.3) aktualisiert\nProblem #221 behoben",
-                "ru": "Переименовать адаптер в ioBroker.euSec\nОбновленная версия пакета eufy-security-client (1.6.3)\nИсправлена проблема №221",
-                "pt": "Renomeado Adaptador para ioBroker.euSec\nVersão atualizada do pacote eufy-security-client (1.6.3)\nEdição fixa #221",
-                "nl": "Adapter hernoemd naar ioBroker.euSec\nBijgewerkte versie van het pakket eufy-security-client (1.6.3)\nProbleem #221 opgelost",
-                "fr": "Renommé Adaptateur à ioBroker.euSec\nVersion mise à jour du paquet eufy-security-client (1.6.3)\nCorrection du problème n°221",
-                "it": "Rinominato adattatore in ioBroker.euSec\nAggiornata la versione del pacchetto eufy-security-client (1.6.3)\nRisolto il problema #221",
-                "es": "Cambio de nombre del adaptador a ioBroker.euSec\nVersión actualizada del paquete eufy-security-client (1.6.3)\nCorregido el problema #221",
-                "pl": "Zmiana nazwy adaptera na ioBroker.euSec\nZaktualizowana wersja pakietu eufy-security-client (1.6.3)\nNaprawiono błąd #221",
-                "zh-cn": "重新命名适配器为ioBroker.euSec\n包 eufy-security-client (1.6.3) 的更新版本\n修正了问题#221"
             }
         },
         "title": "euSec",
