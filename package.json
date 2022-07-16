@@ -27,7 +27,7 @@
     "@cospired/i18n-iso-languages": "^4.0.0",
     "@iobroker/adapter-core": "^2.6.0",
     "eufy-security-client": "^2.1.1",
-    "ffmpeg-static": "~4.4",
+    "ffmpeg-static": "~5.0",
     "fs-extra": "^10.1.0",
     "got": "^11.8.5",
     "i18n-iso-countries": "^7.5.0",
