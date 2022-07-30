@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.3",
+        "version": "0.9.4",
         "news": {
+            "0.9.4": {
+                "en": "Updated version of the package eufy-security-client (2.1.2)",
+                "de": "Version des Pakets eufy-security-client (2.1.2) aktualisiert",
+                "ru": "Обновленная версия пакета eufy-security-client (2.1.2)",
+                "pt": "Versão atualizada do pacote eufy-security-client (2.1.2)",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.1.2)",
+                "fr": "Version mise à jour du paquet eufy-security-client (2.1.2)",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.1.2)",
+                "es": "Versión actualizada del paquete eufy-security-client (2.1.2)",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.1.2)",
+                "zh-cn": "包 eufy-security-client (2.1.2) 的更新版本"
+            },
             "0.9.3": {
                 "en": "Updated version of the package eufy-security-client (2.1.1)",
                 "de": "Version des Pakets eufy-security-client (2.1.1) aktualisiert",
@@ -74,18 +86,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (1.6.5)\nCorregido el problema #228",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.5)\nNaprawiono błąd #228",
                 "zh-cn": "包 eufy-security-client (1.6.5) 的更新版本\n修正了问题#228"
-            },
-            "0.8.3": {
-                "en": "Updated version of the package eufy-security-client (1.6.4)\nFixed issue #222",
-                "de": "Version des Pakets eufy-security-client (1.6.4) aktualisiert\nProblem #222 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (1.6.4)\nИсправлена проблема №222",
-                "pt": "Versão atualizada do pacote eufy-security-client (1.6.4)\nEdição fixa #222",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (1.6.4)\nProbleem #222 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (1.6.4)\nCorrection du problème n°222",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (1.6.4)\nRisolto il problema #222",
-                "es": "Versión actualizada del paquete eufy-security-client (1.6.4)\nCorregido el problema #222",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (1.6.4)\nNaprawiono błąd #222",
-                "zh-cn": "包 eufy-security-client (1.6.4) 的更新版本\n修正了问题#222"
             }
         },
         "title": "euSec",
