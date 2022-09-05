@@ -29,7 +29,7 @@
     "eufy-security-client": "^2.1.2",
     "ffmpeg-static": "~4.4",
     "fs-extra": "^10.1.0",
-    "got": "^11.8.5",
+    "got": "^12.4.1",
     "i18n-iso-countries": "^7.5.0",
     "mime": "^3.0.0",
     "ts-log": "^2.2.4"
