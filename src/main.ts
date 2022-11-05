@@ -14,7 +14,7 @@ import { Readable } from "stream";
 import util from "util";
 
 import * as Interface from "./lib/interfaces"
-import { CameraStateID, DataLocation, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, LockStateID, RoleMapping, StationStateID, StoppablePromise, STREAM_FILE_NAME_EXT } from "./lib/types";
+import { CameraStateID, DataLocation, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, LockStateID, RoleMapping, SmartSafeStateID, StationStateID, StoppablePromise, STREAM_FILE_NAME_EXT } from "./lib/types";
 import { convertCamelCaseToSnakeCase, getDataFilePath, getImageAsHTML, getVideoClipLength, handleUpdate, isEmpty, moveFiles, removeFiles, removeLastChar, saveImageStates, setStateAsync, sleep, setStateChangedAsync } from "./lib/utils";
 import { PersistentData } from "./lib/interfaces";
 import { ioBrokerLogger } from "./lib/log";
@@ -364,7 +364,7 @@ export class euSec extends utils.Adapter {
                             }
                         }
 
-                        const station = this.eufy.getStation(station_sn);
+                        const station = await this.eufy.getStation(station_sn);
                         switch(station_state_name) {
                             case StationStateID.REBOOT:
                                 await station.rebootHUB();
@@ -396,7 +396,7 @@ export class euSec extends utils.Adapter {
                     }
 
                     const device_state_name = values[5];
-                    const station = this.eufy.getStation(station_sn);
+                    const station = await this.eufy.getStation(station_sn);
                     const device = await this.eufy.getDevice(device_sn);
 
                     switch(device_state_name) {
@@ -433,6 +433,9 @@ export class euSec extends utils.Adapter {
                             } else {
                                 await station.calibrate(device);
                             }
+                            break;
+                        case SmartSafeStateID.UNLOCK:
+                            await station.unlock(device);
                             break;
                         case IndoorCameraStateID.SET_DEFAULT_ANGLE:
                             await station.setDefaultAngle(device);
@@ -657,6 +660,19 @@ export class euSec extends utils.Adapter {
                 type: "state",
                 common: {
                     name: "Calibrate Lock",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }
+        if (device.hasCommand(CommandName.DeviceUnlock)) {
+            await this.setObjectNotExistsAsync(device.getStateID(SmartSafeStateID.UNLOCK), {
+                type: "state",
+                common: {
+                    name: "Unlock",
                     type: "boolean",
                     role: "button.start",
                     read: false,
@@ -944,11 +960,11 @@ export class euSec extends utils.Adapter {
         });
     }
 
-    private downloadEventVideo(device: Device, event_time: number, full_path: string | undefined, cipher_id: number | undefined): void {
+    private async downloadEventVideo(device: Device, event_time: number, full_path: string | undefined, cipher_id: number | undefined): Promise<void> {
         this.logger.debug(`Device: ${device.getSerial()} full_path: ${full_path} cipher_id: ${cipher_id}`);
         try {
             if (!isEmpty(full_path) && cipher_id !== undefined) {
-                const station = this.eufy.getStation(device.getStationSerial());
+                const station = await this.eufy.getStation(device.getStationSerial());
 
                 if (station !== undefined) {
                     if (this.downloadEvent[device.getSerial()])
@@ -984,7 +1000,7 @@ export class euSec extends utils.Adapter {
                 }
                 if ((message.push_count === 1 || message.push_count === undefined) && (message.file_path !== undefined && message.file_path !== "" && message.cipher !== undefined))
                     if (this.config.autoDownloadVideo)
-                        this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
+                        await this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
             }
         } catch (error) {
             if (error instanceof DeviceNotFoundError) {
@@ -1185,7 +1201,7 @@ export class euSec extends utils.Adapter {
     private async startLivestream(device_sn: string): Promise<void> {
         try {
             const device = await this.eufy.getDevice(device_sn);
-            const station = this.eufy.getStation(device.getStationSerial());
+            const station = await this.eufy.getStation(device.getStationSerial());
 
             if (station.isConnected() || station.isEnergySavingDevice()) {
                 if (!station.isLiveStreaming(device)) {
@@ -1209,10 +1225,10 @@ export class euSec extends utils.Adapter {
     private async stopLivestream(device_sn: string): Promise<void> {
         try {
             const device = await this.eufy.getDevice(device_sn);
-            const station = this.eufy.getStation(device.getStationSerial());
+            const station = await this.eufy.getStation(device.getStationSerial());
             if (device.isCamera()) {
                 const camera = device as Camera;
-                if (this.eufy.isStationConnected(device.getStationSerial()) && station.isLiveStreaming(camera)) {
+                if (await this.eufy.isStationConnected(device.getStationSerial()) && station.isLiveStreaming(camera)) {
                     await this.eufy.stopStationLivestream(device_sn);
                 } else if (camera.isStreaming()) {
                     await this.eufy.stopCloudLivestream(device_sn);

@@ -13,5 +13,6 @@
     "Alarm sound duration (sec)": "Длительность звукового сигнала тревоги (сек)",
     "Livestream settings": "Настройки прямой трансляции",
     "Max camera livestream duration (sec)": "Максимальная продолжительность прямой трансляции с камеры (сек)",
-    "Automatically download video": "Автоматическая загрузка видео"
+    "Automatically download video": "Автоматическая загрузка видео",
+    "Automatically download picture": "Автоматическая загрузка изображения"
 }

@@ -139,3 +139,11 @@ export const LockStateID = {
     LOCK_STATUS: "lock_status",
     CALIBRATE: "calibrate",
 }
+
+export const SmartSafeStateID = {
+    ...DeviceStateID,
+    STATE: "state",
+    BATTERY: "battery",
+    WIFI_RSSI: "wifi_rssi",
+    UNLOCK: "unlock",
+}

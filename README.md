@@ -159,6 +159,14 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 0.9.5 (2022-11-05)
+
+* (bropat) Added new P2P feature: unlock smart safe products
+* (bropat) Added option to enable/disable "Automatically download picture" (#255)
+* (bropat) Fixed issue #269
+* (bropat) Updated version of the package eufy-security-client (2.2.1)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.2.1)
+
 ### 0.9.4 (2022-07-30)
 
 * (bropat) Updated version of the package eufy-security-client (2.1.2)

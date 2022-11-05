@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LockStateID = exports.IndoorCameraStateID = exports.DoorbellStateID = exports.KeyPadStateID = exports.MotionSensorStateID = exports.EntrySensorStateID = exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.RoleMapping = exports.IMAGE_FILE_PNG_EXT = exports.IMAGE_FILE_JPEG_EXT = exports.STREAM_FILE_NAME_EXT = exports.DataLocation = void 0;
+exports.SmartSafeStateID = exports.LockStateID = exports.IndoorCameraStateID = exports.DoorbellStateID = exports.KeyPadStateID = exports.MotionSensorStateID = exports.EntrySensorStateID = exports.StationStateID = exports.CameraStateID = exports.DeviceStateID = exports.RoleMapping = exports.IMAGE_FILE_PNG_EXT = exports.IMAGE_FILE_JPEG_EXT = exports.STREAM_FILE_NAME_EXT = exports.DataLocation = void 0;
 const eufy_security_client_1 = require("eufy-security-client");
 exports.DataLocation = {
     LIVESTREAM: "live",
@@ -125,5 +125,12 @@ exports.LockStateID = {
     LOCK: "lock",
     LOCK_STATUS: "lock_status",
     CALIBRATE: "calibrate",
+};
+exports.SmartSafeStateID = {
+    ...exports.DeviceStateID,
+    STATE: "state",
+    BATTERY: "battery",
+    WIFI_RSSI: "wifi_rssi",
+    UNLOCK: "unlock",
 };
 //# sourceMappingURL=types.js.map

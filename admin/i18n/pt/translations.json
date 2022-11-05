@@ -13,5 +13,6 @@
     "Alarm sound duration (sec)": "Duração do som do alarme (seg)",
     "Livestream settings": "Configurações de transmissão ao vivo",
     "Max camera livestream duration (sec)": "Duração máxima da transmissão ao vivo da câmera (segundos)",
-    "Automatically download video": "Descarregar vídeo automaticamente"
+    "Automatically download video": "Descarregar vídeo automaticamente",
+    "Automatically download picture": "Descarregar imagem automaticamente"
 }

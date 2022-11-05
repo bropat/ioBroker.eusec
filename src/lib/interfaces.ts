@@ -10,6 +10,7 @@ export interface AdapterConfig {
     acceptInvitations: boolean;
     alarmSoundDuration: number;
     autoDownloadVideo: boolean;
+    autoDownloadPicture: boolean;
 }
 
 export interface PersistentData {

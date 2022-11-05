@@ -13,5 +13,6 @@
     "Alarm sound duration (sec)": "警报声持续时间（秒",
     "Livestream settings": "直播设置",
     "Max camera livestream duration (sec)": "相机直播的最大持续时间（秒）",
-    "Automatically download video": "自动下载视频"
+    "Automatically download video": "自动下载视频",
+    "Automatically download picture": "自动下载图片"
 }

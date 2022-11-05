@@ -342,7 +342,7 @@ class euSec extends utils.Adapter {
                                 return;
                             }
                         }
-                        const station = this.eufy.getStation(station_sn);
+                        const station = await this.eufy.getStation(station_sn);
                         switch (station_state_name) {
                             case types_1.StationStateID.REBOOT:
                                 await station.rebootHUB();
@@ -376,7 +376,7 @@ class euSec extends utils.Adapter {
                         }
                     }
                     const device_state_name = values[5];
-                    const station = this.eufy.getStation(station_sn);
+                    const station = await this.eufy.getStation(station_sn);
                     const device = await this.eufy.getDevice(device_sn);
                     switch (device_state_name) {
                         case types_1.CameraStateID.START_STREAM:
@@ -413,6 +413,9 @@ class euSec extends utils.Adapter {
                             else {
                                 await station.calibrate(device);
                             }
+                            break;
+                        case types_1.SmartSafeStateID.UNLOCK:
+                            await station.unlock(device);
                             break;
                         case types_1.IndoorCameraStateID.SET_DEFAULT_ANGLE:
                             await station.setDefaultAngle(device);
@@ -631,6 +634,19 @@ class euSec extends utils.Adapter {
                 type: "state",
                 common: {
                     name: "Calibrate Lock",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }
+        if (device.hasCommand(eufy_security_client_1.CommandName.DeviceUnlock)) {
+            await this.setObjectNotExistsAsync(device.getStateID(types_1.SmartSafeStateID.UNLOCK), {
+                type: "state",
+                common: {
+                    name: "Unlock",
                     type: "boolean",
                     role: "button.start",
                     read: false,
@@ -898,11 +914,11 @@ class euSec extends utils.Adapter {
             this.logger.error(`Error deleting removed station`, error);
         });
     }
-    downloadEventVideo(device, event_time, full_path, cipher_id) {
+    async downloadEventVideo(device, event_time, full_path, cipher_id) {
         this.logger.debug(`Device: ${device.getSerial()} full_path: ${full_path} cipher_id: ${cipher_id}`);
         try {
             if (!(0, utils_1.isEmpty)(full_path) && cipher_id !== undefined) {
-                const station = this.eufy.getStation(device.getStationSerial());
+                const station = await this.eufy.getStation(device.getStationSerial());
                 if (station !== undefined) {
                     if (this.downloadEvent[device.getSerial()])
                         clearTimeout(this.downloadEvent[device.getSerial()]);
@@ -934,7 +950,7 @@ class euSec extends utils.Adapter {
                 }
                 if ((message.push_count === 1 || message.push_count === undefined) && (message.file_path !== undefined && message.file_path !== "" && message.cipher !== undefined))
                     if (this.config.autoDownloadVideo)
-                        this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
+                        await this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
             }
         }
         catch (error) {
@@ -1128,7 +1144,7 @@ class euSec extends utils.Adapter {
     async startLivestream(device_sn) {
         try {
             const device = await this.eufy.getDevice(device_sn);
-            const station = this.eufy.getStation(device.getStationSerial());
+            const station = await this.eufy.getStation(device.getStationSerial());
             if (station.isConnected() || station.isEnergySavingDevice()) {
                 if (!station.isLiveStreaming(device)) {
                     this.eufy.startStationLivestream(device_sn);
@@ -1154,10 +1170,10 @@ class euSec extends utils.Adapter {
     async stopLivestream(device_sn) {
         try {
             const device = await this.eufy.getDevice(device_sn);
-            const station = this.eufy.getStation(device.getStationSerial());
+            const station = await this.eufy.getStation(device.getStationSerial());
             if (device.isCamera()) {
                 const camera = device;
-                if (this.eufy.isStationConnected(device.getStationSerial()) && station.isLiveStreaming(camera)) {
+                if (await this.eufy.isStationConnected(device.getStationSerial()) && station.isLiveStreaming(camera)) {
                     await this.eufy.stopStationLivestream(device_sn);
                 }
                 else if (camera.isStreaming()) {

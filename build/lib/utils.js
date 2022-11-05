@@ -125,22 +125,24 @@ const setStateAsync = async function (adapter, state_id, common_name, value, rol
 };
 exports.setStateAsync = setStateAsync;
 const saveImageStates = async function (adapter, url, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, retry = 1) {
-    const image_data = await (0, exports.saveImage)(adapter, url, station_sn, device_sn, location);
-    if (image_data.status === 404) {
-        if (retry < 6) {
-            adapter.log.info(`Retry get image in ${5 * retry} seconds from url: ${url} (retry_count: ${retry} error: ${image_data.statusText} message: ${image_data.statusText})...`);
-            setTimeout(() => {
-                (0, exports.saveImageStates)(adapter, url, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
-            }, 5 * 1000 * retry);
+    if (adapter.config.autoDownloadPicture) {
+        const image_data = await (0, exports.saveImage)(adapter, url, station_sn, device_sn, location);
+        if (image_data.status === 404) {
+            if (retry < 6) {
+                adapter.log.info(`Retry get image in ${5 * retry} seconds from url: ${url} (retry_count: ${retry} error: ${image_data.statusText} message: ${image_data.statusText})...`);
+                setTimeout(() => {
+                    (0, exports.saveImageStates)(adapter, url, station_sn, device_sn, location, url_state_id, html_state_id, prefix_common_name, ++retry);
+                }, 5 * 1000 * retry);
+            }
+            else {
+                adapter.log.warn(`Could not download the image within 5 attempts from url: ${url} (error: ${image_data.statusText} message: ${image_data.statusText})`);
+            }
+            return;
         }
-        else {
-            adapter.log.warn(`Could not download the image within 5 attempts from url: ${url} (error: ${image_data.statusText} message: ${image_data.statusText})`);
+        else if (image_data.status === 200) {
+            (0, exports.setStateAsync)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, "url");
+            (0, exports.setStateAsync)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, "html");
         }
-        return;
-    }
-    else if (image_data.status === 200) {
-        (0, exports.setStateAsync)(adapter, url_state_id, `${prefix_common_name} URL`, image_data.imageUrl, "url");
-        (0, exports.setStateAsync)(adapter, html_state_id, `${prefix_common_name} HTML image`, image_data.imageHtml, "html");
     }
 };
 exports.saveImageStates = saveImageStates;

@@ -109,6 +109,15 @@
             "sm": 12,
             "md": 6,
             "lg": 3
+          },
+          "autoDownloadPicture": {
+            "newLine": true,
+            "type": "checkbox",
+            "label": "Automatically download picture",
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
           }
         }
       },

@@ -205,5 +205,17 @@ systemDictionary = {
         "es": "Descarga automática de vídeo",
         "pl": "Automatycznie pobieraj wideo",
         "zh-cn": "自动下载视频"
+    },
+    "Automatically download picture": {
+        "en": "Automatically download video",
+        "de": "Automatisches Herunterladen von Bildern",
+        "ru": "Автоматическая загрузка изображения",
+        "pt": "Descarregar imagem automaticamente",
+        "nl": "Automatisch beeld downloaden",
+        "fr": "Téléchargement automatique de l'image",
+        "it": "Scarica automaticamente l'immagine",
+        "es": "Descarga automática de la imagen",
+        "pl": "Automatyczne pobieranie obrazu",
+        "zh-cn": "自动下载图片"
     }
 };
