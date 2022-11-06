@@ -267,9 +267,6 @@ export class euSec extends utils.Adapter {
         this.eufy.on("captcha request", (captchaId: string, captcha: string) => this.onCaptchaRequest(captchaId, captcha));
         this.eufy.setCameraMaxLivestreamDuration(this.config.maxLivestreamDuration);
 
-        //TODO: Implement station alarm event
-        //this.eufy.on("station alarm event", );
-
         await this.eufy.connect();
     }
 
