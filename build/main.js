@@ -253,8 +253,6 @@ class euSec extends utils.Adapter {
         this.eufy.on("tfa request", () => this.onTFARequest());
         this.eufy.on("captcha request", (captchaId, captcha) => this.onCaptchaRequest(captchaId, captcha));
         this.eufy.setCameraMaxLivestreamDuration(this.config.maxLivestreamDuration);
-        //TODO: Implement station alarm event
-        //this.eufy.on("station alarm event", );
         await this.eufy.connect();
     }
     writePersistentData() {

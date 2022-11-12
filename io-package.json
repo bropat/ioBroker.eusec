@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.6",
+        "version": "0.9.7",
         "news": {
+            "0.9.7": {
+                "en": "Implemented Homebase Alarm (#271)\nUpdated version of the package eufy-security-client (2.2.3)\nFixed issue #293",
+                "de": "Homebase-Alarm implementiert (#271)\nVersion des Pakets eufy-security-client (2.2.3) aktualisiert\nProblem #293 behoben",
+                "ru": "Внедрена сигнализация Homebase (#271)\nОбновленная версия пакета eufy-security-client (2.2.3)\nИсправлена проблема №293",
+                "pt": "Alarme Implementado de Base Doméstica (#271)\nVersão atualizada do pacote eufy-security-client (2.2.3)\nEdição fixa #293",
+                "nl": "Homebase alarm geïmplementeerd (#271)\nBijgewerkte versie van het pakket eufy-security-client (2.2.3)\nProbleem #293 opgelost",
+                "fr": "Mise en œuvre de l'alarme Homebase (#271)\nVersion mise à jour du paquet eufy-security-client (2.2.3)\nCorrection du problème n°293",
+                "it": "Implementato l'allarme Homebase (#271)\nAggiornata la versione del pacchetto eufy-security-client (2.2.3)\nRisolto il problema #293",
+                "es": "Implementación de la alarma de la base de datos (#271)\nVersión actualizada del paquete eufy-security-client (2.2.3)\nCorregido el problema #293",
+                "pl": "Wdrożony alarm Homebase (#271)\nZaktualizowana wersja pakietu eufy-security-client (2.2.3)\nNaprawiono błąd #293",
+                "zh-cn": "实施家庭基地警报（#271）。\n包 eufy-security-client (2.2.3) 的更新版本\n修正了问题#293"
+            },
             "0.9.6": {
                 "en": "Updated version of the package eufy-security-client (2.2.2)\nFixed issue #292",
                 "de": "Version des Pakets eufy-security-client (2.2.2) aktualisiert\nProblem #292 behoben",
@@ -74,18 +86,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (2.0.1)",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.0.1)",
                 "zh-cn": "包 eufy-security-client (2.0.1) 的更新版本"
-            },
-            "0.9.0": {
-                "en": "Requires node version >= 14.17\nAdded support for Battery Doorbell Dual (T8213)\nAdded support for Video Doorbell Dual (T8203)\nAdded support for IndoorCam Mini (T8414)\nFixed issues #250, #238, #236, #231, #229, #208\nUpdated version of the package eufy-security-client (2.0.0)",
-                "de": "Erfordert Node-Version >= 14.17\nUnterstützung für Battery Doorbell Dual (T8213) hinzugefügt\nUnterstützung für Video Doorbell Dual (T8203) hinzugefügt\nUnterstützung für IndoorCam Mini (T8414) hinzugefügt\nProbleme #250, #238, #236, #231, #229, #208 behoben\nAktualisierte Version des Pakets eufy-security-client (2.0.0)",
-                "ru": "Требуется версия узла >= 14.17\nДобавлена поддержка батарейного дверного звонка Dual (T8213)\nДобавлена поддержка видеодомофона Dual (T8203)\n Добавлена поддержка IndoorCam Mini (T8414)\nИсправлены проблемы #250, #238, #236, #231, #229, #208\nОбновлена версия пакета eufy-security-client (2.0.0)",
-                "pt": "Requer a versão do nó >= 14.17\nAdicionado suporte para Porta Dupla de Bateria (T8213)\nSuporte adicional para Video Doorbell Dual (T8203)\nApoio adicional para IndoorCam Mini (T8414)\nQuestões fixas #250, #238, #236, #231, #229, #208\nVersão actualizada do pacote eufy-security-client (2.0.0)",
-                "nl": "Vereist node versie >= 14.17\nOndersteuning toegevoegd voor batterij deurbel Dual (T8213)\nOndersteuning toegevoegd voor Video Doorbell Dual (T8203)\nOndersteuning toegevoegd voor IndoorCam Mini (T8414)\nProblemen opgelost #250, #238, #236, #231, #229, #208\nBijgewerkte versie van het pakket eufy-security-client (2.0.0)",
-                "fr": "Nécessite une version du nœud >= 14.17\nAjout de la prise en charge de la sonnette à pile double (T8213)\nPrise en charge ajoutée pour la sonnette vidéo double (T8203)\nPrise en charge ajoutée pour IndoorCam Mini (T8414)\nCorrection des problèmes #250, #238, #236, #231, #229, #208\nVersion mise à jour du paquet eufy-security-client (2.0.0)",
-                "it": "Richiede una versione di node >= 14.17\nAggiunto il supporto per Battery Doorbell Dual (T8213)\nAggiunto supporto per Video Doorbell Dual (T8203)\nAggiunto il supporto per IndoorCam Mini (T8414)\nRisolti i problemi #250, #238, #236, #231, #229, #208\nAggiornata la versione del pacchetto eufy-security-client (2.0.0)",
-                "es": "Requiere una versión de nodo >= 14.17\nAñadido soporte para el Timbre de Batería Dual (T8213)\nAñadido el soporte para el Video Timbre Dual (T8203)\nAñadido soporte para IndoorCam Mini (T8414)\nCorregidos los problemas #250, #238, #236, #231, #229, #208\nActualizada la versión del paquete eufy-security-client (2.0.0)",
-                "pl": "Wymaga wersji węzła >= 14.17\nDodano obsługę podwójnego dzwonka do drzwi na baterie (T8213)\nDodano obsługę podwójnego dzwonka do drzwi z funkcją wideo (T8203)\nDodano obsługę kamery IndoorCam Mini (T8414)\nPoprawiono błędy #250, #238, #236, #231, #229, #208\nZaktualizowano wersję pakietu eufy-security-client (2.0.0)",
-                "zh-cn": "要求节点版本>=14.17\n增加了对双电池门铃(T8213)的支持\n增加了对视频门铃Dual（T8203）的支持\n增加了对IndoorCam Mini (T8414)的支持\n修复了#250, #238, #236, #231, #229, #208的问题。\n更新了软件包eufy-security-client的版本（2.0.0）"
             }
         },
         "title": "euSec",
