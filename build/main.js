@@ -224,7 +224,7 @@ class euSec extends utils.Adapter {
             p2pConnectionSetup: connectionType,
             pollingIntervalMinutes: this.config.pollingInterval,
             acceptInvitations: this.config.acceptInvitations,
-            trustedDeviceName: "IOBROKER",
+            //trustedDeviceName: "IOBROKER",
         };
         this.eufy = await eufy_security_client_1.EufySecurity.initialize(config, this.logger);
         this.eufy.on("station added", (station) => this.onStationAdded(station));

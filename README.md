@@ -159,6 +159,14 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 0.9.8 (2022-11-26)
+
+* (bropat) Fixed issue #300
+* (bropat) Updated version of the package eufy-security-client (2.3.0)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.3.0)
+
+**Note:** Those who use 2FA will be prompted to do so again after this update.
+
 ### 0.9.7 (2022-11-12)
 
 * (bropat) Implemented Homebase Alarm (#271)

@@ -234,7 +234,7 @@ export class euSec extends utils.Adapter {
             p2pConnectionSetup: connectionType,
             pollingIntervalMinutes: this.config.pollingInterval,
             acceptInvitations: this.config.acceptInvitations,
-            trustedDeviceName: "IOBROKER",
+            //trustedDeviceName: "IOBROKER",
         };
 
         this.eufy = await EufySecurity.initialize(config, this.logger);
