@@ -15,7 +15,7 @@ import util from "util";
 
 import * as Interface from "./lib/interfaces"
 import { CameraStateID, DataLocation, IMAGE_FILE_JPEG_EXT, IndoorCameraStateID, LockStateID, RoleMapping, SmartSafeStateID, StationStateID, StoppablePromise, STREAM_FILE_NAME_EXT } from "./lib/types";
-import { convertCamelCaseToSnakeCase, getDataFilePath, getImageAsHTML, getVideoClipLength, handleUpdate, isEmpty, moveFiles, removeFiles, removeLastChar, saveImageStates, setStateAsync, sleep, setStateChangedAsync } from "./lib/utils";
+import { convertCamelCaseToSnakeCase, getDataFilePath, getImageAsHTML, getVideoClipLength, handleUpdate, isEmpty, moveFiles, removeFiles, removeLastChar, setStateAsync, sleep, setStateChangedAsync } from "./lib/utils";
 import { PersistentData } from "./lib/interfaces";
 import { ioBrokerLogger } from "./lib/log";
 import { ffmpegPreviewImage, ffmpegRTMPToHls, ffmpegStreamToHls } from "./lib/video";
@@ -543,7 +543,7 @@ export class euSec extends utils.Adapter {
             }
             const value = device.getPropertyValue(property.name);
             if (value !== undefined)
-                await setStateChangedAsync(this, id, value);
+                await setStateChangedAsync(this, id, property.type === "string" && typeof value === "object" ? JSON.stringify(value) : value);
         }
     }
 
@@ -718,14 +718,15 @@ export class euSec extends utils.Adapter {
             });
         }
 
-        if (device.hasProperty(PropertyName.DevicePictureUrl)) {
+        //TODO: Decomment as soon as the decryption of the images works
+        /*if (device.hasProperty(PropertyName.DevicePictureUrl)) {
             // Last event picture
             const last_camera_url = device.getPropertyValue(PropertyName.DevicePictureUrl);
             if (last_camera_url !== undefined)
                 saveImageStates(this, last_camera_url as string, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(CameraStateID.LAST_EVENT_PIC_HTML), "Last event picture").catch(() => {
                     this.logger.error(`State LAST_EVENT_PICTURE_URL of device ${device.getSerial()} - saveImageStates(): url ${last_camera_url}`);
                 });
-        }
+        }*/
 
         if (device.hasCommand(CommandName.DeviceStartLivestream)) {
             // Start Stream
@@ -990,11 +991,12 @@ export class euSec extends utils.Adapter {
         try {
             if (message.device_sn !== undefined) {
                 const device: Device = await this.eufy.getDevice(message.device_sn);
-                if (!isEmpty(message.pic_url)) {
+                //TODO: Decomment as soon as the decryption of the images works
+                /*if (!isEmpty(message.pic_url)) {
                     await saveImageStates(this, message.pic_url!, device.getStationSerial(), device.getSerial(), DataLocation.LAST_EVENT, device.getStateID(CameraStateID.LAST_EVENT_PIC_URL), device.getStateID(CameraStateID.LAST_EVENT_PIC_HTML), "Last captured picture").catch(() => {
                         this.logger.error(`Device ${device.getSerial()} - saveImageStates(): url ${message.pic_url}`);
                     });
-                }
+                }*/
                 if ((message.push_count === 1 || message.push_count === undefined) && (message.file_path !== undefined && message.file_path !== "" && message.cipher !== undefined))
                     if (this.config.autoDownloadVideo)
                         await this.downloadEventVideo(device, message.event_time, message.file_path, message.cipher);
@@ -1031,7 +1033,6 @@ export class euSec extends utils.Adapter {
     }
 
     private async onClose(): Promise<void> {
-        this.log.warn("ON CLOSE!!!");
         await this.setObjectNotExistsAsync("info", {
             type: "channel",
             common: {
@@ -1166,7 +1167,7 @@ export class euSec extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    await setStateChangedAsync(this, state, value as number);
+                    await setStateChangedAsync(this, state, obj.common.type === "string" && typeof value === "object" ? JSON.stringify(value) : value);
                     return;
                 }
             }
@@ -1180,7 +1181,7 @@ export class euSec extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    await setStateChangedAsync(this, state, value as number);
+                    await setStateChangedAsync(this, state, obj.common.type === "string" && typeof value === "object" ? JSON.stringify(value) : value);
                     switch(name) {
                         case PropertyName.DeviceRTSPStream:
                             if (value as boolean === false) {

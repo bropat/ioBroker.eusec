@@ -159,6 +159,18 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 0.9.10 (2023-02-24)
+
+* (bropat) Requires node version >= 16
+* (bropat) Fixed issue #319
+* (bropat) Fixed issue #307
+* (bropat) Fixed issue #306
+* (bropat) Fixed issue #305
+* (bropat) Updated version of the package eufy-security-client (2.4.2)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.4.2)
+
+**Note:** The download of notification images has been temporarily removed as decryption of these is not yet supported. It will be added back as soon as it is supported.
+
 ### 0.9.9 (2022-12-24)
 
 * (bropat) Fixed issue #311
@@ -643,7 +655,7 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 MIT License
 
-Copyright (c) 2022 bropat <patrick.broetto@gmail.com>
+Copyright (c) 2020-2023 bropat <patrick.broetto@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

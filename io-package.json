@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.9",
+        "version": "0.9.10",
         "news": {
+            "0.9.10": {
+                "en": "Updated version of the package eufy-security-client (2.4.2)\nFixed issue #319\nFixed issue #307\nFixed issue #306\nFixed issue #305",
+                "de": "Version des Pakets eufy-security-client (2.4.2) aktualisiert\nProblem #319 behoben\nProblem #307 behoben\nProblem #306 behoben\nProblem #305 behoben",
+                "ru": "Обновленная версия пакета eufy-security-client (2.4.2)\nИсправлена проблема №319\nИсправлена проблема №307\nИсправлена проблема №306\nИсправлена проблема №305",
+                "pt": "Versão atualizada do pacote eufy-security-client (2.4.2)\nEdição fixa #319\nEdição fixa #307\nEdição fixa #306\nEdição fixa #305",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.4.2)\nProbleem #319 opgelost\nProbleem #307 opgelost\nProbleem #306 opgelost\nProbleem #305 opgelost",
+                "fr": "Version mise à jour du paquet eufy-security-client (2.4.2)\nCorrection du problème n°319\nCorrection du problème n°307\nCorrection du problème n°306\nCorrection du problème n°305",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.4.2)\nRisolto il problema #319\nRisolto il problema #307\nRisolto il problema #306\nRisolto il problema #305",
+                "es": "Versión actualizada del paquete eufy-security-client (2.4.2)\nCorregido el problema #319\nCorregido el problema #307\nCorregido el problema #306\nCorregido el problema #305",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.4.2)\nNaprawiono błąd #319\nNaprawiono błąd #307\nNaprawiono błąd #306\nNaprawiono błąd #305",
+                "zh-cn": "包 eufy-security-client (2.4.2) 的更新版本\n修正了问题#319\n修正了问题#307\n修正了问题#306\n修正了问题#305"
+            },
             "0.9.9": {
                 "en": "Updated version of the package eufy-security-client (2.4.0)\nFixed issue #311\nFixed issue #312",
                 "de": "Version des Pakets eufy-security-client (2.4.0) aktualisiert\nProblem #311 behoben\nProblem #312 behoben",
@@ -74,18 +86,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (2.1.2)",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.1.2)",
                 "zh-cn": "包 eufy-security-client (2.1.2) 的更新版本"
-            },
-            "0.9.3": {
-                "en": "Updated version of the package eufy-security-client (2.1.1)",
-                "de": "Version des Pakets eufy-security-client (2.1.1) aktualisiert",
-                "ru": "Обновленная версия пакета eufy-security-client (2.1.1)",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.1.1)",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.1.1)",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.1.1)",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.1.1)",
-                "es": "Versión actualizada del paquete eufy-security-client (2.1.1)",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.1.1)",
-                "zh-cn": "包 eufy-security-client (2.1.1) 的更新版本"
             }
         },
         "title": "euSec",
@@ -143,13 +143,13 @@
         "webExtension": "build/lib/web.js",
         "dependencies": [
             {
-                "js-controller": ">=3.1.4",
-                "web": ">=2.0.0"
+                "js-controller": ">=4.0.3",
+                "web": ">=4.0.0"
             }
         ],
         "globalDependencies": [
             {
-                "admin": ">=4.0.10"
+                "admin": ">=5.1.0"
             }
         ],
         "dataFolder": "eusec.%INSTANCE%",
@@ -176,7 +176,7 @@
         "acceptInvitations": true,
         "alarmSoundDuration": 60,
         "autoDownloadVideo": false,
-        "autoDownloadPicture": true
+        "autoDownloadPicture": false
     },
     "objects": [],
     "instanceObjects": [
