@@ -51,16 +51,16 @@ systemDictionary = {
         "zh-cn": "轮询间隔（分钟）"
     },
     "Max camera livestream duration (sec)": {
-        "en": "Max camera livestream duration (sec)",
-        "de": "Maximale Livestream-Dauer der Kamera (Sek.)",
-        "ru": "Максимальная продолжительность прямой трансляции с камеры (сек)",
-        "pt": "Duração máxima da transmissão ao vivo da câmera (segundos)",
-        "nl": "Max. Duur livestream camera (sec)",
-        "fr": "Durée maximale de la diffusion en direct de la caméra (s)",
-        "it": "Durata massima del live streaming della videocamera (sec)",
-        "es": "Duración máxima de la transmisión en vivo de la cámara (segundos)",
-        "pl": "Maksymalny czas trwania transmisji na żywo z kamery (s)",
-        "zh-cn": "相机直播的最大持续时间（秒）"
+        "en": "Max camera livestream duration (sec; 0 = unlimited)",
+        "de": "Maximale Livestream-Dauer der Kamera (Sek.; 0 = unbegrenzt)",
+        "ru": "Максимальная продолжительность прямой трансляции с камеры (сек; 0 = неограниченно)",
+        "pt": "Duração máxima da transmissão ao vivo da câmera (segundos; 0 = ilimitado)",
+        "nl": "Max. Duur livestream camera (sec; 0 = onbeperkt)",
+        "fr": "Durée maximale de la diffusion en direct de la caméra (s; 0 = illimité)",
+        "it": "Durata massima del live streaming della videocamera (sec 0 = illimitata)",
+        "es": "Duración máxima de la transmisión en vivo de la cámara (segundos; 0 = ilimitado)",
+        "pl": "Maksymalny czas trwania transmisji na żywo z kamery (s; 0 = bez ograniczeń)",
+        "zh-cn": "相机直播的最大持续时间（秒；0 = 无限）"
     },
     "Time in seconds before event reset": {
         "en": "Time in seconds before event reset",
@@ -193,29 +193,5 @@ systemDictionary = {
         "es": "Duración del sonido de la alarma (s)",
         "pl": "Czas trwania dźwięku alarmu (sek.)",
         "zh-cn": "警报声持续时间（秒"
-    },
-    "Automatically download video": {
-        "en": "Automatically download video",
-        "de": "Automatisches Herunterladen von Videos",
-        "ru": "Автоматическая загрузка видео",
-        "pt": "Descarregar vídeo automaticamente",
-        "nl": "Video automatisch downloaden",
-        "fr": "Téléchargement automatique de la vidéo",
-        "it": "Scarica automaticamente il video",
-        "es": "Descarga automática de vídeo",
-        "pl": "Automatycznie pobieraj wideo",
-        "zh-cn": "自动下载视频"
-    },
-    "Automatically download picture": {
-        "en": "Automatically download video",
-        "de": "Automatisches Herunterladen von Bildern",
-        "ru": "Автоматическая загрузка изображения",
-        "pt": "Descarregar imagem automaticamente",
-        "nl": "Automatisch beeld downloaden",
-        "fr": "Téléchargement automatique de l'image",
-        "it": "Scarica automaticamente l'immagine",
-        "es": "Descarga automática de la imagen",
-        "pl": "Automatyczne pobieranie obrazu",
-        "zh-cn": "自动下载图片"
     }
 };

@@ -12,7 +12,15 @@
     "Accept incoming invitations": "接受收到的邀请",
     "Alarm sound duration (sec)": "警报声持续时间（秒",
     "Livestream settings": "直播设置",
-    "Max camera livestream duration (sec)": "相机直播的最大持续时间（秒）",
-    "Automatically download video": "自动下载视频",
-    "Automatically download picture": "自动下载图片"
+    "Max camera livestream duration (sec)": "相机直播的最大持续时间（秒；0 = 无限）",
+    "General settings": "一般设置",
+    "Hostname": "主机名流媒体网址",
+    "https": "HTTPS流媒体网址",
+    "go2rtc settings": "go2rtc设置",
+    "API port": "API端口",
+    "SRTP port": "SRTP端口",
+    "WebRTC port": "WebRTC端口",
+    "RTSP port": "RTSP端口",
+    "RTSP Username": "RTSP用户名",
+    "RTSP Password": "RTSP密码"
 }

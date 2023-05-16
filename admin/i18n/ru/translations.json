@@ -12,7 +12,15 @@
     "Accept incoming invitations": "Принимать входящие приглашения",
     "Alarm sound duration (sec)": "Длительность звукового сигнала тревоги (сек)",
     "Livestream settings": "Настройки прямой трансляции",
-    "Max camera livestream duration (sec)": "Максимальная продолжительность прямой трансляции с камеры (сек)",
-    "Automatically download video": "Автоматическая загрузка видео",
-    "Automatically download picture": "Автоматическая загрузка изображения"
+    "Max camera livestream duration (sec)": "Максимальная продолжительность прямой трансляции с камеры (сек; 0 = неограниченно)",
+    "General settings": "Общие настройки",
+    "Hostname": "Имя хоста потоковое url",
+    "https": "URL потоковой передачи HTTPS",
+    "go2rtc settings": "настройки go2rtc",
+    "API port": "API-порт",
+    "SRTP port": "SRTP-порт",
+    "WebRTC port": "WebRTC-порт",
+    "RTSP port": "RTSP-порт",
+    "RTSP Username": "RTSP Имя пользователя",
+    "RTSP Password": "Пароль RTSP"
 }

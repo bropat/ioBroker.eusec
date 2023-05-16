@@ -26,7 +26,7 @@ You will find the status of the adapter in the left menu under the item 'Instanc
 
   ![Current log with captcha image](_media/en/auth03.png)
 
-4. Now go to the left menu and select 'Objects'. Then on the right side under `eufy-security` => `0` click in the line `captcha` the button with the pencil symbol.
+4. Now go to the left menu and select 'Objects'. Then on the right side under `eusec` => `0` click in the line `captcha` the button with the pencil symbol.
 
   ![Objects view with captcha state](_media/en/auth04.png)
 
@@ -57,7 +57,7 @@ If you have activated 2FA, you will find the status of the adapter in the left-h
 
   ![Mail containing verify code](_media/en/auth07.png)
 
-3. Now go to the left menu and select 'Objects'. Then on the right side under `eufy-security` => `0` click in the line `verify_code` the button with the pencil symbol.
+3. Now go to the left menu and select 'Objects'. Then on the right side under `eusec` => `0` click in the line `verify_code` the button with the pencil symbol.
 
   ![Objects view with verify_code state](_media/en/auth08.png)
 

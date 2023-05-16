@@ -12,7 +12,15 @@
     "Accept incoming invitations": "Accepteer inkomende uitnodigingen",
     "Alarm sound duration (sec)": "Duur alarmgeluid (sec)",
     "Livestream settings": "Livestream-instellingen",
-    "Max camera livestream duration (sec)": "Max. Duur livestream camera (sec)",
-    "Automatically download video": "Video automatisch downloaden",
-    "Automatically download picture": "Automatisch beeld downloaden"
+    "Max camera livestream duration (sec)": "Max. Duur livestream camera (sec; 0 = onbeperkt)",
+    "General settings": "Algemene instellingen",
+    "Hostname": "Hostnaam streaming url",
+    "https": "HTTPS-streaming url",
+    "go2rtc settings": "go2rtc instellingen",
+    "API port": "API poort",
+    "SRTP port": "SRTP poort",
+    "WebRTC port": "WebRTC poort",
+    "RTSP port": "RTSP poort",
+    "RTSP Username": "RTSP gebruikersnaam",
+    "RTSP Password": "RTSP wachtwoord"
 }

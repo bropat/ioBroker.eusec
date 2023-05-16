@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ffmpegRTMPToHls = exports.ffmpegStreamToHls = exports.ffmpegPreviewImage = exports.StreamOutput = exports.StreamInput = void 0;
+exports.ffmpegStreamToGo2rtc = exports.ffmpegStreamToHls = exports.ffmpegPreviewImage = exports.StreamOutput = exports.StreamInput = void 0;
 const net_1 = __importDefault(require("net"));
 const path_1 = __importDefault(require("path"));
 const fluent_ffmpeg_1 = __importDefault(require("@bropat/fluent-ffmpeg"));
@@ -104,12 +104,6 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
                 audioStream.on("error", (error) => {
                     log.error("ffmpegStreamToHls(): Audiostream Error", error);
                 });
-                //TODO: For debugging purposes
-                /*const outputFile = path.resolve(__dirname, "../../test-stream.dump");
-                videoStream.pipe(fse.createWriteStream(outputFile)).on("finish", () => {
-                    log.debug("videoStream dump finished!");
-                    log.info("Manually test the output by running# ffplay output/test-stream.dump");
-                });*/
                 const uVideoStream = (0, exports.StreamInput)(namespace, videoStream);
                 const uAudioStream = (0, exports.StreamInput)(namespace, audioStream);
                 let videoFormat = "h264";
@@ -185,61 +179,94 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
     });
 };
 exports.ffmpegStreamToHls = ffmpegStreamToHls;
-const ffmpegRTMPToHls = (config, rtmp_url, output, log) => {
-    let resolveCb;
-    let ffmpegCommand;
-    const rtmpPromise = new Promise((resolve, reject) => {
-        resolveCb = resolve;
+const ffmpegStreamToGo2rtc = (config, namespace, camera, metadata, videoStream, audioStream, log) => {
+    return new Promise((resolve, reject) => {
         try {
             if (ffmpeg_static_1.default) {
                 fluent_ffmpeg_1.default.setFfmpegPath(ffmpeg_static_1.default);
-                ffmpegCommand = (0, fluent_ffmpeg_1.default)(rtmp_url)
+                log.warn("ffmpegStreamToGo2rtc(): Started");
+                videoStream.on("error", (error) => {
+                    log.error("ffmpegStreamToGo2rtc(): Videostream Error", error);
+                });
+                audioStream.on("error", (error) => {
+                    log.error("ffmpegStreamToGo2rtc(): Audiostream Error", error);
+                });
+                //TODO: For debugging purposes
+                /*const outputFile = path.resolve(__dirname, "../../test-stream.dump");
+                videoStream.pipe(fse.createWriteStream(outputFile)).on("finish", () => {
+                    log.debug("videoStream dump finished!");
+                    log.info("Manually test the output by running# ffplay output/test-stream.dump");
+                });*/
+                const uVideoStream = (0, exports.StreamInput)(namespace, videoStream);
+                const uAudioStream = (0, exports.StreamInput)(namespace, audioStream);
+                let videoFormat = "h264";
+                let audioFormat = "";
+                const options = [
+                    "-rtsp_transport tcp",
+                    "-sc_threshold 0",
+                    `-g ${metadata.videoFPS}`,
+                    "-fflags genpts+nobuffer+flush_packets",
+                    //"-rtpflags latm",
+                ];
+                switch (metadata.videoCodec) {
+                    case eufy_security_client_1.VideoCodec.H264:
+                        videoFormat = "h264";
+                        break;
+                    case eufy_security_client_1.VideoCodec.H265:
+                        videoFormat = "hevc";
+                        break;
+                }
+                switch (metadata.audioCodec) {
+                    case eufy_security_client_1.AudioCodec.AAC:
+                        audioFormat = "aac";
+                        break;
+                }
+                const command = (0, fluent_ffmpeg_1.default)()
                     .withProcessOptions({
                     detached: true
                 })
-                    .videoCodec("copy")
-                    .audioCodec("copy")
-                    .output(output)
-                    .addOptions([
-                    "-hls_init_time 0",
-                    "-hls_time 2",
-                    "-hls_segment_type mpegts",
-                    "-absf aac_adtstoasc",
-                    //"-start_number 1",
-                    "-sc_threshold 0",
-                    "-g 15",
-                    "-fflags genpts+nobuffer+flush_packets",
-                    //"-flush_packets 1",
-                    "-hls_playlist_type event"
-                ])
+                    .input(uVideoStream.url)
+                    .inputFormat(videoFormat)
+                    .inputFps(metadata.videoFPS)
+                    .videoCodec("copy");
+                if (audioFormat !== "") {
+                    command.input(uAudioStream.url)
+                        .inputFormat(audioFormat)
+                        //.audioCodec("copy");
+                        //.audioCodec("aac");
+                        .audioCodec("opus");
+                }
+                else {
+                    log.warn(`ffmpegStreamToGo2rtc(): Not support audio codec or unknown audio codec (${eufy_security_client_1.AudioCodec[metadata.audioCodec]})`);
+                }
+                command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`)
+                    .outputFormat("rtsp")
+                    .addOptions(options)
                     .on("error", function (err, stdout, stderr) {
-                    log.error(`ffmpegRTMPToHls(): An error occurred: ${err.message}`);
-                    log.error(`ffmpegRTMPToHls(): ffmpeg output:\n${stdout}`);
-                    log.error(`ffmpegRTMPToHls(): ffmpeg stderr:\n${stderr}`);
+                    log.error(`ffmpegStreamToGo2rtc(): An error occurred: ${err.message}`);
+                    log.error(`ffmpegStreamToGo2rtc(): ffmpeg output:\n${stdout}`);
+                    log.error(`ffmpegStreamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
+                    uVideoStream.close();
+                    uAudioStream.close();
                     reject(err);
                 })
                     .on("end", () => {
-                    log.debug("ffmpegRTMPToHls(): Processing finished!");
+                    log.debug("ffmpegStreamToGo2rtc(): Processing finished!");
+                    uVideoStream.close();
+                    uAudioStream.close();
                     resolve();
                 });
-                ffmpegCommand.run();
+                command.run();
             }
             else {
                 reject(new Error("ffmpeg binary not found"));
             }
         }
         catch (error) {
-            log.error(`ffmpegRTMPToHls(): Error: ${error}`);
+            log.error(`ffmpegStreamToGo2rtc(): Error: ${error}`);
             reject(error);
         }
     });
-    rtmpPromise.stop = () => {
-        ffmpegCommand.removeAllListeners();
-        //ffmpegCommand.kill("SIGINT");
-        ffmpegCommand.quit();
-        resolveCb();
-    };
-    return rtmpPromise;
 };
-exports.ffmpegRTMPToHls = ffmpegRTMPToHls;
+exports.ffmpegStreamToGo2rtc = ffmpegStreamToGo2rtc;
 //# sourceMappingURL=video.js.map

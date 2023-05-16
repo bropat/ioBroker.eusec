@@ -159,6 +159,16 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.0.0 (2023-05-16)
+
+* (bropat) Notification pictures are supported again
+* (bropat) Implemented new livestream support using go2rtc (WebRTC/MSE, rtsp)
+* (bropat) Fixed issue #323
+* (bropat) Updated version of the package eufy-security-client (2.6.2)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.6.2)
+
+**Note:** The download of event videos has been temporarily removed as decryption of these is not yet supported. It will be added back as soon as it is supported.
+
 ### 0.9.10 (2023-02-24)
 
 * (bropat) Requires node version >= 16

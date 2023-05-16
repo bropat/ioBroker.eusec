@@ -12,7 +12,15 @@
     "Accept incoming invitations": "Przyjmowanie zaproszeń przychodzących",
     "Alarm sound duration (sec)": "Czas trwania dźwięku alarmu (sek.)",
     "Livestream settings": "Ustawienia transmisji na żywo",
-    "Max camera livestream duration (sec)": "Maksymalny czas trwania transmisji na żywo z kamery (s)",
-    "Automatically download video": "Automatycznie pobieraj wideo",
-    "Automatically download picture": "Automatyczne pobieranie obrazu"
+    "Max camera livestream duration (sec)": "Maksymalny czas trwania transmisji na żywo z kamery (s; 0 = bez ograniczeń)",
+    "General settings": "Ustawienia ogólne",
+    "Hostname": "Nazwa hosta strumieniowej transmisji url",
+    "https": "Adres url transmisji strumieniowej HTTPS",
+    "go2rtc settings": "Ustawienia go2rtc",
+    "API port": "Port API",
+    "SRTP port": "Port SRTP",
+    "WebRTC port": "Port WebRTC",
+    "RTSP port": "Port RTSP",
+    "RTSP Username": "Nazwa użytkownika RTSP",
+    "RTSP Password": "Hasło RTSP"
 }

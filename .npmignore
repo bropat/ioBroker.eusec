@@ -31,7 +31,7 @@ tsconfig.*.json
 maps/
 
 # npm package files
-iobroker.*.tgz
+*.tgz
 package-lock.json
 
 # i18n intermediate files

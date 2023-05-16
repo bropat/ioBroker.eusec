@@ -2,10 +2,7 @@
 
 * Supports local and remote p2p connection to station
 * Two factor authentication
-* Livestream as HLS stream (supports all platforms, but introduce a latency)
-* Last HLS live stream is always saved for later viewing
-* Downloads event video when push notification is received (async)
-* Takes jpeg thumbnail of the livestream or downloaded video
+* Livestream using go2rtc (WebRTC/MSE, rtsp)
 * Base station:
   * States:
     * Configured Guard mode

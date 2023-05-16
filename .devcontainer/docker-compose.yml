@@ -9,6 +9,10 @@ services:
         expose:
             - 8081
             - 8082
+        ports:
+            - 1984:1984
+            - 8554:8554
+            - 8443:8443
         volumes:
             - ..:/workspace:cached
             - iobrokerdata-eusec:/opt/iobroker

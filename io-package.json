@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "0.9.10",
+        "version": "1.0.0",
         "news": {
+            "1.0.0": {
+                "en": "Notification pictures are supported again\nImplemented new livestream support using go2rtc (WebRTC/MSE, rtsp)\nFixed issue #323\nUpdated version of the package eufy-security-client (2.6.2)\n",
+                "de": "Benachrichtigungsbilder werden wieder unterstützt\nNeue Livestream-Unterstützung mit go2rtc implementiert (WebRTC/MSE, rtsp)\nProblem #323 behoben\nVersion des Pakets eufy-security-client (2.6.2) aktualisiert\n",
+                "ru": "Изображения уведомлений снова поддерживаются\nРеализована новая поддержка livestream с использованием go2rtc (WebRTC/MSE, rtsp)\nИсправлена проблема №323\nОбновленная версия пакета eufy-security-client (2.6.2)\n",
+                "pt": "As imagens de notificação são novamente suportadas\nImplementação de um novo suporte de transmissão em directo utilizando go2rtc (WebRTC/MSE, rtsp)\nEdição fixa #323\nVersão atualizada do pacote eufy-security-client (2.6.2)\n",
+                "nl": "Meldingsfoto's worden weer ondersteund\nNieuwe livestreamondersteuning geïmplementeerd met go2rtc (WebRTC/MSE, rtsp).\nProbleem #323 opgelost\nBijgewerkte versie van het pakket eufy-security-client (2.6.2)\n",
+                "fr": "Les images de notification sont à nouveau prises en charge\nMise en place d'un nouveau support pour le livestream en utilisant go2rtc (WebRTC/MSE, rtsp)\nCorrection du problème n°323\nVersion mise à jour du paquet eufy-security-client (2.6.2)\n",
+                "it": "Le immagini di notifica sono nuovamente supportate\nImplementato nuovo livestream utilizzando go2rtc (WebRTC/MSE, rtsp)\nRisolto il problema #323\nAggiornata la versione del pacchetto eufy-security-client (2.6.2)\n",
+                "es": "Las imágenes de notificación vuelven a ser compatibles\nImplementado nuevo soporte livestream usando go2rtc (WebRTC/MSE, rtsp)\nCorregido el problema #323\nVersión actualizada del paquete eufy-security-client (2.6.2)\n",
+                "pl": "Obrazy powiadomień są ponownie obsługiwane\nWdrożono nową obsługę transmisji na żywo przy użyciu go2rtc (WebRTC/MSE, rtsp).\nNaprawiono błąd #323\nZaktualizowana wersja pakietu eufy-security-client (2.6.2)\n",
+                "zh-cn": "再次支持通知图片\n使用go2rtc（WebRTC/MSE，rtsp）实施新的现场直播支持。\n修正了问题#323\n包 eufy-security-client (2.6.2) 的更新版本\n"
+            },
             "0.9.10": {
                 "en": "Updated version of the package eufy-security-client (2.4.2)\nFixed issue #319\nFixed issue #307\nFixed issue #306\nFixed issue #305",
                 "de": "Version des Pakets eufy-security-client (2.4.2) aktualisiert\nProblem #319 behoben\nProblem #307 behoben\nProblem #306 behoben\nProblem #305 behoben",
@@ -14,78 +26,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (2.4.2)\nCorregido el problema #319\nCorregido el problema #307\nCorregido el problema #306\nCorregido el problema #305",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.4.2)\nNaprawiono błąd #319\nNaprawiono błąd #307\nNaprawiono błąd #306\nNaprawiono błąd #305",
                 "zh-cn": "包 eufy-security-client (2.4.2) 的更新版本\n修正了问题#319\n修正了问题#307\n修正了问题#306\n修正了问题#305"
-            },
-            "0.9.9": {
-                "en": "Updated version of the package eufy-security-client (2.4.0)\nFixed issue #311\nFixed issue #312",
-                "de": "Version des Pakets eufy-security-client (2.4.0) aktualisiert\nProblem #311 behoben\nProblem #312 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (2.4.0)\nИсправлена проблема №311\nИсправлена проблема №312",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.4.0)\nEdição fixa #311\nEdição fixa #312",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.4.0)\nProbleem #311 opgelost\nProbleem #312 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.4.0)\nCorrection du problème n°311\nCorrection du problème n°312",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.4.0)\nRisolto il problema #311\nRisolto il problema #312",
-                "es": "Versión actualizada del paquete eufy-security-client (2.4.0)\nCorregido el problema #311\nCorregido el problema #312",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.4.0)\nNaprawiono błąd #311\nNaprawiono błąd #312",
-                "zh-cn": "包 eufy-security-client (2.4.0) 的更新版本\n修正了问题#311\n修正了问题#312"
-            },
-            "0.9.8": {
-                "en": "Updated version of the package eufy-security-client (2.3.0)\nFixed issue #300",
-                "de": "Version des Pakets eufy-security-client (2.3.0) aktualisiert\nProblem #300 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (2.3.0)\nИсправлена проблема №300",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.3.0)\nEdição fixa #300",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.3.0)\nProbleem #300 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.3.0)\nCorrection du problème n°300",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.3.0)\nRisolto il problema #300",
-                "es": "Versión actualizada del paquete eufy-security-client (2.3.0)\nCorregido el problema #300",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.3.0)\nNaprawiono błąd #300",
-                "zh-cn": "包 eufy-security-client (2.3.0) 的更新版本\n修正了问题#300"
-            },
-            "0.9.7": {
-                "en": "Implemented Homebase Alarm (#271)\nUpdated version of the package eufy-security-client (2.2.3)\nFixed issue #293",
-                "de": "Homebase-Alarm implementiert (#271)\nVersion des Pakets eufy-security-client (2.2.3) aktualisiert\nProblem #293 behoben",
-                "ru": "Внедрена сигнализация Homebase (#271)\nОбновленная версия пакета eufy-security-client (2.2.3)\nИсправлена проблема №293",
-                "pt": "Alarme Implementado de Base Doméstica (#271)\nVersão atualizada do pacote eufy-security-client (2.2.3)\nEdição fixa #293",
-                "nl": "Homebase alarm geïmplementeerd (#271)\nBijgewerkte versie van het pakket eufy-security-client (2.2.3)\nProbleem #293 opgelost",
-                "fr": "Mise en œuvre de l'alarme Homebase (#271)\nVersion mise à jour du paquet eufy-security-client (2.2.3)\nCorrection du problème n°293",
-                "it": "Implementato l'allarme Homebase (#271)\nAggiornata la versione del pacchetto eufy-security-client (2.2.3)\nRisolto il problema #293",
-                "es": "Implementación de la alarma de la base de datos (#271)\nVersión actualizada del paquete eufy-security-client (2.2.3)\nCorregido el problema #293",
-                "pl": "Wdrożony alarm Homebase (#271)\nZaktualizowana wersja pakietu eufy-security-client (2.2.3)\nNaprawiono błąd #293",
-                "zh-cn": "实施家庭基地警报（#271）。\n包 eufy-security-client (2.2.3) 的更新版本\n修正了问题#293"
-            },
-            "0.9.6": {
-                "en": "Updated version of the package eufy-security-client (2.2.2)\nFixed issue #292",
-                "de": "Version des Pakets eufy-security-client (2.2.2) aktualisiert\nProblem #292 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (2.2.2)\nИсправлена проблема №292",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.2.2)\nEdição fixa #292",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.2.2)\nProbleem #292 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.2.2)\nCorrection du problème n°292",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.2.2)\nRisolto il problema #292",
-                "es": "Versión actualizada del paquete eufy-security-client (2.2.2)\nCorregido el problema #292",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.2.2)\nNaprawiono błąd #292",
-                "zh-cn": "包 eufy-security-client (2.2.2) 的更新版本\n修正了问题#292"
-            },
-            "0.9.5": {
-                "en": "Updated version of the package eufy-security-client (2.2.1)",
-                "de": "Version des Pakets eufy-security-client (2.2.1) aktualisiert",
-                "ru": "Обновленная версия пакета eufy-security-client (2.2.1)",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.2.1)",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.2.1)",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.2.1)",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.2.1)",
-                "es": "Versión actualizada del paquete eufy-security-client (2.2.1)",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.2.1)",
-                "zh-cn": "包 eufy-security-client (2.2.1) 的更新版本"
-            },
-            "0.9.4": {
-                "en": "Updated version of the package eufy-security-client (2.1.2)",
-                "de": "Version des Pakets eufy-security-client (2.1.2) aktualisiert",
-                "ru": "Обновленная версия пакета eufy-security-client (2.1.2)",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.1.2)",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.1.2)",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.1.2)",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.1.2)",
-                "es": "Versión actualizada del paquete eufy-security-client (2.1.2)",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.1.2)",
-                "zh-cn": "包 eufy-security-client (2.1.2) 的更新版本"
             }
         },
         "title": "euSec",
@@ -159,10 +99,12 @@
         }
     },
     "encryptedNative": [
-        "password"
+        "password",
+        "go2rtc_rtsp_password"
     ],
     "protectedNative": [
-        "password"
+        "password",
+        "go2rtc_rtsp_password"
     ],
     "native": {
         "username": "",
@@ -175,8 +117,14 @@
         "p2pConnectionType": "quickest",
         "acceptInvitations": true,
         "alarmSoundDuration": 60,
-        "autoDownloadVideo": false,
-        "autoDownloadPicture": false
+        "go2rtc_api_port": 1984,
+        "go2rtc_rtsp_port": 8554,
+        "go2rtc_srtp_port": 8443,
+        "go2rtc_webrtc_port": 8555,
+        "go2rtc_rtsp_username": "",
+        "go2rtc_rtsp_password": "",
+        "hostname": "",
+        "https": false
     },
     "objects": [],
     "instanceObjects": [

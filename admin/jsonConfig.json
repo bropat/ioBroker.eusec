@@ -100,24 +100,6 @@
             "sm": 12,
             "md": 6,
             "lg": 3
-          },
-          "autoDownloadVideo": {
-            "newLine": true,
-            "type": "checkbox",
-            "label": "Automatically download video",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 3
-          },
-          "autoDownloadPicture": {
-            "newLine": true,
-            "type": "checkbox",
-            "label": "Automatically download picture",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 3
           }
         }
       },
@@ -125,13 +107,100 @@
         "type": "panel",
         "label": "Livestream settings",
         "items": {
+          "generalHeader": {
+            "type": "header",
+            "text": "General settings",
+            "size": 1,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12
+          },
+          "hostname": {
+            "newLine": false,
+            "type": "text",
+            "label": "Hostname",
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
+          },
+          "https": {
+            "type": "checkbox",
+            "label": "HTTPS streaming url",
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
+          },
           "maxLivestreamDuration": {
+            "newLine": true,
             "type": "number",
             "label": "Max camera livestream duration (sec)",
             "xs": 12,
             "sm": 12,
             "md": 4,
             "lg": 3
+          },
+          "go2rtcHeader": {
+            "type": "header",
+            "text": "go2rtc settings",
+            "size": 1,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12
+          },
+          "go2rtc_api_port": {
+            "type": "number",
+            "label": "API port",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "go2rtc_srtp_port": {
+            "type": "number",
+            "label": "SRTP port",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "go2rtc_webrtc_port": {
+            "type": "number",
+            "label": "WebRTC port",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "go2rtc_rtsp_port": {
+            "type": "number",
+            "label": "RTSP port",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3
+          },
+          "go2rtc_rtsp_username": {
+            "newLine": true,
+            "type": "text",
+            "label": "RTSP Username",
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 3
+          },
+          "go2rtc_rtsp_password": {
+            "type": "password",
+            "label": "RTSP Password",
+            "repeat": true,
+            "visible": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 8,
+            "lg": 6
           }
         }
       }

@@ -8,7 +8,7 @@ nbproject
 maps/
 
 # npm package files
-iobroker.*.tgz
+*.tgz
 
 Thumbs.db
 
