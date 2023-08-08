@@ -37,7 +37,6 @@
 
         "sourceMap": true,
         "inlineSourceMap": false,
-        "watch": false,
         "esModuleInterop": true,
     },
     "include": [

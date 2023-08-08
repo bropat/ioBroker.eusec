@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "news": {
+            "1.1.0": {
+                "en": "Added support for Wired Wall Light Cam S100 (T84A1; #332)\nAdded support for Garage-Control Cam (T8452)\nFixed issues #316, #342, #347, #353\nUpdated version of the package go2rtc-static (1.6.2)\nUpdated version of the package eufy-security-client (2.7.1)\n",
+                "de": "Unterstützung für Wired Wall Light Cam S100 (T84A1; #332) hinzugefügt\nUnterstützung für Garage-Control Cam hinzugefügt (T8452)\nBehobene Probleme #316, #342, #347, #353\nVersion des Pakets go2rtc-static (1.6.2) aktualisiert\nVersion des Pakets eufy-security-client (2.7.1) aktualisiert\n",
+                "ru": "Добавлена поддержка Wired Wall Light Cam S100 (T84A1; #332)\nДобавлена поддержка Garage-Control Cam (T8452)\nИсправлены проблемы #316, #342, #347, #353\nОбновленная версия пакета go2rtc-static (1.6.2)\nОбновленная версия пакета eufy-security-client (2.7.1)\n",
+                "pt": "Adicionado suporte para Wired Wall Light Cam S100 (T84A1; #332)\nAdicionado suporte para Garage-Control Cam (T8452)\nProblemas corrigidos #316, #342, #347, #353\nVersão atualizada do pacote go2rtc-static (1.6.2)\nVersão atualizada do pacote eufy-security-client (2.7.1)\n",
+                "nl": "Ondersteuning toegevoegd voor Wired Wall Light Cam S100 (T84A1; #332)\nOndersteuning toegevoegd voor Garage-Control Cam (T8452)\nProblemen opgelost #316, #342, #347, #353\nBijgewerkte versie van het pakket go2rtc-static (1.6.2)\nBijgewerkte versie van het pakket eufy-security-client (2.7.1)\n",
+                "fr": "Ajout de la prise en charge de la Wired Wall Light Cam S100 (T84A1 ; #332)\nAjout de la prise en charge de la Garage-Control Cam (T8452)\nCorrection des problèmes #316, #342, #347, #353\nVersion mise à jour du paquet go2rtc-static (1.6.2)\nVersion mise à jour du paquet eufy-security-client (2.7.1)\n",
+                "it": "Aggiunto il supporto per Wired Wall Light Cam S100 (T84A1; #332)\nAggiunto il supporto per Garage-Control Cam (T8452)\nRisolti i problemi #316, #342, #347, #353\nAggiornata la versione del pacchetto go2rtc-static (1.6.2)\nAggiornata la versione del pacchetto eufy-security-client (2.7.1)\n",
+                "es": "Añadido soporte para Wired Wall Light Cam S100 (T84A1; #332)\nAñadido soporte para Garage-Control Cam (T8452)\nSolucionados los problemas #316, #342, #347, #353\nVersión actualizada del paquete go2rtc-static (1.6.2)\nVersión actualizada del paquete eufy-security-client (2.7.1)\n",
+                "pl": "Dodano obsługę Wired Wall Light Cam S100 (T84A1; #332).\nDodano obsługę Garage-Control Cam (T8452)\nNaprawiono błędy #316, #342, #347, #353\nZaktualizowana wersja pakietu go2rtc-static (1.6.2)\nZaktualizowana wersja pakietu eufy-security-client (2.7.1)\n",
+                "zh-cn": "已添加对 Wired Wall Light Cam S100（T84A1；#332）的支持\n已添加对 Garage-Control Cam（T8452）的支持\n修复了 #316、#342、#347 和 #353 号问题\n包 go2rtc-static (1.6.2) 的更新版本\n包 eufy-security-client (2.7.1) 的更新版本\n"
+            },
             "1.0.0": {
                 "en": "Notification pictures are supported again\nImplemented new livestream support using go2rtc (WebRTC/MSE, rtsp)\nFixed issue #323\nUpdated version of the package eufy-security-client (2.6.2)\n",
                 "de": "Benachrichtigungsbilder werden wieder unterstützt\nNeue Livestream-Unterstützung mit go2rtc implementiert (WebRTC/MSE, rtsp)\nProblem #323 behoben\nVersion des Pakets eufy-security-client (2.6.2) aktualisiert\n",
@@ -14,18 +26,6 @@
                 "es": "Las imágenes de notificación vuelven a ser compatibles\nImplementado nuevo soporte livestream usando go2rtc (WebRTC/MSE, rtsp)\nCorregido el problema #323\nVersión actualizada del paquete eufy-security-client (2.6.2)\n",
                 "pl": "Obrazy powiadomień są ponownie obsługiwane\nWdrożono nową obsługę transmisji na żywo przy użyciu go2rtc (WebRTC/MSE, rtsp).\nNaprawiono błąd #323\nZaktualizowana wersja pakietu eufy-security-client (2.6.2)\n",
                 "zh-cn": "再次支持通知图片\n使用go2rtc（WebRTC/MSE，rtsp）实施新的现场直播支持。\n修正了问题#323\n包 eufy-security-client (2.6.2) 的更新版本\n"
-            },
-            "0.9.10": {
-                "en": "Updated version of the package eufy-security-client (2.4.2)\nFixed issue #319\nFixed issue #307\nFixed issue #306\nFixed issue #305",
-                "de": "Version des Pakets eufy-security-client (2.4.2) aktualisiert\nProblem #319 behoben\nProblem #307 behoben\nProblem #306 behoben\nProblem #305 behoben",
-                "ru": "Обновленная версия пакета eufy-security-client (2.4.2)\nИсправлена проблема №319\nИсправлена проблема №307\nИсправлена проблема №306\nИсправлена проблема №305",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.4.2)\nEdição fixa #319\nEdição fixa #307\nEdição fixa #306\nEdição fixa #305",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.4.2)\nProbleem #319 opgelost\nProbleem #307 opgelost\nProbleem #306 opgelost\nProbleem #305 opgelost",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.4.2)\nCorrection du problème n°319\nCorrection du problème n°307\nCorrection du problème n°306\nCorrection du problème n°305",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.4.2)\nRisolto il problema #319\nRisolto il problema #307\nRisolto il problema #306\nRisolto il problema #305",
-                "es": "Versión actualizada del paquete eufy-security-client (2.4.2)\nCorregido el problema #319\nCorregido el problema #307\nCorregido el problema #306\nCorregido el problema #305",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.4.2)\nNaprawiono błąd #319\nNaprawiono błąd #307\nNaprawiono błąd #306\nNaprawiono błąd #305",
-                "zh-cn": "包 eufy-security-client (2.4.2) 的更新版本\n修正了问题#319\n修正了问题#307\n修正了问题#306\n修正了问题#305"
             }
         },
         "title": "euSec",

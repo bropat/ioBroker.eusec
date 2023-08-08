@@ -159,6 +159,18 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.1.0 (2023-08-08)
+
+* (bropat) Added support for Wired Wall Light Cam S100 (T84A1; #332)
+* (bropat) Added support for Garage-Control Cam (T8452)
+* (bropat) Fixed issue #353
+* (bropat) Fixed issue #347
+* (bropat) Fixed issue #342
+* (bropat) Fixed issue #316
+* (bropat) Updated version of the package go2rtc-static (1.6.2)
+* (bropat) Updated version of the package eufy-security-client (2.7.1)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.7.1)
+
 ### 1.0.0 (2023-05-16)
 
 * (bropat) Notification pictures are supported again
