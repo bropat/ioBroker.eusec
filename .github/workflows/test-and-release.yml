@@ -5,13 +5,18 @@ name: Test and Release
 on:
   push:
     branches:
-      - "*"
+      - "master"
     tags:
       # normal versions
       - "v[0-9]+.[0-9]+.[0-9]+"
       # pre-releases
       - "v[0-9]+.[0-9]+.[0-9]+-**"
   pull_request: {}
+
+# Cancel previous PR/branch runs when a new commit is pushed
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Performs quick checks before the expensive test runs
@@ -23,7 +28,7 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-check@v1
         with:
-          node-version: '16.x'
+          node-version: '18.x'
           # Uncomment the following line if your adapter cannot be installed using 'npm ci'
           # install-command: 'npm install'
           type-checking: true
@@ -36,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [16.x, 18.x, 20.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
@@ -64,10 +69,14 @@ jobs:
 #
 #    runs-on: ubuntu-latest
 #
+#    # Write permissions are required to create Github releases
+#    permissions:
+#      contents: write
+#
 #    steps:
 #      - uses: ioBroker/testing-action-deploy@v1
 #        with:
-#          node-version: '16.x'
+#          node-version: '18.x'
 #          # Uncomment the following line if your adapter cannot be installed using 'npm ci'
 #          # install-command: 'npm install'
 #          build: true
@@ -80,8 +89,8 @@ jobs:
 #          # Then uncomment and customize the following block:
 #          sentry: true
 #          sentry-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-#          sentry-project: "iobroker-template"
-#          sentry-version-prefix: "iobroker.template"
+#          sentry-project: "iobroker-eusec"
+#          sentry-version-prefix: "iobroker.eusec"
 #          sentry-sourcemap-paths: "build/"
 #          # If your sentry project is linked to a GitHub repository, you can enable the following option
 #          # sentry-github-integration: true

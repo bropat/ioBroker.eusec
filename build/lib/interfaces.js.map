@@ -1,1 +1,7 @@
-{"version":3,"file":"interfaces.js","sourceRoot":"","sources":["../../src/lib/interfaces.ts"],"names":[],"mappings":""}
+{
+  "version": 3,
+  "sources": ["../../src/lib/interfaces.ts"],
+  "sourcesContent": ["\r\n/*export interface AdapterConfig {\r\n    username: string;\r\n    password: string;\r\n    pollingInterval: number;\r\n    maxLivestreamDuration: number;\r\n    eventDuration: number;\r\n    verificationMethod: number;\r\n    p2pConnectionType: string;\r\n    acceptInvitations: boolean;\r\n    alarmSoundDuration: number;\r\n    go2rtc_api_port: number;\r\n    go2rtc_rtsp_port: number;\r\n    go2rtc_srtp_port: number;\r\n    go2rtc_webrtc_port: number;\r\n    go2rtc_rtsp_username: string;\r\n    go2rtc_rtsp_password: string;\r\n    hostname: string;\r\n    https: boolean;\r\n}*/\r\n\r\nexport interface PersistentData {\r\n    version: string;\r\n}\r\n\r\nexport interface IRoleMapping {\r\n    [index: string]: string;\r\n}"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

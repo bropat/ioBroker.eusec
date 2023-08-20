@@ -1,5 +1,5 @@
 
-export interface AdapterConfig {
+/*export interface AdapterConfig {
     username: string;
     password: string;
     pollingInterval: number;
@@ -17,7 +17,7 @@ export interface AdapterConfig {
     go2rtc_rtsp_password: string;
     hostname: string;
     https: boolean;
-}
+}*/
 
 export interface PersistentData {
     version: string;

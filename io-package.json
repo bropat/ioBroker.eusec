@@ -1,10 +1,24 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.1.0",
+        "version": "1.1.1",
         "news": {
+            "1.1.1": {
+                "en": "Fixed issues #365, #363\nUpdated version of the package ffmpeg-static (5.2.0)\nUpdated version of the package eufy-security-client (2.8.0)\n",
+                "uk": "Fixed issues #365, #363\nUpdated version of the package ffmpeg-static (5.2.0)\nUpdated version of the package eufy-security-client (2.8.0)\n",
+                "de": "Behobene Probleme #365, #363\nVersion des Pakets ffmpeg-static (5.2.0) aktualisiert\nVersion des Pakets eufy-security-client (2.8.0) aktualisiert\n",
+                "ru": "Исправлены проблемы #365, #363\nОбновленная версия пакета ffmpeg-static (5.2.0)\nОбновленная версия пакета eufy-security-client (2.8.0)\n",
+                "pt": "Problemas corrigidos #365, #363\nVersão atualizada do pacote ffmpeg-static (5.2.0)\nVersão atualizada do pacote eufy-security-client (2.8.0)\n",
+                "nl": "Problemen opgelost #365, #363\nBijgewerkte versie van het pakket ffmpeg-static (5.2.0)\nBijgewerkte versie van het pakket eufy-security-client (2.8.0)\n",
+                "fr": "Correction des problèmes #365, #363\nVersion mise à jour du paquet ffmpeg-static (5.2.0)\nVersion mise à jour du paquet eufy-security-client (2.8.0)\n",
+                "it": "Risolti i problemi #365, #363\nAggiornata la versione del pacchetto ffmpeg-static (5.2.0)\nAggiornata la versione del pacchetto eufy-security-client (2.8.0)\n",
+                "es": "Solucionados los problemas #365, #363\nVersión actualizada del paquete ffmpeg-static (5.2.0)\nVersión actualizada del paquete eufy-security-client (2.8.0)\n",
+                "pl": "Naprawiono błędy #365, #363\nZaktualizowana wersja pakietu ffmpeg-static (5.2.0)\nZaktualizowana wersja pakietu eufy-security-client (2.8.0)\n",
+                "zh-cn": "修复了 #365 和 #363 号问题\n包 ffmpeg-static (5.2.0) 的更新版本\n包 eufy-security-client (2.8.0) 的更新版本\n"
+            },
             "1.1.0": {
                 "en": "Added support for Wired Wall Light Cam S100 (T84A1; #332)\nAdded support for Garage-Control Cam (T8452)\nFixed issues #316, #342, #347, #353\nUpdated version of the package go2rtc-static (1.6.2)\nUpdated version of the package eufy-security-client (2.7.1)\n",
+                "uk": "Added support for Wired Wall Light Cam S100 (T84A1; #332)\nAdded support for Garage-Control Cam (T8452)\nFixed issues #316, #342, #347, #353\nUpdated version of the package go2rtc-static (1.6.2)\nUpdated version of the package eufy-security-client (2.7.1)\n",
                 "de": "Unterstützung für Wired Wall Light Cam S100 (T84A1; #332) hinzugefügt\nUnterstützung für Garage-Control Cam hinzugefügt (T8452)\nBehobene Probleme #316, #342, #347, #353\nVersion des Pakets go2rtc-static (1.6.2) aktualisiert\nVersion des Pakets eufy-security-client (2.7.1) aktualisiert\n",
                 "ru": "Добавлена поддержка Wired Wall Light Cam S100 (T84A1; #332)\nДобавлена поддержка Garage-Control Cam (T8452)\nИсправлены проблемы #316, #342, #347, #353\nОбновленная версия пакета go2rtc-static (1.6.2)\nОбновленная версия пакета eufy-security-client (2.7.1)\n",
                 "pt": "Adicionado suporte para Wired Wall Light Cam S100 (T84A1; #332)\nAdicionado suporte para Garage-Control Cam (T8452)\nProblemas corrigidos #316, #342, #347, #353\nVersão atualizada do pacote go2rtc-static (1.6.2)\nVersão atualizada do pacote eufy-security-client (2.7.1)\n",
@@ -17,6 +31,7 @@
             },
             "1.0.0": {
                 "en": "Notification pictures are supported again\nImplemented new livestream support using go2rtc (WebRTC/MSE, rtsp)\nFixed issue #323\nUpdated version of the package eufy-security-client (2.6.2)\n",
+                "uk": "Notification pictures are supported again\nImplemented new livestream support using go2rtc (WebRTC/MSE, rtsp)\nFixed issue #323\nUpdated version of the package eufy-security-client (2.6.2)\n",
                 "de": "Benachrichtigungsbilder werden wieder unterstützt\nNeue Livestream-Unterstützung mit go2rtc implementiert (WebRTC/MSE, rtsp)\nProblem #323 behoben\nVersion des Pakets eufy-security-client (2.6.2) aktualisiert\n",
                 "ru": "Изображения уведомлений снова поддерживаются\nРеализована новая поддержка livestream с использованием go2rtc (WebRTC/MSE, rtsp)\nИсправлена проблема №323\nОбновленная версия пакета eufy-security-client (2.6.2)\n",
                 "pt": "As imagens de notificação são novamente suportadas\nImplementação de um novo suporte de transmissão em directo utilizando go2rtc (WebRTC/MSE, rtsp)\nEdição fixa #323\nVersão atualizada do pacote eufy-security-client (2.6.2)\n",
@@ -28,9 +43,9 @@
                 "zh-cn": "再次支持通知图片\n使用go2rtc（WebRTC/MSE，rtsp）实施新的现场直播支持。\n修正了问题#323\n包 eufy-security-client (2.6.2) 的更新版本\n"
             }
         },
-        "title": "euSec",
         "titleLang": {
             "en": "euSec",
+            "uk": "euSec",
             "de": "euSec",
             "ru": "euSec",
             "pt": "euSec",
@@ -43,6 +58,7 @@
         },
         "desc": {
             "en": "Support for Eufy-Security cameras with stations",
+            "uk": "Support for Eufy-Security cameras with stations",
             "de": "Unterstützung für Eufy-Security-Kameras mit Stationen",
             "ru": "Поддержка камер Eufy-Security со станциями",
             "pt": "Suporte para câmeras de segurança Eufy com estações",
@@ -63,8 +79,7 @@
             "cameras",
             "security",
             "doorbell",
-            "eufy-security",
-            "iobroker"
+            "eufy-security"
         ],
         "license": "MIT",
         "platform": "Javascript/Node.js",

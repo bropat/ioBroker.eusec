@@ -1,5 +1,8 @@
 // Root tsconfig to set the settings and power editor support for all TS files
 {
+    // To update the compilation target, install a different version of @tsconfig/node... and reference it here
+    // https://github.com/tsconfig/bases#node-16-tsconfigjson
+    "extends": "@tsconfig/node16/tsconfig.json",
     "compileOnSave": true,
     "compilerOptions": {
         // do not compile anything, this file is just to configure type checking
@@ -19,9 +22,6 @@
         // this is necessary for the automatic typing of the adapter config
         "resolveJsonModule": true,
 
-        // Support React
-        "jsx": "react",
-
         // Set this to false if you want to disable the very strict rules (not recommended)
         "strict": true,
         // Or enable some of those features for more fine-grained control
@@ -33,7 +33,7 @@
         // "noUnusedParameters": true,
 
         // Consider targetting es2017 or higher if you require the new NodeJS 8+ features
-        "target": "es2019",
+        "target": "ES2020",
 
         "sourceMap": true,
         "inlineSourceMap": false,
@@ -46,6 +46,7 @@
     ],
     "exclude": [
         "build/**",
-        "node_modules/**"
+        "node_modules/**",
+        "widgets/**"
     ]
 }

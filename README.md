@@ -159,6 +159,14 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.1.1 (2023-08-20)
+
+* (bropat) Fixed issue #365
+* (bropat) Fixed issue #363
+* (bropat) Updated version of the package ffmpeg-static (5.2.0)
+* (bropat) Updated version of the package eufy-security-client (2.8.0)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.8.0)
+
 ### 1.1.0 (2023-08-08)
 
 * (bropat) Added support for Wired Wall Light Cam S100 (T84A1; #332)

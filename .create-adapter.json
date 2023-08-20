@@ -37,5 +37,11 @@
         1
     ],
     "dependabot": "no",
-    "creatorVersion": "1.28.0"
+    "creatorVersion": "2.5.0",
+    "nodeVersion": "16",
+    "adminUi": "html",
+    "i18n": "words.js",
+    "releaseScript": "no",
+    "devServer": "no",
+    "defaultBranch": "master"
 }

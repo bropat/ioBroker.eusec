@@ -1,12 +1,14 @@
 /*
- * Created with @iobroker/create-adapter v1.28.0
+ * Created with @iobroker/create-adapter v2.5.0
  */
 
+// The adapter-core module gives you access to the core ioBroker functions
+// you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { strict } from "assert";
 import * as path from "path";
-import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError } from "eufy-security-client";
+import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
 import fse from "fs-extra";
@@ -16,7 +18,7 @@ import childProcess from "child_process";
 import pathToGo2rtc from "go2rtc-static";
 import os from "os";
 
-import * as Interface from "./lib/interfaces"
+//import * as Interface from "./lib/interfaces"
 import { DeviceStateID, DataLocation, RoleMapping, StationStateID } from "./lib/types";
 import { convertCamelCaseToSnakeCase, getImageAsHTML, handleUpdate, removeFiles, removeLastChar, setStateChangedAsync } from "./lib/utils";
 import { PersistentData } from "./lib/interfaces";
@@ -25,7 +27,7 @@ import { ffmpegStreamToGo2rtc } from "./lib/video";
 
 // Augment the adapter.config object with the actual types
 // TODO: delete this in the next version
-declare global {
+/*declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace ioBroker {
         // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -35,9 +37,9 @@ declare global {
             //[key: string]: any;
         }
     }
-}
+}*/
 
-export class euSec extends utils.Adapter {
+class euSec extends utils.Adapter {
 
     private eufy!: EufySecurity;
     /*private downloadEvent: {
@@ -57,7 +59,7 @@ export class euSec extends utils.Adapter {
             ...options,
             name: "eusec",
         });
-        const data_dir = utils.getAbsoluteInstanceDataDir(this);
+        const data_dir = utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter);
         this.persistentFile = path.join(data_dir, "adapter.json");
 
         if (!fse.existsSync(data_dir))
@@ -75,7 +77,7 @@ export class euSec extends utils.Adapter {
      */
     private async onReady(): Promise<void> {
 
-        this.logger = new ioBrokerLogger(this.log);
+        this.logger = new ioBrokerLogger(this.log as ioBroker.Logger);
 
         await this.setObjectNotExistsAsync("verify_code", {
             type: "state",
@@ -212,13 +214,13 @@ export class euSec extends utils.Adapter {
         // Handling adapter version update
         try {
             if (this.persistentData.version !== this.version) {
-                const currentVersion = Number.parseFloat(removeLastChar(this.version, "."));
+                const currentVersion = Number.parseFloat(removeLastChar(this.version!, "."));
                 const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat(removeLastChar(this.persistentData.version, ".")) : 0;
                 this.logger.debug(`Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
 
                 if (previousVersion < currentVersion) {
-                    await handleUpdate(this, this.logger, previousVersion);
-                    this.persistentData.version = this.version;
+                    await handleUpdate(this as unknown as ioBroker.Adapter, this.logger, previousVersion);
+                    this.persistentData.version = this.version!;
                     this.writePersistentData();
                 }
             }
@@ -236,7 +238,7 @@ export class euSec extends utils.Adapter {
             password: this.config.password,
             country: countryCode,
             language: languageCode,
-            persistentDir: utils.getAbsoluteInstanceDataDir(this),
+            persistentDir: utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter),
             eventDurationSeconds: this.config.eventDuration,
             p2pConnectionSetup: connectionType,
             pollingIntervalMinutes: this.config.pollingInterval,
@@ -437,7 +439,7 @@ export class euSec extends utils.Adapter {
                     if (obj) {
                         if (obj.native.name !== undefined) {
                             try {
-                                await this.eufy.setDeviceProperty(device_sn, obj.native.name, state.val);
+                                await this.eufy.setDeviceProperty(device_sn, obj.native.name, obj.common.type === "object" ? JSON.parse(state.val as string) : state.val);
                             } catch (error) {
                                 this.logger.error(`Error in setting property value (property: ${obj.native.name} value: ${state.val})`, error);
                             }
@@ -596,7 +598,7 @@ export class euSec extends utils.Adapter {
             }
             const value = device.getPropertyValue(property.name);
             if (value !== undefined)
-                await setStateChangedAsync(this, id, property.type === "string" && typeof value === "object" ? JSON.stringify(value) : value);
+                await setStateChangedAsync(this as unknown as ioBroker.Adapter, id, (property.type === "string" || property.type === "object") && typeof value === "object" ? JSON.stringify(value) : value);
         }
     }
 
@@ -915,7 +917,7 @@ export class euSec extends utils.Adapter {
         this.delObjectAsync(device.getStateID("", 0), { recursive: true }).catch((error) => {
             this.logger.error(`Error deleting states of removed device`, error);
         });
-        removeFiles(this, device.getStationSerial(), DataLocation.LAST_EVENT, device.getSerial()).catch((error) => {
+        removeFiles(this as unknown as ioBroker.Adapter, device.getStationSerial(), DataLocation.LAST_EVENT, device.getSerial()).catch((error) => {
             this.logger.error(`Error deleting fs contents of removed device`, error);
         });
     }
@@ -1002,7 +1004,7 @@ export class euSec extends utils.Adapter {
         this.delObjectAsync(station.getStateID("", 0), { recursive: true }).catch((error) => {
             this.logger.error(`Error deleting states of removed station`, error);
         });
-        fse.remove(path.join(utils.getAbsoluteInstanceDataDir(this), station.getSerial())).catch((error) => {
+        fse.remove(path.join(utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter), station.getSerial())).catch((error) => {
             this.logger.error(`Error deleting fs contents of removed station`, error);
         });
     }
@@ -1168,7 +1170,7 @@ export class euSec extends utils.Adapter {
         // Delete obsolete directories/files
         new Promise<void>(async (resolve, reject) => {
             try {
-                const dir_path = path.join(utils.getAbsoluteInstanceDataDir(this));
+                const dir_path = path.join(utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter));
                 if (fse.existsSync(dir_path)) {
                     for (const content of fse.readdirSync(dir_path).filter(fn => fn.match("^T[0-9A-Z]+$") !== null)) {
                         if (!stationSerials.includes(content)) {
@@ -1320,7 +1322,7 @@ export class euSec extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    await setStateChangedAsync(this, state, obj.common.type === "string" && typeof value === "object" ? JSON.stringify(value) : value);
+                    await setStateChangedAsync(this as unknown as ioBroker.Adapter, state, (obj.common.type === "string" || obj.common.type === "object") && typeof value === "object" ? JSON.stringify(value) : value);
                     return;
                 }
             }
@@ -1334,7 +1336,7 @@ export class euSec extends utils.Adapter {
             const obj = await this.getObjectAsync(state);
             if (obj) {
                 if (obj.native.name !== undefined && obj.native.name === name) {
-                    await setStateChangedAsync(this, state, obj.common.type === "string" && typeof value === "object" ? JSON.stringify(value) : value);
+                    await setStateChangedAsync(this as unknown as ioBroker.Adapter, state, (obj.common.type === "string" || obj.common.type === "object") && typeof value === "object" ? JSON.stringify(value) : value);
                     switch(name) {
                         case PropertyName.DeviceRTSPStream:
                             if (value as boolean === false) {
@@ -1350,16 +1352,17 @@ export class euSec extends utils.Adapter {
             try {
                 const picture = value as Picture;
                 const fileName = `${device.getSerial()}.${picture.type.ext}`;
-                const filePath = path.join(utils.getAbsoluteInstanceDataDir(this), device.getStationSerial(), DataLocation.LAST_EVENT);
+                const filePath = path.join(utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter), device.getStationSerial(), DataLocation.LAST_EVENT);
 
                 if (!fse.existsSync(filePath)) {
                     fse.mkdirSync(filePath, {mode: 0o775, recursive: true});
                 }
 
                 await fse.writeFile(path.join(filePath, fileName), picture.data);
-                await setStateChangedAsync(this, device.getStateID(DeviceStateID.PICTURE_URL), `/${this.namespace}/${device.getStationSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}.${picture.type.ext}`);
-                await setStateChangedAsync(this, device.getStateID(DeviceStateID.PICTURE_HTML), getImageAsHTML(picture.data, picture.type.mime));
-            } catch (error) {
+                await setStateChangedAsync(this as unknown as ioBroker.Adapter, device.getStateID(DeviceStateID.PICTURE_URL), `/${this.namespace}/${device.getStationSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}.${picture.type.ext}`);
+                await setStateChangedAsync(this as unknown as ioBroker.Adapter, device.getStateID(DeviceStateID.PICTURE_HTML), getImageAsHTML(picture.data, picture.type.mime));
+            } catch (err) {
+                const error = ensureError(err);
                 this.logger.error("onDevicePropertyChanged - Property picture - Error", error);
             }
         } else {
@@ -1480,7 +1483,7 @@ export class euSec extends utils.Adapter {
     }*/
 
     private onStationRTSPUrl(station: Station, device: Device, value: string): void {
-        setStateChangedAsync(this, device.getStateID(DeviceStateID.RTSP_STREAM_URL), value);
+        setStateChangedAsync(this as unknown as ioBroker.Adapter, device.getStateID(DeviceStateID.RTSP_STREAM_URL), value);
     }
 
     private async onStationConnect(station: Station): Promise<void> {
@@ -1527,7 +1530,7 @@ export class euSec extends utils.Adapter {
 
 }
 
-if (module.parent) {
+if (require.main !== module) {
     // Export the constructor in compact mode
     module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new euSec(options);
 } else {
