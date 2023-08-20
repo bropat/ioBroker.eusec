@@ -1,0 +1,4 @@
+{
+	"typescriptBundle": false,
+	"typescriptCompileTarget": "node16"
+}
