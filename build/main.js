@@ -879,28 +879,28 @@ class euSec extends utils.Adapter {
     try {
       const allDevices = await this.getDevicesAsync();
       const reg = new RegExp(`^${this.namespace}.[0-9A-Z]+$`);
-      allDevices.forEach((id) => {
+      for (const id of allDevices) {
         if (id._id.match(reg)) {
           const serial = id._id.replace(`${this.namespace}.`, "");
           if (!stationSerials.includes(serial)) {
-            this.delObjectAsync(id._id, { recursive: true });
+            await this.delObjectAsync(id._id, { recursive: true });
           }
         }
-      });
+      }
     } catch (error) {
       this.log.error(`Delete obsolete stations ERROR - ${JSON.stringify(error)}`);
     }
     try {
       const allDevices = await this.getDevicesAsync();
       const reg = new RegExp(`^${this.namespace}.[0-9A-Z]+.[a-z]+.[0-9A-Z]+$`);
-      allDevices.forEach((id) => {
+      for (const id of allDevices) {
         if (id._id.match(reg)) {
           const serial = id._id.split(".")[4];
           if (!deviceSerials.includes(serial)) {
-            this.delObjectAsync(id._id, { recursive: true });
+            await this.delObjectAsync(id._id, { recursive: true });
           }
         }
-      });
+      }
     } catch (error) {
       this.log.error(`Delete obsolete devices ERROR - ${JSON.stringify(error)}`);
     }

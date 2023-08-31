@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.1.1",
+        "version": "1.1.2",
         "news": {
+            "1.1.2": {
+                "en": "Updated version of the package eufy-security-client (2.8.1)\n",
+                "uk": "Updated version of the package eufy-security-client (2.8.1)\n",
+                "de": "Version des Pakets eufy-security-client (2.8.1) aktualisiert\n",
+                "ru": "Обновленная версия пакета eufy-security-client (2.8.1)\n",
+                "pt": "Versão atualizada do pacote eufy-security-client (2.8.1)\n",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.8.1)\n",
+                "fr": "Version mise à jour du paquet eufy-security-client (2.8.1)\n",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.8.1)\n",
+                "es": "Versión actualizada del paquete eufy-security-client (2.8.1)\n",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.8.1)\n",
+                "zh-cn": "包 eufy-security-client (2.8.1) 的更新版本\n"
+            },
             "1.1.1": {
                 "en": "Fixed issues #365, #363\nUpdated version of the package ffmpeg-static (5.2.0)\nUpdated version of the package eufy-security-client (2.8.0)\n",
                 "uk": "Fixed issues #365, #363\nUpdated version of the package ffmpeg-static (5.2.0)\nUpdated version of the package eufy-security-client (2.8.0)\n",
