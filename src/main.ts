@@ -1411,14 +1411,13 @@ class euSec extends utils.Adapter {
         try {
             this.setStateAsync(device.getStateID(DeviceStateID.LIVESTREAM), { val: `${this.config.https ? "https" : "http"}://${this.config.hostname}:${this.config.go2rtc_api_port}/stream.html?src=${device.getSerial()}`, ack: true });
             this.setStateAsync(device.getStateID(DeviceStateID.LIVESTREAM_RTSP), { val: `rtsp://${this.config.hostname}:${this.config.go2rtc_rtsp_port}/${device.getSerial()}`, ack: true });
-            await ffmpegStreamToGo2rtc(this.config, this.namespace, device.getSerial(), metadata, videostream, audiostream, this.logger)
-                .catch(async (error) => {
-                    this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
-                    await this.eufy.stopStationLivestream(device.getSerial());
-                });
+            await ffmpegStreamToGo2rtc(this.config, this.namespace, device.getSerial(), metadata, videostream, audiostream, this.logger);
         } catch(error) {
             this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
-            await this.eufy.stopStationLivestream(device.getSerial());
+            this.eufy.stopStationLivestream(device.getSerial())
+                .catch(async (error) => {
+                    this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error during stopping livestream...`, error);
+                });
         }
     }
 

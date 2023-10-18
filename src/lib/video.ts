@@ -45,6 +45,7 @@ class UniversalStream {
 
         this.server = net.createServer(onSocket);
         this.server.listen(sockpath);
+        this.server.on("error", () => {});
     }
 
     public close(): void {
@@ -198,8 +199,6 @@ export const ffmpegStreamToGo2rtc = (config: ioBroker.AdapterConfig, namespace: 
             if (pathToFfmpeg) {
                 ffmpeg.setFfmpegPath(pathToFfmpeg);
 
-                log.warn("ffmpegStreamToGo2rtc(): Started");
-
                 videoStream.on("error", (error) => {
                     log.error("ffmpegStreamToGo2rtc(): Videostream Error", error);
                 });
@@ -223,7 +222,6 @@ export const ffmpegStreamToGo2rtc = (config: ioBroker.AdapterConfig, namespace: 
                 const options: string[] = [
                     "-rtsp_transport tcp",
                     "-sc_threshold 0",
-                    `-g ${metadata.videoFPS}`,
                     "-fflags genpts+nobuffer+flush_packets",
                     //"-rtpflags latm",
                 ];
@@ -248,9 +246,12 @@ export const ffmpegStreamToGo2rtc = (config: ioBroker.AdapterConfig, namespace: 
                         detached: true
                     })
                     .input(uVideoStream.url)
-                    .inputFormat(videoFormat)
-                    .inputFps(metadata.videoFPS)
-                    .videoCodec("copy");
+                    .inputFormat(videoFormat);
+                if (metadata.videoFPS > 0 ) {
+                    options.push(`-g ${metadata.videoFPS}`);
+                    command.inputFps(metadata.videoFPS);
+                }
+                command.videoCodec("copy");
                 if (audioFormat !== "") {
                     command.input(uAudioStream.url)
                         .inputFormat(audioFormat)
@@ -263,6 +264,9 @@ export const ffmpegStreamToGo2rtc = (config: ioBroker.AdapterConfig, namespace: 
                 command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`)
                     .outputFormat("rtsp")
                     .addOptions(options)
+                    .on("start", (commandline) => {
+                        log.debug(`ffmpegStreamToGo2rtc(): commandline: ${commandline}`);
+                    })
                     .on("error", function(err, stdout, stderr) {
                         log.error(`ffmpegStreamToGo2rtc(): An error occurred: ${err.message}`);
                         log.error(`ffmpegStreamToGo2rtc(): ffmpeg output:\n${stdout}`);
