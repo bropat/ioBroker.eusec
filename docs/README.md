@@ -14,8 +14,6 @@
 
 
 **Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.euSec.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.euSec)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.euSec?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-euSec/)
-
 
 [![NPM](https://nodei.co/npm/iobroker.eusec.png?downloads=true)](https://nodei.co/npm/iobroker.eusec/)
 

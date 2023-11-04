@@ -14,9 +14,7 @@ gulpfile.js
 test/
 travis/
 .travis.yml
-appveyor.yml
 .travis.yaml
-appveyor.yaml
 
 # TypeScript sources and project configuration
 src/

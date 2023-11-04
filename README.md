@@ -11,8 +11,6 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.eusec/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.eusec)
 
 **Tests:** ![Test and Release](https://github.com/bropat/ioBroker.eusec/workflows/Test%20and%20Release/badge.svg)
-Windows: [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bropat/ioBroker.eusec?branch=master&svg=true)](https://ci.appveyor.com/project/bropat/ioBroker-eusec/)
-
 
 [![NPM](https://nodei.co/npm/iobroker.eusec.png?downloads=true)](https://nodei.co/npm/iobroker.eusec/)
 
