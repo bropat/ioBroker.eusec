@@ -62,6 +62,8 @@ const _UniversalStream = class {
     }
     this.server = import_net.default.createServer(onSocket);
     this.server.listen(sockpath);
+    this.server.on("error", () => {
+    });
   }
   close() {
     if (this.server)
@@ -183,7 +185,6 @@ const ffmpegStreamToGo2rtc = (config, namespace, camera, metadata, videoStream, 
     try {
       if (import_ffmpeg_static.default) {
         import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_static.default);
-        log.warn("ffmpegStreamToGo2rtc(): Started");
         videoStream.on("error", (error) => {
           log.error("ffmpegStreamToGo2rtc(): Videostream Error", error);
         });
@@ -197,7 +198,6 @@ const ffmpegStreamToGo2rtc = (config, namespace, camera, metadata, videoStream, 
         const options = [
           "-rtsp_transport tcp",
           "-sc_threshold 0",
-          `-g ${metadata.videoFPS}`,
           "-fflags genpts+nobuffer+flush_packets"
         ];
         switch (metadata.videoCodec) {
@@ -215,13 +215,20 @@ const ffmpegStreamToGo2rtc = (config, namespace, camera, metadata, videoStream, 
         }
         const command = (0, import_fluent_ffmpeg.default)().withProcessOptions({
           detached: true
-        }).input(uVideoStream.url).inputFormat(videoFormat).inputFps(metadata.videoFPS).videoCodec("copy");
+        }).input(uVideoStream.url).inputFormat(videoFormat);
+        if (metadata.videoFPS > 0) {
+          options.push(`-g ${metadata.videoFPS}`);
+          command.inputFps(metadata.videoFPS);
+        }
+        command.videoCodec("copy");
         if (audioFormat !== "") {
           command.input(uAudioStream.url).inputFormat(audioFormat).audioCodec("opus");
         } else {
           log.warn(`ffmpegStreamToGo2rtc(): Not support audio codec or unknown audio codec (${import_eufy_security_client.AudioCodec[metadata.audioCodec]})`);
         }
-        command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`).outputFormat("rtsp").addOptions(options).on("error", function(err, stdout, stderr) {
+        command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`).outputFormat("rtsp").addOptions(options).on("start", (commandline) => {
+          log.debug(`ffmpegStreamToGo2rtc(): commandline: ${commandline}`);
+        }).on("error", function(err, stdout, stderr) {
           log.error(`ffmpegStreamToGo2rtc(): An error occurred: ${err.message}`);
           log.error(`ffmpegStreamToGo2rtc(): ffmpeg output:
 ${stdout}`);

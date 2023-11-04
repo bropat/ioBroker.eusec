@@ -159,6 +159,16 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.2.0 (2023-11-04)
+
+* (bropat) Requires node version >= 18
+* (bropat) Added support for SmartTrack Link (T87B0) and SmartTrack Card (T87B2)
+* (bropat) Added support for SoloCam S220 (T8134)
+* (bropat) Fixed livestream issue
+* (bropat) Updated version of the package go2rtc-static (1.8.1)
+* (bropat) Updated version of the package eufy-security-client (2.9.0)
+* (bropat) Further details can be found in the changelog of eufy-security-client (2.9.0)
+
 ### 1.1.2 (2023-08-31)
 
 * (bropat) Updated version of the package eufy-security-client (2.8.1)
