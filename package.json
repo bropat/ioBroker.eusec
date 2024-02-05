@@ -30,7 +30,7 @@
     "ffmpeg-static": "^5.2.0",
     "fs-extra": "^11.1.1",
     "go2rtc-static": "^1.8.1",
-    "got": "^11.8.6",
+    "got": "^14.2.0",
     "i18n-iso-countries": "^7.7.0",
     "mime": "^3.0.0",
     "ts-log": "^2.2.5"
