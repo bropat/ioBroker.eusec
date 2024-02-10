@@ -77,7 +77,8 @@ const DeviceStateID = {
   SET_DEFAULT_ANGLE: "set_default_angle",
   SET_PRIVACY_ANGLE: "set_privacy_angle",
   CALIBRATE: "calibrate",
-  UNLOCK: "unlock"
+  UNLOCK: "unlock",
+  OPEN_BOX: "open_box"
 };
 const StationStateID = {
   REBOOT: "reboot",

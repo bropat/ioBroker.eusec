@@ -19,9 +19,11 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var import_path = __toESM(require("path"));
 var import_fs = __toESM(require("fs"));
-var import_mime = __toESM(require("mime"));
 var utils = __toESM(require("@iobroker/adapter-core"));
 class ProxyEufySecurity {
+  app;
+  config;
+  namespace;
   constructor(server, webSettings, adapter, instanceSettings, app) {
     this.app = app;
     this.config = instanceSettings ? instanceSettings.native : {};
@@ -32,31 +34,33 @@ class ProxyEufySecurity {
       this.config.route = this.config.route.substr(1);
     }
     const root_path = import_path.default.join(utils.getAbsoluteDefaultDataDir(), this.namespace);
-    this.app.use("/" + this.config.route, (req, res) => {
-      const fileName = import_path.default.join(root_path, req.url.substring(1));
-      const normalized_filename = import_path.default.resolve(fileName);
-      if (normalized_filename.startsWith(root_path)) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        if (import_fs.default.existsSync(normalized_filename)) {
-          const stat = import_fs.default.statSync(normalized_filename);
-          if (!stat.isDirectory()) {
-            let data;
-            try {
-              data = import_fs.default.readFileSync(normalized_filename);
-            } catch (e) {
-              res.status(500).send(`[eufy-security] Cannot read file: ${e}`);
-              return;
+    import("mime").then(({ default: mime }) => {
+      this.app.use("/" + this.config.route, (req, res) => {
+        const fileName = import_path.default.join(root_path, req.url.substring(1));
+        const normalized_filename = import_path.default.resolve(fileName);
+        if (normalized_filename.startsWith(root_path)) {
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+          if (import_fs.default.existsSync(normalized_filename)) {
+            const stat = import_fs.default.statSync(normalized_filename);
+            if (!stat.isDirectory()) {
+              let data;
+              try {
+                data = import_fs.default.readFileSync(normalized_filename);
+              } catch (e) {
+                res.status(500).send(`[eufy-security] Cannot read file: ${e}`);
+                return;
+              }
+              res.contentType(mime.getType(import_path.default.extname(normalized_filename).substring(1)) || "html");
+              res.status(200).send(data);
             }
-            res.contentType(import_mime.default.getType(import_path.default.extname(normalized_filename).substring(1)) || "html");
-            res.status(200).send(data);
+          } else {
+            res.status(404).send('[eufy-security] File "' + normalized_filename + '" not found.');
           }
         } else {
-          res.status(404).send('[eufy-security] File "' + normalized_filename + '" not found.');
+          res.status(403).send('[eufy-security] Access to file "' + normalized_filename + '" denied.');
         }
-      } else {
-        res.status(403).send('[eufy-security] Access to file "' + normalized_filename + '" denied.');
-      }
+      });
     });
   }
 }

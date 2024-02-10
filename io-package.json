@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.2.1",
+        "version": "1.3.0",
         "news": {
+            "1.3.0": {
+                "en": "TODO",
+                "uk": "TODO",
+                "de": "TODO",
+                "ru": "TODO",
+                "pt": "TODO",
+                "nl": "TODO",
+                "fr": "TODO",
+                "it": "TODO",
+                "es": "TODO",
+                "pl": "TODO",
+                "zh-cn": "TODO"
+            },
             "1.2.1": {
                 "en": "Updated version of the package eufy-security-client (2.9.1)\n",
                 "uk": "Updated version of the package eufy-security-client (2.9.1)\n",
@@ -108,6 +121,10 @@
             "eufy-security"
         ],
         "license": "MIT",
+        "licenseInformation": {
+            "license": "MIT",
+            "type": "free"
+        },
         "platform": "Javascript/Node.js",
         "main": "build/main.js",
         "icon": "eusec.png",
@@ -122,6 +139,7 @@
         "dataSource": "poll",
         "materialize": true,
         "webExtension": "build/lib/web.js",
+        "tier": 2,
         "dependencies": [
             {
                 "js-controller": ">=4.0.3",

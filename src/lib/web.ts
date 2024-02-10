@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import mime from "mime";
 import * as utils from "@iobroker/adapter-core";
 
 /**
@@ -36,34 +35,36 @@ class ProxyEufySecurity {
         }
 
         const root_path = path.join(utils.getAbsoluteDefaultDataDir(), this.namespace);
-        this.app.use("/" + this.config.route, (req: express.Request, res: express.Response) => {
-            const fileName = path.join(root_path, req.url.substring(1));
-            const normalized_filename = path.resolve(fileName);
+        import("mime").then(({ default: mime }) => {
+            this.app.use("/" + this.config.route, (req: express.Request, res: express.Response) => {
+                const fileName = path.join(root_path, req.url.substring(1));
+                const normalized_filename = path.resolve(fileName);
 
-            if (normalized_filename.startsWith(root_path)) {
+                if (normalized_filename.startsWith(root_path)) {
 
-                res.setHeader("Access-Control-Allow-Origin", "*");
-                res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                    res.setHeader("Access-Control-Allow-Origin", "*");
+                    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-                if (fs.existsSync(normalized_filename)) {
-                    const stat = fs.statSync(normalized_filename);
-                    if (!stat.isDirectory()) {
-                        let data;
-                        try {
-                            data = fs.readFileSync(normalized_filename);
-                        } catch (e) {
-                            res.status(500).send(`[eufy-security] Cannot read file: ${e}`);
-                            return;
+                    if (fs.existsSync(normalized_filename)) {
+                        const stat = fs.statSync(normalized_filename);
+                        if (!stat.isDirectory()) {
+                            let data;
+                            try {
+                                data = fs.readFileSync(normalized_filename);
+                            } catch (e) {
+                                res.status(500).send(`[eufy-security] Cannot read file: ${e}`);
+                                return;
+                            }
+                            res.contentType(mime.getType(path.extname(normalized_filename).substring(1)) || "html");
+                            res.status(200).send(data);
                         }
-                        res.contentType(mime.getType(path.extname(normalized_filename).substring(1)) || "html");
-                        res.status(200).send(data);
+                    } else {
+                        res.status(404).send('[eufy-security] File "' + normalized_filename +'" not found.');
                     }
                 } else {
-                    res.status(404).send('[eufy-security] File "' + normalized_filename +'" not found.');
+                    res.status(403).send('[eufy-security] Access to file "' + normalized_filename +'" denied.');
                 }
-            } else {
-                res.status(403).send('[eufy-security] Access to file "' + normalized_filename +'" denied.');
-            }
+            });
         });
     }
 }

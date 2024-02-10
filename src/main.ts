@@ -8,7 +8,7 @@ import * as utils from "@iobroker/adapter-core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { strict } from "assert";
 import * as path from "path";
-import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError } from "eufy-security-client";
+import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError, LogLevel } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
 import fse from "fs-extra";
@@ -17,13 +17,14 @@ import util from "util";
 import childProcess from "child_process";
 import pathToGo2rtc from "go2rtc-static";
 import os from "os";
+import pathToFfmpeg from "ffmpeg-static";
 
 //import * as Interface from "./lib/interfaces"
 import { DeviceStateID, DataLocation, RoleMapping, StationStateID } from "./lib/types";
 import { convertCamelCaseToSnakeCase, getImageAsHTML, handleUpdate, removeFiles, removeLastChar, setStateChangedAsync } from "./lib/utils";
 import { PersistentData } from "./lib/interfaces";
 import { ioBrokerLogger } from "./lib/log";
-import { ffmpegStreamToGo2rtc } from "./lib/video";
+import { ffmpegStreamToGo2rtc, streamToGo2rtc } from "./lib/video";
 
 // Augment the adapter.config object with the actual types
 // TODO: delete this in the next version
@@ -243,6 +244,9 @@ class euSec extends utils.Adapter {
             p2pConnectionSetup: connectionType,
             pollingIntervalMinutes: this.config.pollingInterval,
             acceptInvitations: this.config.acceptInvitations,
+            logging: {
+                level: this.log.level === "silly" ? LogLevel.Trace : this.log.level === "debug" ? LogLevel.Debug : this.log.level === "info" ? LogLevel.Info : this.log.level === "warn" ? LogLevel.Warn : this.log.level === "error" ? LogLevel.Error : LogLevel.Info
+            }
         };
 
         this.eufy = await EufySecurity.initialize(config, this.logger);
@@ -293,7 +297,19 @@ class euSec extends utils.Adapter {
                 "webrtc": {
                     "listen": `:${this.config.go2rtc_webrtc_port}`
                 },
-                "streams": {}
+                "ffmpeg": {
+                    "bin": pathToFfmpeg !== "" && pathToFfmpeg !== undefined ? pathToFfmpeg : "ffmpeg",
+                },
+                "streams": {},
+                /*"log": {
+                    "level": "debug",  // default level
+                    "api": "debug",
+                    "exec": "debug",
+                    "ngrok": "debug",
+                    "rtsp": "debug",
+                    "streams": "debug",
+                    "webrtc": "debug",
+                }*/
             };
             if (this.config.go2rtc_rtsp_username !== "" && this.config.go2rtc_rtsp_password !== "") {
                 go2rtcConfig.rtsp.username = this.config.go2rtc_rtsp_username;
@@ -495,6 +511,9 @@ class euSec extends utils.Adapter {
                         case DeviceStateID.SET_PRIVACY_ANGLE:
                             await station.setPrivacyAngle(device);
                             break;
+                        /*case DeviceStateID.OPEN_BOX:
+                            await station.open(device);
+                            break;*/
                     }
                 } catch (error) {
                     this.logger.error(`cameras - Error:`, error);
@@ -798,6 +817,19 @@ class euSec extends utils.Adapter {
                 native: {},
             });
         }
+        /*if (device.hasCommand(CommandName.DeviceOpen)) {
+            await this.setObjectNotExistsAsync(device.getStateID(DeviceStateID.OPEN_BOX), {
+                type: "state",
+                common: {
+                    name: "Open Box",
+                    type: "boolean",
+                    role: "button.start",
+                    read: false,
+                    write: true,
+                },
+                native: {},
+            });
+        }*/
         if (device.hasCommand(CommandName.DeviceStartLivestream)) {
             // Start Stream
             await this.setObjectNotExistsAsync(device.getStateID(DeviceStateID.START_STREAM), {
@@ -1110,8 +1142,11 @@ class euSec extends utils.Adapter {
             const reg = new RegExp(`^${this.namespace}\.[0-9A-Z]+\.[a-z]+\.[0-9A-Z]+$`);
             for (const id of allDevices) {
                 if (id._id.match(reg)) {
-                    const serial = id._id.split(".")[4];
-                    if (!deviceSerials.includes(serial)) {
+                    const values = id._id.split(".");
+                    const stateChannel = values[3];
+                    const serial = values[4];
+                    if (!deviceSerials.includes(serial) ||
+                        (deviceSerials.includes(serial) && devices[deviceSerials.indexOf(serial)].getStateChannel() !== "unknown" && stateChannel === "unknown")) {
                         await this.delObjectAsync(id._id, { recursive: true });
                     }
                 }
@@ -1166,6 +1201,22 @@ class euSec extends utils.Adapter {
         } catch (error) {
             this.log.error(`Delete obsolete properties ERROR - ${JSON.stringify(error)}`);
         }
+
+        // Delete unknown devices if they are now known
+        /*try {
+            const allDevices = await this.getDevicesAsync();
+            const reg = new RegExp(`^${this.namespace}\.[0-9A-Z]+\.unknown\.[0-9A-Z]+$`);
+            for (const id of allDevices) {
+                if (id._id.match(reg)) {
+                    const serial = id._id.split(".")[4];
+                    if (!deviceSerials.includes(serial) || (deviceSerials.includes(serial) && devices[deviceSerials.indexOf(serial)].getStateChannel() !== "unknown")) {
+                        await this.delObjectAsync(id._id, { recursive: true });
+                    }
+                }
+            }
+        } catch (error) {
+            this.log.error(`Delete obsolete devices ERROR - ${JSON.stringify(error)}`);
+        }*/
 
         // Delete obsolete directories/files
         new Promise<void>(async (resolve, reject) => {
@@ -1302,16 +1353,7 @@ class euSec extends utils.Adapter {
     }
 
     private async onStationCommandResult(station: Station, result: CommandResult): Promise<void> {
-        if (result.return_code !== 0 && result.command_type === CommandType.CMD_START_REALTIME_MEDIA) {
-            this.logger.debug(`Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
-            try {
-                const device = await this.eufy.getStationDevice(station.getSerial(), result.channel);
-                if (device.isCamera())
-                    this.eufy.startCloudLivestream(device.getSerial());
-            } catch (error) {
-                this.logger.error(`Station: ${station.getSerial()} command ${CommandType[result.command_type]} RTMP fallback failed - Error ${error}`);
-            }
-        } else if (result.return_code !== 0 && result.command_type !== CommandType.P2P_QUERY_STATUS_IN_LOCK) {
+        if (result.return_code !== 0 && result.command_type !== CommandType.P2P_QUERY_STATUS_IN_LOCK) {
             this.logger.error(`Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code})`);
         }
     }
@@ -1411,7 +1453,10 @@ class euSec extends utils.Adapter {
         try {
             this.setStateAsync(device.getStateID(DeviceStateID.LIVESTREAM), { val: `${this.config.https ? "https" : "http"}://${this.config.hostname}:${this.config.go2rtc_api_port}/stream.html?src=${device.getSerial()}`, ack: true });
             this.setStateAsync(device.getStateID(DeviceStateID.LIVESTREAM_RTSP), { val: `rtsp://${this.config.hostname}:${this.config.go2rtc_rtsp_port}/${device.getSerial()}`, ack: true });
-            await ffmpegStreamToGo2rtc(this.config, this.namespace, device.getSerial(), metadata, videostream, audiostream, this.logger);
+            //await ffmpegStreamToGo2rtc(this.config, this.namespace, device.getSerial(), metadata, videostream, audiostream, this.logger);
+            await streamToGo2rtc(device.getSerial(), videostream, audiostream, this.logger, this.config, this.namespace, metadata).catch((error) => {
+                this.logger.debug(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Stopping livestream...`, error);
+            });
         } catch(error) {
             this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
             this.eufy.stopStationLivestream(device.getSerial())

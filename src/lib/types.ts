@@ -59,6 +59,7 @@ export const DeviceStateID = {
     SET_PRIVACY_ANGLE: "set_privacy_angle",
     CALIBRATE: "calibrate",
     UNLOCK: "unlock",
+    OPEN_BOX: "open_box",
 }
 
 export const StationStateID = {

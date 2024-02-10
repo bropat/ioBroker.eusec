@@ -27,21 +27,25 @@ var import_util = __toESM(require("util"));
 var import_child_process = __toESM(require("child_process"));
 var import_go2rtc_static = __toESM(require("go2rtc-static"));
 var import_os = __toESM(require("os"));
+var import_ffmpeg_static = __toESM(require("ffmpeg-static"));
 var import_types = require("./lib/types");
 var import_utils = require("./lib/utils");
 var import_log = require("./lib/log");
 var import_video = require("./lib/video");
 class euSec extends utils.Adapter {
+  eufy;
+  persistentFile;
+  logger;
+  persistentData = {
+    version: ""
+  };
+  captchaId = null;
+  verify_code = false;
   constructor(options = {}) {
     super({
       ...options,
       name: "eusec"
     });
-    this.persistentData = {
-      version: ""
-    };
-    this.captchaId = null;
-    this.verify_code = false;
     const data_dir = utils.getAbsoluteInstanceDataDir(this);
     this.persistentFile = path.join(data_dir, "adapter.json");
     if (!import_fs_extra.default.existsSync(data_dir))
@@ -204,7 +208,10 @@ class euSec extends utils.Adapter {
       eventDurationSeconds: this.config.eventDuration,
       p2pConnectionSetup: connectionType,
       pollingIntervalMinutes: this.config.pollingInterval,
-      acceptInvitations: this.config.acceptInvitations
+      acceptInvitations: this.config.acceptInvitations,
+      logging: {
+        level: this.log.level === "silly" ? import_eufy_security_client.LogLevel.Trace : this.log.level === "debug" ? import_eufy_security_client.LogLevel.Debug : this.log.level === "info" ? import_eufy_security_client.LogLevel.Info : this.log.level === "warn" ? import_eufy_security_client.LogLevel.Warn : this.log.level === "error" ? import_eufy_security_client.LogLevel.Error : import_eufy_security_client.LogLevel.Info
+      }
     };
     this.eufy = await import_eufy_security_client.EufySecurity.initialize(config, this.logger);
     this.eufy.on("station added", (station) => this.onStationAdded(station));
@@ -243,6 +250,9 @@ class euSec extends utils.Adapter {
         },
         "webrtc": {
           "listen": `:${this.config.go2rtc_webrtc_port}`
+        },
+        "ffmpeg": {
+          "bin": import_ffmpeg_static.default !== "" && import_ffmpeg_static.default !== void 0 ? import_ffmpeg_static.default : "ffmpeg"
         },
         "streams": {}
       };
@@ -895,8 +905,10 @@ class euSec extends utils.Adapter {
       const reg = new RegExp(`^${this.namespace}.[0-9A-Z]+.[a-z]+.[0-9A-Z]+$`);
       for (const id of allDevices) {
         if (id._id.match(reg)) {
-          const serial = id._id.split(".")[4];
-          if (!deviceSerials.includes(serial)) {
+          const values = id._id.split(".");
+          const stateChannel = values[3];
+          const serial = values[4];
+          if (!deviceSerials.includes(serial) || deviceSerials.includes(serial) && devices[deviceSerials.indexOf(serial)].getStateChannel() !== "unknown" && stateChannel === "unknown") {
             await this.delObjectAsync(id._id, { recursive: true });
           }
         }
@@ -1074,16 +1086,7 @@ class euSec extends utils.Adapter {
     await this.setStateAsync("info.mqtt_connection", { val: false, ack: true });
   }
   async onStationCommandResult(station, result) {
-    if (result.return_code !== 0 && result.command_type === import_eufy_security_client.CommandType.CMD_START_REALTIME_MEDIA) {
-      this.logger.debug(`Station: ${station.getSerial()} command ${import_eufy_security_client.CommandType[result.command_type]} failed with error: ${import_eufy_security_client.ErrorCode[result.return_code]} (${result.return_code}) fallback to RTMP livestream...`);
-      try {
-        const device = await this.eufy.getStationDevice(station.getSerial(), result.channel);
-        if (device.isCamera())
-          this.eufy.startCloudLivestream(device.getSerial());
-      } catch (error) {
-        this.logger.error(`Station: ${station.getSerial()} command ${import_eufy_security_client.CommandType[result.command_type]} RTMP fallback failed - Error ${error}`);
-      }
-    } else if (result.return_code !== 0 && result.command_type !== import_eufy_security_client.CommandType.P2P_QUERY_STATUS_IN_LOCK) {
+    if (result.return_code !== 0 && result.command_type !== import_eufy_security_client.CommandType.P2P_QUERY_STATUS_IN_LOCK) {
       this.logger.error(`Station: ${station.getSerial()} command ${import_eufy_security_client.CommandType[result.command_type]} failed with error: ${import_eufy_security_client.ErrorCode[result.return_code]} (${result.return_code})`);
     }
   }
@@ -1174,7 +1177,9 @@ class euSec extends utils.Adapter {
     try {
       this.setStateAsync(device.getStateID(import_types.DeviceStateID.LIVESTREAM), { val: `${this.config.https ? "https" : "http"}://${this.config.hostname}:${this.config.go2rtc_api_port}/stream.html?src=${device.getSerial()}`, ack: true });
       this.setStateAsync(device.getStateID(import_types.DeviceStateID.LIVESTREAM_RTSP), { val: `rtsp://${this.config.hostname}:${this.config.go2rtc_rtsp_port}/${device.getSerial()}`, ack: true });
-      await (0, import_video.ffmpegStreamToGo2rtc)(this.config, this.namespace, device.getSerial(), metadata, videostream, audiostream, this.logger);
+      await (0, import_video.streamToGo2rtc)(device.getSerial(), videostream, audiostream, this.logger, this.config, this.namespace, metadata).catch((error) => {
+        this.logger.debug(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Stopping livestream...`, error);
+      });
     } catch (error) {
       this.logger.error(`Station: ${station.getSerial()} Device: ${device.getSerial()} - Error - Stopping livestream...`, error);
       this.eufy.stopStationLivestream(device.getSerial()).catch(async (error2) => {
