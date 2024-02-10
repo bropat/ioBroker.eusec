@@ -282,6 +282,18 @@ class euSec extends utils.Adapter {
         go2rtc.kill();
       });
     }
+    const channels = await this.getChannelsAsync();
+    for (const channel of channels) {
+      if (channel.common.name === "unknown") {
+        this.log.warn(`Found unknown channel: ${channel._id}`);
+        const states = await this.getStatesAsync(`${channel._id}.*`);
+        this.log.warn(`states: ${JSON.stringify(states)} count: ${Object.keys(states).length}`);
+        if (Object.keys(states).length === 0) {
+          this.log.warn(`Delete channel: ${channel._id}`);
+          await this.delObjectAsync(channel._id);
+        }
+      }
+    }
   }
   writePersistentData() {
     try {

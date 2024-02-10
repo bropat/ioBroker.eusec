@@ -60,11 +60,15 @@ class UniversalStream {
 }
 
 export const StreamInput = function(namespace: string, stream: NodeJS.ReadableStream): UniversalStream {
-    return new UniversalStream(namespace, (socket: net.Socket) => stream.pipe(socket, { end: true }))
+    return new UniversalStream(namespace, (socket: net.Socket) => stream.pipe(socket, { end: true }).on("error", (_error) => {
+        //TODO: log error
+    }));
 }
 
 export const StreamOutput = function(namespace: string, stream: NodeJS.WritableStream): UniversalStream {
-    return new UniversalStream(namespace, (socket: net.Socket) => socket.pipe(stream, { end: true }))
+    return new UniversalStream(namespace, (socket: net.Socket) => socket.pipe(stream, { end: true }).on("error", (_error) => {
+        //TODO: log error
+    }));
 }
 
 export const ffmpegPreviewImage = (config: ioBroker.AdapterConfig, input:string, output: string, log: ioBrokerLogger, skip_seconds = 2.0): Promise<void> => {
@@ -312,7 +316,9 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
     return Promise.allSettled([
         streamPipeline(
             videoStream,
-            got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`),
+            got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error) => {
+                log.error("streamToGo2rtc(): Got Videostream Error", error);
+            }),
             new stream.PassThrough()
         ),
         //TODO: Tested with go2rtc 1.8.4 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
@@ -332,7 +338,7 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                     let audioFormat = "";
                     const options: string[] = [
                         "-rtsp_transport tcp",
-                        "-sc_threshold 0",
+                        //"-sc_threshold 0",
                         "-fflags genpts+nobuffer+flush_packets",
                         //"-rtpflags latm",
                     ];

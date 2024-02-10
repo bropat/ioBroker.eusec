@@ -24,7 +24,7 @@ import { DeviceStateID, DataLocation, RoleMapping, StationStateID } from "./lib/
 import { convertCamelCaseToSnakeCase, getImageAsHTML, handleUpdate, removeFiles, removeLastChar, setStateChangedAsync } from "./lib/utils";
 import { PersistentData } from "./lib/interfaces";
 import { ioBrokerLogger } from "./lib/log";
-import { ffmpegStreamToGo2rtc, streamToGo2rtc } from "./lib/video";
+import { streamToGo2rtc } from "./lib/video";
 
 // Augment the adapter.config object with the actual types
 // TODO: delete this in the next version
@@ -336,6 +336,16 @@ class euSec extends utils.Adapter {
             process.on("exit", () => {
                 go2rtc.kill();
             });
+        }
+        // Delete cunknown channels without childs
+        const channels = await this.getChannelsAsync();
+        for (const channel of channels) {
+            if (channel.common.name === "unknown") {
+                const states = await this.getStatesAsync(`${channel._id}.*`);
+                if (Object.keys(states).length === 0) {
+                    await this.delObjectAsync(channel._id);
+                }
+            }
         }
     }
 
@@ -1201,22 +1211,6 @@ class euSec extends utils.Adapter {
         } catch (error) {
             this.log.error(`Delete obsolete properties ERROR - ${JSON.stringify(error)}`);
         }
-
-        // Delete unknown devices if they are now known
-        /*try {
-            const allDevices = await this.getDevicesAsync();
-            const reg = new RegExp(`^${this.namespace}\.[0-9A-Z]+\.unknown\.[0-9A-Z]+$`);
-            for (const id of allDevices) {
-                if (id._id.match(reg)) {
-                    const serial = id._id.split(".")[4];
-                    if (!deviceSerials.includes(serial) || (deviceSerials.includes(serial) && devices[deviceSerials.indexOf(serial)].getStateChannel() !== "unknown")) {
-                        await this.delObjectAsync(id._id, { recursive: true });
-                    }
-                }
-            }
-        } catch (error) {
-            this.log.error(`Delete obsolete devices ERROR - ${JSON.stringify(error)}`);
-        }*/
 
         // Delete obsolete directories/files
         new Promise<void>(async (resolve, reject) => {

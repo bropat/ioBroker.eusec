@@ -22,6 +22,7 @@ __export(log_exports, {
 });
 module.exports = __toCommonJS(log_exports);
 class ioBrokerLogger {
+  log;
   constructor(log) {
     this.log = log;
   }

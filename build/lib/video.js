@@ -79,10 +79,12 @@ class UniversalStream {
   }
 }
 const StreamInput = function(namespace, stream2) {
-  return new UniversalStream(namespace, (socket) => stream2.pipe(socket, { end: true }));
+  return new UniversalStream(namespace, (socket) => stream2.pipe(socket, { end: true }).on("error", (_error) => {
+  }));
 };
 const StreamOutput = function(namespace, stream2) {
-  return new UniversalStream(namespace, (socket) => socket.pipe(stream2, { end: true }));
+  return new UniversalStream(namespace, (socket) => socket.pipe(stream2, { end: true }).on("error", (_error) => {
+  }));
 };
 const ffmpegPreviewImage = (config, input, output, log, skip_seconds = 2) => {
   return new Promise((resolve, reject) => {
@@ -269,7 +271,9 @@ const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, nam
   return Promise.allSettled([
     (0, import_promises.pipeline)(
       videoStream,
-      got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`),
+      got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error) => {
+        log.error("streamToGo2rtc(): Got Videostream Error", error);
+      }),
       new import_node_stream.default.PassThrough()
     ),
     new Promise((resolve, reject) => {
@@ -280,7 +284,6 @@ const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, nam
           let audioFormat = "";
           const options = [
             "-rtsp_transport tcp",
-            "-sc_threshold 0",
             "-fflags genpts+nobuffer+flush_packets"
           ];
           switch (metadata.audioCodec) {
