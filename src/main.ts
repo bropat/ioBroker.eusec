@@ -69,7 +69,7 @@ class euSec extends utils.Adapter {
         this.on("ready", this.onReady.bind(this));
         this.on("stateChange", this.onStateChange.bind(this));
         // this.on("objectChange", this.onObjectChange.bind(this));
-        // this.on("message", this.onMessage.bind(this));
+        this.on("message", this.onMessage.bind(this));
         this.on("unload", this.onUnload.bind(this));
     }
 
@@ -535,22 +535,48 @@ class euSec extends utils.Adapter {
         }
     }
 
-    // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-    // /**
-    //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-    //  * Using this method requires "common.message" property to be set to true in io-package.json
-    //  */
-    // private onMessage(obj: ioBroker.Message): void {
-    //     if (typeof obj === "object" && obj.message) {
-    //         if (obj.command === "send") {
-    //             // e.g. send email or pushover or whatever
-    //             this.log.info("send command");
+    /**
+     * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
+     * Using this method requires "common.message" property to be set to true in io-package.json
+     */
+    private async onMessage(obj: ioBroker.Message): Promise<void> {
+        if (typeof obj === "object" && obj.message) {
+            /*if (obj.command === "send") {
+                // e.g. send email or pushover or whatever
+                this.log.info("send command");
 
-    //             // Send response in callback if required
-    //             if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-    //         }
-    //     }
-    // }
+                // Send response in callback if required
+                if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
+            }*/
+            if (obj.command === "quick_response") {
+                if (typeof obj.message === "object") {
+                    const station = await this.eufy.getStation(obj.message.station_sn);
+                    const device = await this.eufy.getDevice(obj.message.device_sn);
+
+                    await station.quickResponse(device, obj.message.voice_id);
+
+                    if (obj.callback)
+                        this.sendTo(obj.from, obj.command, "QuickResponse command received", obj.callback);
+                }
+            } else if (obj.command === "snooze") {
+                this.log.debug(`snooze command - message: ${JSON.stringify(obj.message)}`);
+                if (typeof obj.message === "object") {
+                    const station = await this.eufy.getStation(obj.message.station_sn);
+                    const device = await this.eufy.getDevice(obj.message.device_sn);
+
+                    await station.snooze(device, {
+                        snooze_time: obj.message.snooze_time,
+                        snooze_chime: obj.message.snooze_chime,
+                        snooze_homebase: obj.message.snooze_homebase,
+                        snooze_motion: obj.message.snooze_motion,
+                    });
+
+                    if (obj.callback)
+                        this.sendTo(obj.from, obj.command, "Snooze command received", obj.callback);
+                }
+            }
+        }
+    }
 
     private getStateCommon(property: PropertyMetadataAny): ioBroker.StateCommon {
         const state: ioBroker.StateCommon = {

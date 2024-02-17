@@ -140,6 +140,7 @@
         "materialize": true,
         "webExtension": "build/lib/web.js",
         "tier": 2,
+        "messagebox": true,
         "dependencies": [
             {
                 "js-controller": ">=4.0.3",

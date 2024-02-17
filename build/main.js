@@ -52,6 +52,7 @@ class euSec extends utils.Adapter {
       import_fs_extra.default.mkdirSync(data_dir);
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
+    this.on("message", this.onMessage.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
   async onReady() {
@@ -285,11 +286,8 @@ class euSec extends utils.Adapter {
     const channels = await this.getChannelsAsync();
     for (const channel of channels) {
       if (channel.common.name === "unknown") {
-        this.log.warn(`Found unknown channel: ${channel._id}`);
         const states = await this.getStatesAsync(`${channel._id}.*`);
-        this.log.warn(`states: ${JSON.stringify(states)} count: ${Object.keys(states).length}`);
         if (Object.keys(states).length === 0) {
-          this.log.warn(`Delete channel: ${channel._id}`);
           await this.delObjectAsync(channel._id);
         }
       }
@@ -441,6 +439,33 @@ class euSec extends utils.Adapter {
       }
     } else {
       this.logger.debug(`state ${id} deleted`);
+    }
+  }
+  async onMessage(obj) {
+    if (typeof obj === "object" && obj.message) {
+      if (obj.command === "quick_response") {
+        if (typeof obj.message === "object") {
+          const station = await this.eufy.getStation(obj.message.station_sn);
+          const device = await this.eufy.getDevice(obj.message.device_sn);
+          await station.quickResponse(device, obj.message.voice_id);
+          if (obj.callback)
+            this.sendTo(obj.from, obj.command, "QuickResponse command received", obj.callback);
+        }
+      } else if (obj.command === "snooze") {
+        this.log.debug(`snooze command - message: ${JSON.stringify(obj.message)}`);
+        if (typeof obj.message === "object") {
+          const station = await this.eufy.getStation(obj.message.station_sn);
+          const device = await this.eufy.getDevice(obj.message.device_sn);
+          await station.snooze(device, {
+            snooze_time: obj.message.snooze_time,
+            snooze_chime: obj.message.snooze_chime,
+            snooze_homebase: obj.message.snooze_homebase,
+            snooze_motion: obj.message.snooze_motion
+          });
+          if (obj.callback)
+            this.sendTo(obj.from, obj.command, "Snooze command received", obj.callback);
+        }
+      }
     }
   }
   getStateCommon(property) {
