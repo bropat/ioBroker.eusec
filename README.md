@@ -157,6 +157,15 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.3.0 (2024-02-xx)
+
+* (bropat) Added new setting to choose country indipendently of ioBroker setting
+* (bropat) New go2rtc streaming implementation
+* (bropat) Added messagebox support to exhibit new commands
+* (bropat) Fixed deletion of obsolete devices, channels and states
+* (bropat) Updated version of the package eufy-security-client (3.0.0)
+* (bropat) Further details can be found in the changelog of eufy-security-client (3.0.0)
+
 ### 1.2.1 (2023-11-04)
 
 * (bropat) Updated version of the package eufy-security-client (2.9.1)

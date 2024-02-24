@@ -6,6 +6,7 @@ declare global {
         interface AdapterConfig {
             username: string;
             password: string;
+            country: string;
             pollingInterval: number;
             maxLivestreamDuration: number;
             eventDuration: number;

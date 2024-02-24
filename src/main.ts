@@ -207,6 +207,9 @@ class euSec extends utils.Adapter {
             if (isValidLanguageCode(systemConfig.common.language))
                 languageCode = systemConfig.common.language;
         }
+        if (this.config.country !== "iobroker") {
+            countryCode = this.config.country;
+        }
 
         if (this.config.hostname === "") {
             this.config.hostname = os.hostname();
@@ -521,9 +524,9 @@ class euSec extends utils.Adapter {
                         case DeviceStateID.SET_PRIVACY_ANGLE:
                             await station.setPrivacyAngle(device);
                             break;
-                        /*case DeviceStateID.OPEN_BOX:
+                        case DeviceStateID.OPEN_BOX:
                             await station.open(device);
-                            break;*/
+                            break;
                     }
                 } catch (error) {
                     this.logger.error(`cameras - Error:`, error);
@@ -853,7 +856,7 @@ class euSec extends utils.Adapter {
                 native: {},
             });
         }
-        /*if (device.hasCommand(CommandName.DeviceOpen)) {
+        if (device.hasCommand(CommandName.DeviceOpen)) {
             await this.setObjectNotExistsAsync(device.getStateID(DeviceStateID.OPEN_BOX), {
                 type: "state",
                 common: {
@@ -865,7 +868,7 @@ class euSec extends utils.Adapter {
                 },
                 native: {},
             });
-        }*/
+        }
         if (device.hasCommand(CommandName.DeviceStartLivestream)) {
             // Start Stream
             await this.setObjectNotExistsAsync(device.getStateID(DeviceStateID.START_STREAM), {

@@ -179,6 +179,9 @@ class euSec extends utils.Adapter {
       if ((0, import_i18n_iso_languages.isValid)(systemConfig.common.language))
         languageCode = systemConfig.common.language;
     }
+    if (this.config.country !== "iobroker") {
+      countryCode = this.config.country;
+    }
     if (this.config.hostname === "") {
       this.config.hostname = import_os.default.hostname();
     }
@@ -431,6 +434,9 @@ class euSec extends utils.Adapter {
               break;
             case import_types.DeviceStateID.SET_PRIVACY_ANGLE:
               await station.setPrivacyAngle(device);
+              break;
+            case import_types.DeviceStateID.OPEN_BOX:
+              await station.open(device);
               break;
           }
         } catch (error) {
@@ -728,6 +734,19 @@ class euSec extends utils.Adapter {
         type: "state",
         common: {
           name: "Calibrate",
+          type: "boolean",
+          role: "button.start",
+          read: false,
+          write: true
+        },
+        native: {}
+      });
+    }
+    if (device.hasCommand(import_eufy_security_client.CommandName.DeviceOpen)) {
+      await this.setObjectNotExistsAsync(device.getStateID(import_types.DeviceStateID.OPEN_BOX), {
+        type: "state",
+        common: {
+          name: "Open Box",
           type: "boolean",
           role: "button.start",
           read: false,
