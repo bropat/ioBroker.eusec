@@ -3,10 +3,7 @@ import { PropertyName } from "eufy-security-client";
 import { IRoleMapping } from "./interfaces";
 
 export const DataLocation = {
-    LIVESTREAM: "live",
-    LAST_LIVESTREAM: "last_live",
     LAST_EVENT: "last_event",
-    TEMP: "tmp"
 }
 
 export const STREAM_FILE_NAME_EXT = ".m3u8";

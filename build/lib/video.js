@@ -18,6 +18,10 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -135,10 +139,13 @@ const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream
           "-hls_init_time 0",
           "-hls_time 2",
           "-hls_segment_type mpegts",
+          //"-start_number 1",
           "-sc_threshold 0",
           `-g ${metadata.videoFPS}`,
           "-fflags genpts+nobuffer+flush_packets",
+          //"-flush_packets 1",
           "-hls_playlist_type event"
+          //"-hls_flags split_by_time"
         ];
         switch (metadata.videoCodec) {
           case import_eufy_security_client.VideoCodec.H264:
@@ -206,6 +213,7 @@ const ffmpegStreamToGo2rtc = (config, namespace, camera, metadata, videoStream, 
           "-rtsp_transport tcp",
           "-sc_threshold 0",
           "-fflags genpts+nobuffer+flush_packets"
+          //"-rtpflags latm",
         ];
         switch (metadata.videoCodec) {
           case import_eufy_security_client.VideoCodec.H264:
@@ -276,6 +284,13 @@ const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, nam
       }),
       new import_node_stream.default.PassThrough()
     ),
+    //TODO: Tested with go2rtc 1.8.4 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
+    /*streamPipeline(
+        audioStream,
+        got.stream.post(`http://localhost:1984/api/stream?dst=${camera}#audio=opus`),
+        //got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`),
+        new stream.PassThrough()
+    )*/
     new Promise((resolve, reject) => {
       try {
         if (import_ffmpeg_static.default) {
@@ -284,7 +299,9 @@ const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, nam
           let audioFormat = "";
           const options = [
             "-rtsp_transport tcp",
+            //"-sc_threshold 0",
             "-fflags genpts+nobuffer+flush_packets"
+            //"-rtpflags latm",
           ];
           switch (metadata.audioCodec) {
             case import_eufy_security_client.AudioCodec.AAC:
@@ -323,6 +340,70 @@ ${stderr}`);
         reject(error);
       }
     })
+    /*new Promise<void>((resolve, reject) => {
+                try {
+                    if (pathToFfmpeg) {
+                        ffmpeg.setFfmpegPath(pathToFfmpeg);
+    
+                        const uAudioStream = StreamInput(namespace, audioStream);
+    
+                        let audioFormat = "";
+                        const options: string[] = [
+                            //"-rtsp_transport tcp",
+                            "-sc_threshold 0",
+                            "-fflags genpts+nobuffer+flush_packets",
+                            //"-rtpflags latm",
+                        ];
+    
+                        switch(metadata.audioCodec) {
+                            case AudioCodec.AAC:
+                                audioFormat = "aac";
+                                break;
+                        }
+    
+                        const command = ffmpeg()
+                            .withProcessOptions({
+                                detached: true
+                            });
+    
+                        if (audioFormat !== "") {
+                            command.input(uAudioStream.url)
+                                .format("adts")
+                                //.inputFormat(audioFormat)
+                                .audioCodec("aac");
+                            //.audioCodec("aac");
+                            //.audioCodec("opus");
+                        } else {
+                            log.warn(`streamToGo2rtc(): ffmpeg - Not support audio codec or unknown audio codec (${AudioCodec[metadata.audioCodec]})`);
+                        }
+                        //command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`)
+                        command.output(`http://localhost:1984/api/stream?dst=${camera}`)
+                            //.outputFormat("rtsp")
+                            .addOptions(options)
+                            .on("start", (commandline) => {
+                                log.debug(`streamToGo2rtc(): ffmpeg - commandline: ${commandline}`);
+                            })
+                            .on("error", function(err, stdout, stderr) {
+                                log.error(`streamToGo2rtc(): ffmpeg - An error occurred: ${err.message}`);
+                                log.error(`streamToGo2rtc(): ffmpeg output:\n${stdout}`);
+                                log.error(`streamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
+                                uAudioStream.close();
+                                reject(err);
+                            })
+                            .on("end", () => {
+                                log.debug("streamToGo2rtc(): Processing finished!");
+                                uAudioStream.close();
+                                resolve();
+                            });
+                        command.run();
+                    } else {
+                        reject(new Error("ffmpeg binary not found"));
+                    }
+                } catch (error) {
+                    log.error(`streamToGo2rtc(): Audio Error: ${error}`);
+                    reject(error);
+                }
+            })*/
   ]);
 };
 // Annotate the CommonJS export names for ESM import in node:

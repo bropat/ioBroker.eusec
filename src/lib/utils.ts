@@ -4,6 +4,7 @@ import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
 
 import { ioBrokerLogger } from "./log";
+import { euSec } from "../main";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const setStateChangedAsync = async function(adapter: ioBroker.Adapter, id: string, value: any): ioBroker.SetStateChangedPromise {
@@ -25,13 +26,13 @@ export const getImageAsHTML = function(data: Buffer, mime = "image/jpg"): string
     return "";
 }
 
-export const getDataFilePath = function(adapter: ioBroker.Adapter, stationSerial: string, folderName: string, fileName: string): string {
+/*export const getDataFilePath = function(adapter: ioBroker.Adapter, stationSerial: string, folderName: string, fileName: string): string {
     const dir_path = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
     if (!fse.existsSync(dir_path)) {
         fse.mkdirSync(dir_path, {mode: 0o775, recursive: true});
     }
     return path.join(dir_path, fileName);
-}
+}*/
 
 export const setStateAsync = async function(adapter: ioBroker.Adapter, state_id: string, common_name: string, value: string, role = "text", type: "string" | "number" | "boolean" | "object" | "array" | "mixed" | "file" | undefined = "string"): Promise<void> {
     await adapter.setObjectNotExistsAsync(state_id, {
@@ -50,13 +51,13 @@ export const setStateAsync = async function(adapter: ioBroker.Adapter, state_id:
 }
 
 export const removeFiles = function(adapter: ioBroker.Adapter, stationSerial: string, folderName: string, device_sn: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            const dir_path = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
-            if (fse.existsSync(dir_path)) {
-                const files = fse.readdirSync(dir_path).filter(fn => fn.startsWith(device_sn));
+            const dir_path = path.join(stationSerial, folderName);
+            if (await adapter.fileExistsAsync(adapter.namespace, dir_path)) {
+                const files = (await adapter.readDirAsync(adapter.namespace, dir_path)).filter(fn => fn.file.startsWith(device_sn));
                 try {
-                    files.map(filename => fse.removeSync(path.join(dir_path, filename)));
+                    files.map(filename => adapter.delFileAsync(adapter.namespace, path.join(dir_path, filename.file)));
                 } catch (error) {
                 }
             }
@@ -67,7 +68,7 @@ export const removeFiles = function(adapter: ioBroker.Adapter, stationSerial: st
     });
 }
 
-export const moveFiles = function(adapter: ioBroker.Adapter, stationSerial: string, device_sn: string, srcFolderName: string, dstFolderName: string): Promise<void> {
+/*export const moveFiles = function(adapter: ioBroker.Adapter, stationSerial: string, device_sn: string, srcFolderName: string, dstFolderName: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             const dirSrcPath = path.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, srcFolderName);
@@ -87,7 +88,7 @@ export const moveFiles = function(adapter: ioBroker.Adapter, stationSerial: stri
             reject(error);
         }
     });
-}
+}*/
 
 export const lowestUnusedNumber = function (sequence: number[], startingFrom: number): number {
     const arr = sequence.slice(0);
@@ -166,8 +167,8 @@ export const deleteStates = async function(adapter: ioBroker.Adapter, property: 
         });
 };
 
-export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBrokerLogger, old_version: number): Promise<void> {
-    if (old_version <= 0.61) {
+export const handleUpdate = async function(adapter: euSec, log: ioBrokerLogger, oldVersion: number, newVersion: number): Promise<void> {
+    if (oldVersion != 0 && oldVersion <= 0.61) {
         try {
             const all = await adapter.getStatesAsync("T*");
             if (all) {
@@ -193,7 +194,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             log.error("Version 0.6.1: Error:", error);
         }
     }
-    if (old_version <= 0.74) {
+    if (oldVersion != 0 && oldVersion <= 0.74) {
         try {
             await adapter.setObjectAsync("verify_code", {
                 type: "state",
@@ -210,7 +211,7 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
             log.error("Version 0.7.4: Error:", error);
         }
     }
-    if (old_version <= 1) {
+    if (oldVersion != 0 && oldVersion <= 1) {
         for (const state of ["last_event_pic_url", "last_event_pic_html", "last_event_video_url"]) {
             try {
                 await deleteStates(adapter, state);
@@ -218,6 +219,34 @@ export const handleUpdate = async function(adapter: ioBroker.Adapter, log: ioBro
                 log.error(`Version 1.0.0 - ${state}: Error:`, error);
             }
         }
+    }
+    if (oldVersion == 0 && newVersion == 1.3) {
+        const data_dir = utils.getAbsoluteInstanceDataDir(adapter);
+        try {
+            const file = path.join(data_dir, "adapter.json");
+            if (fse.statSync(file).isFile()) {
+                const fileContent = fse.readFileSync(file, "utf8");
+                await adapter.writeFileAsync(adapter.namespace, "adapter.json", fileContent);
+            }
+        } catch (error) {
+            //log.error(`Version 3.0.0: Error:`, error);
+        }
+        try {
+            const file = path.join(data_dir, "persistent.json");
+            if (fse.statSync(file).isFile()) {
+                const fileContent = fse.readFileSync(file, "utf8");
+                await adapter.writeFileAsync(adapter.namespace, "driver.json", fileContent);
+            }
+        } catch (error) {
+            //log.error(`Version 3.0.0: Error:`, error);
+        }
+        try {
+            fse.removeSync(data_dir);
+        } catch (error) {
+            //log.error(`Version 3.0.0: Error:`, error);
+        }
+        adapter.log.warn("Migrated configuration files to new location (needs restart). Restart of the adapter initiated.")
+        adapter.restartAdapter();
     }
 };
 

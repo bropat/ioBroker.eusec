@@ -18,6 +18,10 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -27,13 +31,11 @@ __export(utils_exports, {
   changeRole: () => changeRole,
   convertCamelCaseToSnakeCase: () => convertCamelCaseToSnakeCase,
   deleteStates: () => deleteStates,
-  getDataFilePath: () => getDataFilePath,
   getImageAsHTML: () => getImageAsHTML,
   getVideoClipLength: () => getVideoClipLength,
   handleUpdate: () => handleUpdate,
   isEmpty: () => isEmpty,
   lowestUnusedNumber: () => lowestUnusedNumber,
-  moveFiles: () => moveFiles,
   removeFiles: () => removeFiles,
   removeLastChar: () => removeLastChar,
   setStateAsync: () => setStateAsync,
@@ -61,13 +63,6 @@ const getImageAsHTML = function(data, mime = "image/jpg") {
     return `<img src="data:${mime};base64,${data.toString("base64")}" style="width: auto ;height: 100%;" />`;
   return "";
 };
-const getDataFilePath = function(adapter, stationSerial, folderName, fileName) {
-  const dir_path = import_path.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
-  if (!import_fs_extra.default.existsSync(dir_path)) {
-    import_fs_extra.default.mkdirSync(dir_path, { mode: 509, recursive: true });
-  }
-  return import_path.default.join(dir_path, fileName);
-};
 const setStateAsync = async function(adapter, state_id, common_name, value, role = "text", type = "string") {
   await adapter.setObjectNotExistsAsync(state_id, {
     type: "state",
@@ -83,34 +78,13 @@ const setStateAsync = async function(adapter, state_id, common_name, value, role
   await adapter.setStateAsync(state_id, { val: value, ack: true });
 };
 const removeFiles = function(adapter, stationSerial, folderName, device_sn) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const dir_path = import_path.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, folderName);
-      if (import_fs_extra.default.existsSync(dir_path)) {
-        const files = import_fs_extra.default.readdirSync(dir_path).filter((fn) => fn.startsWith(device_sn));
+      const dir_path = import_path.default.join(stationSerial, folderName);
+      if (await adapter.fileExistsAsync(adapter.namespace, dir_path)) {
+        const files = (await adapter.readDirAsync(adapter.namespace, dir_path)).filter((fn) => fn.file.startsWith(device_sn));
         try {
-          files.map((filename) => import_fs_extra.default.removeSync(import_path.default.join(dir_path, filename)));
-        } catch (error) {
-        }
-      }
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-const moveFiles = function(adapter, stationSerial, device_sn, srcFolderName, dstFolderName) {
-  return new Promise((resolve, reject) => {
-    try {
-      const dirSrcPath = import_path.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, srcFolderName);
-      const dirDstPath = import_path.default.join(utils.getAbsoluteInstanceDataDir(adapter), stationSerial, dstFolderName);
-      if (!import_fs_extra.default.existsSync(dirDstPath)) {
-        import_fs_extra.default.mkdirSync(dirDstPath, { mode: 509, recursive: true });
-      }
-      if (import_fs_extra.default.existsSync(dirSrcPath)) {
-        const files = import_fs_extra.default.readdirSync(dirSrcPath).filter((fn) => fn.startsWith(device_sn));
-        try {
-          files.map((filename) => import_fs_extra.default.moveSync(import_path.default.join(dirSrcPath, filename), import_path.default.join(dirDstPath, filename)));
+          files.map((filename) => adapter.delFileAsync(adapter.namespace, import_path.default.join(dir_path, filename.file)));
         } catch (error) {
         }
       }
@@ -189,8 +163,8 @@ const deleteStates = async function(adapter, property) {
       await adapter.delObjectAsync(id).catch();
     });
 };
-const handleUpdate = async function(adapter, log, old_version) {
-  if (old_version <= 0.61) {
+const handleUpdate = async function(adapter, log, oldVersion, newVersion) {
+  if (oldVersion != 0 && oldVersion <= 0.61) {
     try {
       const all = await adapter.getStatesAsync("T*");
       if (all) {
@@ -216,7 +190,7 @@ const handleUpdate = async function(adapter, log, old_version) {
       log.error("Version 0.6.1: Error:", error);
     }
   }
-  if (old_version <= 0.74) {
+  if (oldVersion != 0 && oldVersion <= 0.74) {
     try {
       await adapter.setObjectAsync("verify_code", {
         type: "state",
@@ -233,7 +207,7 @@ const handleUpdate = async function(adapter, log, old_version) {
       log.error("Version 0.7.4: Error:", error);
     }
   }
-  if (old_version <= 1) {
+  if (oldVersion != 0 && oldVersion <= 1) {
     for (const state of ["last_event_pic_url", "last_event_pic_html", "last_event_video_url"]) {
       try {
         await deleteStates(adapter, state);
@@ -241,6 +215,31 @@ const handleUpdate = async function(adapter, log, old_version) {
         log.error(`Version 1.0.0 - ${state}: Error:`, error);
       }
     }
+  }
+  if (oldVersion == 0 && newVersion == 1.3) {
+    const data_dir = utils.getAbsoluteInstanceDataDir(adapter);
+    try {
+      const file = import_path.default.join(data_dir, "adapter.json");
+      if (import_fs_extra.default.statSync(file).isFile()) {
+        const fileContent = import_fs_extra.default.readFileSync(file, "utf8");
+        await adapter.writeFileAsync(adapter.namespace, "adapter.json", fileContent);
+      }
+    } catch (error) {
+    }
+    try {
+      const file = import_path.default.join(data_dir, "persistent.json");
+      if (import_fs_extra.default.statSync(file).isFile()) {
+        const fileContent = import_fs_extra.default.readFileSync(file, "utf8");
+        await adapter.writeFileAsync(adapter.namespace, "driver.json", fileContent);
+      }
+    } catch (error) {
+    }
+    try {
+      import_fs_extra.default.removeSync(data_dir);
+    } catch (error) {
+    }
+    adapter.log.warn("Migrated configuration files to new location (needs restart). Restart of the adapter initiated.");
+    adapter.restartAdapter();
   }
 };
 const convertCamelCaseToSnakeCase = function(value) {
@@ -253,13 +252,11 @@ const convertCamelCaseToSnakeCase = function(value) {
   changeRole,
   convertCamelCaseToSnakeCase,
   deleteStates,
-  getDataFilePath,
   getImageAsHTML,
   getVideoClipLength,
   handleUpdate,
   isEmpty,
   lowestUnusedNumber,
-  moveFiles,
   removeFiles,
   removeLastChar,
   setStateAsync,

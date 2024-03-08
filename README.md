@@ -157,8 +157,9 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
-### 1.3.0 (2024-02-xx)
+### 1.3.0 (2024-03-xx)
 
+* (bropat) Requires js-controller version >= 5.0.0
 * (bropat) Added new setting to choose country indipendently of ioBroker setting
 * (bropat) New go2rtc streaming implementation
 * (bropat) Added messagebox support to exhibit new commands
@@ -179,6 +180,8 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat) Added support for Indoor Cam S350 (T8416; #403)
 * (bropat) Added support for Floodlight Cam E340 (T8425)
 * (bropat) Added support for SoloCam C210 (T8B00)
+* (bropat) Storage of files switched to [Meta-Storage](https://iobroker.readthedocs.io/de/latest/bestpractice/storefiles.html#meta-storage)
+* (bropat) Implemented workaround for livestreaming issue introduced by CVE-2023-46809 in Node.js (18.19.1=<; 20.11.1=<; 21.6.2=<)
 * (bropat) Fixed issue #380
 * (bropat) Fixed issue #379
 * (bropat) Fixed issue #376

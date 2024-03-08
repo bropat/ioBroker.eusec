@@ -28,10 +28,7 @@ __export(types_exports, {
 module.exports = __toCommonJS(types_exports);
 var import_eufy_security_client = require("eufy-security-client");
 const DataLocation = {
-  LIVESTREAM: "live",
-  LAST_LIVESTREAM: "last_live",
-  LAST_EVENT: "last_event",
-  TEMP: "tmp"
+  LAST_EVENT: "last_event"
 };
 const STREAM_FILE_NAME_EXT = ".m3u8";
 const IMAGE_FILE_JPEG_EXT = ".jpg";
@@ -60,6 +57,9 @@ const RoleMapping = {
   [import_eufy_security_client.PropertyName.DeviceChargingStatus]: "info.status"
 };
 const DeviceStateID = {
+  /*LAST_EVENT_PIC_URL: "last_event_pic_url",
+  LAST_EVENT_PIC_HTML: "last_event_pic_html",
+  LAST_EVENT_VIDEO_URL: "last_event_video_url",*/
   LIVESTREAM: "livestream",
   START_STREAM: "start_stream",
   STOP_STREAM: "stop_stream",

@@ -11,66 +11,51 @@ import * as path from "path";
 import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError, LogLevel } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
-import fse from "fs-extra";
 import { Readable } from "stream";
 import util from "util";
 import childProcess from "child_process";
 import pathToGo2rtc from "go2rtc-static";
-import os from "os";
 import pathToFfmpeg from "ffmpeg-static";
 
-//import * as Interface from "./lib/interfaces"
 import { DeviceStateID, DataLocation, RoleMapping, StationStateID } from "./lib/types";
 import { convertCamelCaseToSnakeCase, getImageAsHTML, handleUpdate, removeFiles, removeLastChar, setStateChangedAsync } from "./lib/utils";
 import { PersistentData } from "./lib/interfaces";
 import { ioBrokerLogger } from "./lib/log";
 import { streamToGo2rtc } from "./lib/video";
 
-// Augment the adapter.config object with the actual types
-// TODO: delete this in the next version
-/*declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace ioBroker {
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
-        interface AdapterConfig extends Interface.AdapterConfig{
-            // Define the shape of your options here (recommended)
-            // Or use a catch-all approach
-            //[key: string]: any;
-        }
-    }
-}*/
-
-class euSec extends utils.Adapter {
+export class euSec extends utils.Adapter {
 
     private eufy!: EufySecurity;
     /*private downloadEvent: {
         [index: string]: NodeJS.Timeout;
     } = {};*/
 
-    private persistentFile: string;
+    private persistentFile: string = "adapter.json";
+    private persistentDriverFile: string = "driver.json";
     private logger!: ioBrokerLogger;
     private persistentData: PersistentData = {
         version: ""
     };
     private captchaId: string | null = null;
     private verify_code = false;
+    private skipInit = false;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
             name: "eusec",
         });
-        const data_dir = utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter);
-        this.persistentFile = path.join(data_dir, "adapter.json");
-
-        if (!fse.existsSync(data_dir))
-            fse.mkdirSync(data_dir);
 
         this.on("ready", this.onReady.bind(this));
         this.on("stateChange", this.onStateChange.bind(this));
         // this.on("objectChange", this.onObjectChange.bind(this));
         this.on("message", this.onMessage.bind(this));
         this.on("unload", this.onUnload.bind(this));
+    }
+
+    public restartAdapter(): void {
+        this.skipInit = true;
+        this.restart();
     }
 
     /**
@@ -188,176 +173,227 @@ class euSec extends utils.Adapter {
         }
 
         try {
-            if (fse.statSync(this.persistentFile).isFile()) {
-                const fileContent = fse.readFileSync(this.persistentFile, "utf8");
-                this.persistentData = JSON.parse(fileContent) as PersistentData;
+            if (await this.fileExistsAsync(this.namespace, this.persistentFile)) {
+                const fileContent = await this.readFileAsync(this.namespace, this.persistentFile);
+                this.persistentData = JSON.parse(fileContent.file.toString("utf8")) as PersistentData;
             }
         } catch (error) {
-            this.logger.debug("No stored data from last exit found.", error);
+            this.logger.debug("No adapter stored data from last exit found.", error);
+        }
+
+        let persistentDriverData: string = "{}";
+        try {
+            if (await this.fileExistsAsync(this.namespace, this.persistentDriverFile)) {
+                const fileContent = await this.readFileAsync(this.namespace, this.persistentDriverFile);
+                persistentDriverData = fileContent.file.toString("utf8");
+            }
+        } catch (error) {
+            this.logger.debug("No driver stored data from last exit found.", error);
         }
 
         this.subscribeStates("verify_code");
         this.subscribeStates("captcha");
 
-        const systemConfig = await this.getForeignObjectAsync("system.config");
-        let countryCode = undefined;
-        let languageCode = undefined;
-        if (systemConfig) {
-            countryCode = getCountryCode(systemConfig.common.country, "en");
-            if (isValidLanguageCode(systemConfig.common.language))
-                languageCode = systemConfig.common.language;
-        }
-        if (this.config.country !== "iobroker") {
-            countryCode = this.config.country;
-        }
+        const hosts = await this.getForeignObjectsAsync("system.host.*", "host");
+        if (hosts !== undefined && hosts !== null && Object.values(hosts).length !== 0) {
+            if (this.config.hostname === "") {
+                this.config.hostname = Object.values(hosts)[0].native.os.hostname;
+            }
 
-        if (this.config.hostname === "") {
-            this.config.hostname = os.hostname();
-        }
+            const nodeVersion = Object.values(hosts)[0].native.process.versions.node;
+            const nodeMajorVersion = nodeVersion.split(".")[0];
 
-        // Handling adapter version update
-        try {
-            if (this.persistentData.version !== this.version) {
-                const currentVersion = Number.parseFloat(removeLastChar(this.version!, "."));
-                const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat(removeLastChar(this.persistentData.version, ".")) : 0;
-                this.logger.debug(`Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
-
-                if (previousVersion < currentVersion) {
-                    await handleUpdate(this as unknown as ioBroker.Adapter, this.logger, previousVersion);
-                    this.persistentData.version = this.version!;
-                    this.writePersistentData();
+            let fixNeeded;
+            switch (parseInt(nodeMajorVersion)) {
+                case 18:
+                    fixNeeded = nodeVersion.localeCompare("18.19.1", undefined, { numeric: true, sensitivity: "base" });
+                    break;
+                case 20:
+                    fixNeeded = nodeVersion.localeCompare("20.11.1", undefined, { numeric: true, sensitivity: "base" });
+                    break;
+                default:
+                    fixNeeded = nodeVersion.localeCompare("21.6.2", undefined, { numeric: true, sensitivity: "base" });
+                    break;
+            }
+            if (fixNeeded >= 0) {
+                const adapter = await this.getForeignObjectAsync(`system.adapter.${this.namespace}`);
+                if (adapter !== undefined && adapter !== null) {
+                    if (!adapter.common.nodeProcessParams?.includes("--security-revert=CVE-2023-46809")) {
+                        adapter.common.nodeProcessParams = ["--security-revert=CVE-2023-46809"]
+                        await this.setForeignObjectAsync(`system.adapter.${this.namespace}`, adapter);
+                        this.log.warn("Required fix to use livestreaming with this version of Node.js (CVE-2023-46809) applied. Restart of the adapter initiated to activate the fix.");
+                        this.restartAdapter();
+                    }
                 }
             }
-        } catch (error) {
-            this.logger.error(`Handling of adapter update - Error:`, error);
         }
 
-        let connectionType = P2PConnectionType.QUICKEST;
-        if (this.config.p2pConnectionType === "only_local") {
-            connectionType = P2PConnectionType.ONLY_LOCAL;
-        }
-
-        const config: EufySecurityConfig = {
-            username: this.config.username,
-            password: this.config.password,
-            country: countryCode,
-            language: languageCode,
-            persistentDir: utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter),
-            eventDurationSeconds: this.config.eventDuration,
-            p2pConnectionSetup: connectionType,
-            pollingIntervalMinutes: this.config.pollingInterval,
-            acceptInvitations: this.config.acceptInvitations,
-            logging: {
-                level: this.log.level === "silly" ? LogLevel.Trace : this.log.level === "debug" ? LogLevel.Debug : this.log.level === "info" ? LogLevel.Info : this.log.level === "warn" ? LogLevel.Warn : this.log.level === "error" ? LogLevel.Error : LogLevel.Info
+        if (!this.skipInit) {
+            const systemConfig = await this.getForeignObjectAsync("system.config");
+            let countryCode = undefined;
+            let languageCode = undefined;
+            if (systemConfig) {
+                countryCode = getCountryCode(systemConfig.common.country, "en");
+                if (isValidLanguageCode(systemConfig.common.language))
+                    languageCode = systemConfig.common.language;
             }
-        };
+            if (this.config.country !== "iobroker") {
+                countryCode = this.config.country;
+            }
 
-        this.eufy = await EufySecurity.initialize(config, this.logger);
-        this.eufy.on("station added", (station: Station) => this.onStationAdded(station));
-        this.eufy.on("device added", (device: Device) => this.onDeviceAdded(device));
-        this.eufy.on("station removed", (station: Station) => this.onStationRemoved(station));
-        this.eufy.on("device removed", (device: Device) => this.onDeviceRemoved(device));
-        this.eufy.on("push message", (messages) => this.handlePushNotification(messages));
-        this.eufy.on("push connect", () => this.onPushConnect());
-        this.eufy.on("push close", () => this.onPushClose());
-        this.eufy.on("mqtt connect", () => this.onMQTTConnect());
-        this.eufy.on("mqtt close", () => this.onMQTTClose());
-        this.eufy.on("connect", () => this.onConnect());
-        this.eufy.on("close", () => this.onClose());
+            // Handling adapter version update
+            try {
+                if (this.persistentData.version !== this.version) {
+                    const currentVersion = Number.parseFloat(removeLastChar(this.version!, "."));
+                    const previousVersion = this.persistentData.version !== "" && this.persistentData.version !== undefined ? Number.parseFloat(removeLastChar(this.persistentData.version, ".")) : 0;
+                    this.logger.debug(`Handling of adapter update - currentVersion: ${currentVersion} previousVersion: ${previousVersion}`);
 
-        this.eufy.on("device property changed", (device: Device, name: string, value: PropertyValue) => this.onDevicePropertyChanged(device, name, value));
-
-        this.eufy.on("station command result", (station: Station, result: CommandResult) => this.onStationCommandResult(station, result));
-        //this.eufy.on("station download start", (station: Station, device: Device, metadata: StreamMetadata, videostream: Readable, audiostream: Readable) => this.onStationDownloadStart(station, device, metadata, videostream, audiostream));
-        //this.eufy.on("station download finish", (station: Station, device: Device) => this.onStationDownloadFinish(station, device));
-        this.eufy.on("station livestream start", (station: Station, device: Device, metadata: StreamMetadata, videostream: Readable, audiostream: Readable) => this.onStationLivestreamStart(station, device, metadata, videostream, audiostream));
-        this.eufy.on("station livestream stop", (station: Station, device: Device) => this.onStationLivestreamStop(station, device));
-        this.eufy.on("station rtsp url",  (station: Station, device: Device, value: string) => this.onStationRTSPUrl(station, device, value));
-        this.eufy.on("station property changed", (station: Station, name: string, value: PropertyValue) => this.onStationPropertyChanged(station, name, value));
-        this.eufy.on("station connect", (station: Station) => this.onStationConnect(station));
-        this.eufy.on("station close", (station: Station) => this.onStationClose(station));
-        this.eufy.on("tfa request", () => this.onTFARequest());
-        this.eufy.on("captcha request", (captchaId: string, captcha: string) => this.onCaptchaRequest(captchaId, captcha));
-        this.eufy.setCameraMaxLivestreamDuration(this.config.maxLivestreamDuration);
-
-        await this.eufy.connect();
-
-        if (pathToGo2rtc) {
-            const go2rtcConfig: {
-                [index: string]: {
-                    [index: string]: string | number | null
+                    if (previousVersion < currentVersion) {
+                        await handleUpdate(this, this.logger, previousVersion, currentVersion);
+                        this.persistentData.version = this.version!;
+                        await this.writePersistentData();
+                    }
                 }
-            } = {
-                "api": {
-                    "listen": `:${this.config.go2rtc_api_port}`
-                },
-                "rtsp": {
-                    "listen": `:${this.config.go2rtc_rtsp_port}`
-                },
-                "srtp": {
-                    "listen": `:${this.config.go2rtc_srtp_port}`
-                },
-                "webrtc": {
-                    "listen": `:${this.config.go2rtc_webrtc_port}`
-                },
-                "ffmpeg": {
-                    "bin": pathToFfmpeg !== "" && pathToFfmpeg !== undefined ? pathToFfmpeg : "ffmpeg",
-                },
-                "streams": {},
-                /*"log": {
-                    "level": "debug",  // default level
-                    "api": "debug",
-                    "exec": "debug",
-                    "ngrok": "debug",
-                    "rtsp": "debug",
-                    "streams": "debug",
-                    "webrtc": "debug",
-                }*/
-            };
-            if (this.config.go2rtc_rtsp_username !== "" && this.config.go2rtc_rtsp_password !== "") {
-                go2rtcConfig.rtsp.username = this.config.go2rtc_rtsp_username;
-                go2rtcConfig.rtsp.password = this.config.go2rtc_rtsp_password;
+            } catch (error) {
+                this.logger.error(`Handling of adapter update - Error:`, error);
             }
-            for (const device of await this.eufy.getDevices()) {
-                go2rtcConfig.streams[device.getSerial()] = null;
+
+            let connectionType = P2PConnectionType.QUICKEST;
+            if (this.config.p2pConnectionType === "only_local") {
+                connectionType = P2PConnectionType.ONLY_LOCAL;
             }
-            const go2rtc = childProcess.spawn(pathToGo2rtc, ["-config", JSON.stringify(go2rtcConfig)], { shell: false, detached: false, windowsHide: true });
-            go2rtc.on("error", (error) => {
-                this.log.error(`go2rtc error: ${error}`);
-            });
-            go2rtc.stdout.setEncoding("utf8");
-            go2rtc.stdout.on("data", (data) => {
-                this.log.info(`go2rtc started: ${data}`);
-            });
-            go2rtc.stderr.setEncoding("utf8");
-            go2rtc.stderr.on("data", (data) => {
-                this.log.error(`go2rtc error: ${data}`);
-            });
-            go2rtc.on("close", (exitcode) => {
-                this.log.info(`go2rtc terminated with exitcode ${exitcode}`);
-            });
-            process.on("exit", () => {
-                go2rtc.kill();
-            });
-        }
-        // Delete cunknown channels without childs
-        const channels = await this.getChannelsAsync();
-        for (const channel of channels) {
-            if (channel.common.name === "unknown") {
-                const states = await this.getStatesAsync(`${channel._id}.*`);
-                if (Object.keys(states).length === 0) {
-                    await this.delObjectAsync(channel._id);
+
+            if (this.config.username !== "" && this.config.password !== "") {
+                const config: EufySecurityConfig = {
+                    username: this.config.username,
+                    password: this.config.password,
+                    country: countryCode,
+                    language: languageCode,
+                    persistentData: persistentDriverData,
+                    eventDurationSeconds: this.config.eventDuration,
+                    p2pConnectionSetup: connectionType,
+                    pollingIntervalMinutes: this.config.pollingInterval,
+                    acceptInvitations: this.config.acceptInvitations,
+                    logging: {
+                        level: this.log.level === "silly" ? LogLevel.Trace : this.log.level === "debug" ? LogLevel.Debug : this.log.level === "info" ? LogLevel.Info : this.log.level === "warn" ? LogLevel.Warn : this.log.level === "error" ? LogLevel.Error : LogLevel.Info
+                    }
+                };
+
+                this.eufy = await EufySecurity.initialize(config, this.logger);
+                this.eufy.on("persistent data", (data: string) => this.onPersistentData(data))
+                this.eufy.on("station added", (station: Station) => this.onStationAdded(station));
+                this.eufy.on("device added", (device: Device) => this.onDeviceAdded(device));
+                this.eufy.on("station removed", (station: Station) => this.onStationRemoved(station));
+                this.eufy.on("device removed", (device: Device) => this.onDeviceRemoved(device));
+                this.eufy.on("push message", (messages) => this.handlePushNotification(messages));
+                this.eufy.on("push connect", () => this.onPushConnect());
+                this.eufy.on("push close", () => this.onPushClose());
+                this.eufy.on("mqtt connect", () => this.onMQTTConnect());
+                this.eufy.on("mqtt close", () => this.onMQTTClose());
+                this.eufy.on("connect", () => this.onConnect());
+                this.eufy.on("close", () => this.onClose());
+
+                this.eufy.on("device property changed", (device: Device, name: string, value: PropertyValue) => this.onDevicePropertyChanged(device, name, value));
+
+                this.eufy.on("station command result", (station: Station, result: CommandResult) => this.onStationCommandResult(station, result));
+                //this.eufy.on("station download start", (station: Station, device: Device, metadata: StreamMetadata, videostream: Readable, audiostream: Readable) => this.onStationDownloadStart(station, device, metadata, videostream, audiostream));
+                //this.eufy.on("station download finish", (station: Station, device: Device) => this.onStationDownloadFinish(station, device));
+                this.eufy.on("station livestream start", (station: Station, device: Device, metadata: StreamMetadata, videostream: Readable, audiostream: Readable) => this.onStationLivestreamStart(station, device, metadata, videostream, audiostream));
+                this.eufy.on("station livestream stop", (station: Station, device: Device) => this.onStationLivestreamStop(station, device));
+                this.eufy.on("station rtsp url",  (station: Station, device: Device, value: string) => this.onStationRTSPUrl(station, device, value));
+                this.eufy.on("station property changed", (station: Station, name: string, value: PropertyValue) => this.onStationPropertyChanged(station, name, value));
+                this.eufy.on("station connect", (station: Station) => this.onStationConnect(station));
+                this.eufy.on("station close", (station: Station) => this.onStationClose(station));
+                this.eufy.on("tfa request", () => this.onTFARequest());
+                this.eufy.on("captcha request", (captchaId: string, captcha: string) => this.onCaptchaRequest(captchaId, captcha));
+                this.eufy.setCameraMaxLivestreamDuration(this.config.maxLivestreamDuration);
+
+                await this.eufy.connect();
+
+                if (pathToGo2rtc) {
+                    const go2rtcConfig: {
+                        [index: string]: {
+                            [index: string]: string | number | null
+                        }
+                    } = {
+                        "api": {
+                            "listen": `:${this.config.go2rtc_api_port}`
+                        },
+                        "rtsp": {
+                            "listen": `:${this.config.go2rtc_rtsp_port}`
+                        },
+                        "srtp": {
+                            "listen": `:${this.config.go2rtc_srtp_port}`
+                        },
+                        "webrtc": {
+                            "listen": `:${this.config.go2rtc_webrtc_port}`
+                        },
+                        "ffmpeg": {
+                            "bin": pathToFfmpeg !== "" && pathToFfmpeg !== undefined ? pathToFfmpeg : "ffmpeg",
+                        },
+                        "streams": {},
+                        /*"log": {
+                            "level": "debug",  // default level
+                            "api": "debug",
+                            "exec": "debug",
+                            "ngrok": "debug",
+                            "rtsp": "debug",
+                            "streams": "debug",
+                            "webrtc": "debug",
+                        }*/
+                    };
+                    if (this.config.go2rtc_rtsp_username !== "" && this.config.go2rtc_rtsp_password !== "") {
+                        go2rtcConfig.rtsp.username = this.config.go2rtc_rtsp_username;
+                        go2rtcConfig.rtsp.password = this.config.go2rtc_rtsp_password;
+                    }
+                    for (const device of await this.eufy.getDevices()) {
+                        go2rtcConfig.streams[device.getSerial()] = null;
+                    }
+                    const go2rtc = childProcess.spawn(pathToGo2rtc, ["-config", JSON.stringify(go2rtcConfig)], { shell: false, detached: false, windowsHide: true });
+                    go2rtc.on("error", (error) => {
+                        this.log.error(`go2rtc error: ${error}`);
+                    });
+                    go2rtc.stdout.setEncoding("utf8");
+                    go2rtc.stdout.on("data", (data) => {
+                        this.log.info(`go2rtc started: ${data}`);
+                    });
+                    go2rtc.stderr.setEncoding("utf8");
+                    go2rtc.stderr.on("data", (data) => {
+                        this.log.error(`go2rtc error: ${data}`);
+                    });
+                    go2rtc.on("close", (exitcode) => {
+                        this.log.info(`go2rtc terminated with exitcode ${exitcode}`);
+                    });
+                    process.on("exit", () => {
+                        go2rtc.kill();
+                    });
+                }
+            }
+            // Delete cunknown channels without childs
+            const channels = await this.getChannelsAsync();
+            for (const channel of channels) {
+                if (channel.common.name === "unknown") {
+                    const states = await this.getStatesAsync(`${channel._id}.*`);
+                    if (Object.keys(states).length === 0) {
+                        await this.delObjectAsync(channel._id);
+                    }
                 }
             }
         }
     }
 
-    public writePersistentData(): void {
+    public async writePersistentData(): Promise<void> {
         try {
-            fse.writeFileSync(this.persistentFile, JSON.stringify(this.persistentData));
-        } catch (error) {
+            await this.writeFileAsync(this.namespace, this.persistentFile, JSON.stringify(this.persistentData));
+        } catch(error) {
             this.logger.error(`writePersistentData() - Error: ${error}`);
         }
+    }
+
+    private onPersistentData(data: string): void {
+        this.writeFileAsync(this.namespace, this.persistentDriverFile, data).catch((error) => {
+            this.logger.error(`writePersistentDriverData() - Error: ${error}`);
+        });
     }
 
     /**
@@ -366,7 +402,7 @@ class euSec extends utils.Adapter {
     private async onUnload(callback: () => void): Promise<void> {
         try {
 
-            this.writePersistentData();
+            await this.writePersistentData();
 
             if (this.eufy) {
                 if (this.eufy.isConnected())
@@ -1075,7 +1111,7 @@ class euSec extends utils.Adapter {
         this.delObjectAsync(station.getStateID("", 0), { recursive: true }).catch((error) => {
             this.logger.error(`Error deleting states of removed station`, error);
         });
-        fse.remove(path.join(utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter), station.getSerial())).catch((error) => {
+        this.delFileAsync(this.namespace, station.getSerial()).catch((error) => {
             this.logger.error(`Error deleting fs contents of removed station`, error);
         });
     }
@@ -1242,41 +1278,29 @@ class euSec extends utils.Adapter {
         }
 
         // Delete obsolete directories/files
-        new Promise<void>(async (resolve, reject) => {
-            try {
-                const dir_path = path.join(utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter));
-                if (fse.existsSync(dir_path)) {
-                    for (const content of fse.readdirSync(dir_path).filter(fn => fn.match("^T[0-9A-Z]+$") !== null)) {
-                        if (!stationSerials.includes(content)) {
-                            fse.removeSync(path.join(dir_path, content));
-                        } else {
-                            for (const dir of fse.readdirSync(path.join(dir_path, content))) {
-                                if (dir === DataLocation.LIVESTREAM || dir === DataLocation.LAST_LIVESTREAM || dir === DataLocation.TEMP) {
-                                    fse.removeSync(path.join(dir_path, content, dir));
-                                } else {
-                                    const files = fse.readdirSync(path.join(dir_path, content, dir));
-                                    let deletedFiles = 0;
-                                    for (const file of files) {
-                                        if (!deviceSerials.includes(file.substring(0, 16))) {
-                                            fse.removeSync(path.join(dir_path, content, dir, file));
-                                            deletedFiles++;
-                                        }
-                                    }
-                                    if (deletedFiles === files.length) {
-                                        fse.removeSync(path.join(dir_path, content, dir));
-                                    }
-                                }
-                            }
+        try {
+            const contents = await this.readDirAsync(this.namespace, "");
+            for (const content of contents.filter((fn) => fn.file.match("^T[0-9A-Z]+$") !== null && fn.isDir)) {
+                if (!stationSerials.includes(content.file)) {
+                    await this.delFileAsync(this.namespace, content.file);
+                } else {
+                    const dirContents = await this.readDirAsync(this.namespace, content.file);
+                    for (const dir of dirContents.filter((fn) => Object.values(DataLocation).includes(fn.file) && fn.isDir)) {
+                        const files = await this.readDirAsync(this.namespace, path.join(content.file, dir.file));
+                        let deletedFiles = 0;
+                        for (const file of files.filter((fn) => !deviceSerials.includes(fn.file.substring(0, 16)) && !fn.isDir)) {
+                            await this.delFileAsync(this.namespace, path.join(content.file, dir.file, file.file));
+                            deletedFiles++;
+                        }
+                        if (deletedFiles === files.length) {
+                            await this.delFileAsync(this.namespace, path.join(content.file, dir.file));
                         }
                     }
                 }
-                resolve();
-            } catch (error) {
-                reject(error);
             }
-        }).catch(error => {
-            this.log.error(`Delete obsolete directories/files ERROR - ${JSON.stringify(error)}`);
-        });
+        } catch (error) {
+            this.log.error(`Delete obsolete directories/files ERROR - ${error}`);
+        }
     }
 
     private async onClose(): Promise<void> {
@@ -1417,14 +1441,13 @@ class euSec extends utils.Adapter {
             try {
                 const picture = value as Picture;
                 const fileName = `${device.getSerial()}.${picture.type.ext}`;
-                const filePath = path.join(utils.getAbsoluteInstanceDataDir(this as unknown as ioBroker.Adapter), device.getStationSerial(), DataLocation.LAST_EVENT);
-
-                if (!fse.existsSync(filePath)) {
-                    fse.mkdirSync(filePath, {mode: 0o775, recursive: true});
+                const filePath = path.join(device.getStationSerial(), DataLocation.LAST_EVENT);
+                if (!await this.fileExistsAsync(this.namespace, filePath)) {
+                    await this.mkdirAsync(this.namespace, filePath);
                 }
+                await this.writeFileAsync(this.namespace, path.join(filePath, fileName), picture.data);
 
-                await fse.writeFile(path.join(filePath, fileName), picture.data);
-                await setStateChangedAsync(this as unknown as ioBroker.Adapter, device.getStateID(DeviceStateID.PICTURE_URL), `/${this.namespace}/${device.getStationSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}.${picture.type.ext}`);
+                await this.setStateAsync(device.getStateID(DeviceStateID.PICTURE_URL), `/files/${this.namespace}/${device.getStationSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}.${picture.type.ext}`, true);
                 await setStateChangedAsync(this as unknown as ioBroker.Adapter, device.getStateID(DeviceStateID.PICTURE_HTML), getImageAsHTML(picture.data, picture.type.mime));
             } catch (err) {
                 const error = ensureError(err);

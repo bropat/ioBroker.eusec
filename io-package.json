@@ -134,17 +134,15 @@
         "loglevel": "info",
         "mode": "daemon",
         "type": "alarm",
-        "compact": true,
+        "compact": false,
         "connectionType": "cloud",
         "dataSource": "poll",
         "materialize": true,
-        "webExtension": "build/lib/web.js",
         "tier": 2,
         "messagebox": true,
         "dependencies": [
             {
-                "js-controller": ">=4.0.3",
-                "web": ">=4.0.0"
+                "js-controller": ">=5.0.0"
             }
         ],
         "globalDependencies": [
@@ -174,7 +172,6 @@
         "maxLivestreamDuration": 120,
         "verificationMethod": 2,
         "eventDuration": 15,
-        "webInstance": "*",
         "p2pConnectionType": "quickest",
         "acceptInvitations": true,
         "alarmSoundDuration": 60,
@@ -193,8 +190,20 @@
             "_id": "",
             "type": "meta",
             "common": {
-              "name": "User files for euSec",
-              "type": "meta.user"
+                "name": {
+                    "en": "File storage for euSec",
+                    "de": "Dateiablage für euSec",
+                    "ru": "Файловое хранилище для euSec",
+                    "pt": "Armazenamento de arquivos para a euSec",
+                    "nl": "Bestandsopslag voor euSec",
+                    "fr": "Stockage de fichiers",
+                    "it": "Archiviazione dei file per euSec",
+                    "es": "Almacenamiento de archivos para euSec",
+                    "pl": "Przechowywanie plików dla euSec",
+                    "uk": "Зберігання файлів для euSec",
+                    "zh-cn": "euSec 的文件存储"
+                },
+                "type": "meta.user"
             },
             "native": {}
         }
