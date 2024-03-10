@@ -12,7 +12,8 @@ systemDictionary = {
         "it": "Impostazioni dell'adattatore per eufy-security",
         "es": "Ajustes del adaptador para eufy-security",
         "pl": "Ustawienia adaptera dla eufy-security",
-        "zh-cn": "eufy-security的适配器设置"
+        "zh-cn": "eufy-security的适配器设置",
+        "uk": "Налаштування адаптера для eufy-security",
     },
     "Username": {
         "en": "Username",
@@ -24,7 +25,8 @@ systemDictionary = {
         "it": "Nome utente",
         "es": "Nombre de usuario",
         "pl": "Nazwa użytkownika",
-        "zh-cn": "帳號"
+        "zh-cn": "帳號",
+        "uk": "Ім'я користувача",
     },
     "Password": {
         "en": "Password",
@@ -36,7 +38,8 @@ systemDictionary = {
         "it": "Password",
         "es": "Contraseña",
         "pl": "Hasło",
-        "zh-cn": "密码"
+        "zh-cn": "密码",
+        "uk": "Пароль",
     },
     "Polling interval (min)": {
         "en": "Polling interval (min)",
@@ -48,7 +51,8 @@ systemDictionary = {
         "it": "Intervallo di polling (min)",
         "es": "Intervalo de sondeo (min)",
         "pl": "Okres odpytywania (min)",
-        "zh-cn": "轮询间隔（分钟）"
+        "zh-cn": "轮询间隔（分钟）",
+        "uk": "Інтервал опитування (хв)",
     },
     "Max camera livestream duration (sec)": {
         "en": "Max camera livestream duration (sec; 0 = unlimited)",
@@ -60,7 +64,8 @@ systemDictionary = {
         "it": "Durata massima del live streaming della videocamera (sec 0 = illimitata)",
         "es": "Duración máxima de la transmisión en vivo de la cámara (segundos; 0 = ilimitado)",
         "pl": "Maksymalny czas trwania transmisji na żywo z kamery (s; 0 = bez ograniczeń)",
-        "zh-cn": "相机直播的最大持续时间（秒；0 = 无限）"
+        "zh-cn": "相机直播的最大持续时间（秒；0 = 无限）",
+        "uk": "Максимальна тривалість прямого ефіру з камери (сек; 0 = необмежена)",
     },
     "Time in seconds before event reset": {
         "en": "Time in seconds before event reset",
@@ -72,7 +77,8 @@ systemDictionary = {
         "it": "Tempo in secondi prima del ripristino dell'evento",
         "es": "Tiempo en segundos antes del reinicio del evento",
         "pl": "Czas w sekundach do zresetowania zdarzenia",
-        "zh-cn": "事件重置之前的时间（以秒为单位）"
+        "zh-cn": "事件重置之前的时间（以秒为单位）",
+        "uk": "Час у секундах до скидання події",
     },
     "Authentication settings": {
         "en": "Authentication settings",
@@ -84,7 +90,8 @@ systemDictionary = {
         "it": "Impostazioni di autenticazione",
         "es": "Configuración de autenticación",
         "pl": "Ustawienia uwierzytelniania",
-        "zh-cn": "验证设定"
+        "zh-cn": "验证设定",
+        "uk": "Налаштування автентифікації",
     },
     "Other settings": {
         "en": "Other settings",
@@ -96,7 +103,8 @@ systemDictionary = {
         "it": "Altre impostazioni",
         "es": "Otros ajustes",
         "pl": "Inne ustawienia",
-        "zh-cn": "其他设定"
+        "zh-cn": "其他设定",
+        "uk": "Інші налаштування",
     },
     "Settings": {
         "en": "Settings",
@@ -108,7 +116,8 @@ systemDictionary = {
         "it": "Impostazioni",
         "es": "Ajustes",
         "pl": "Ustawienia",
-        "zh-cn": "设定值"
+        "zh-cn": "设定值",
+        "uk": "Налаштування",
     },
     "Main settings": {
         "en": "Main settings",
@@ -120,7 +129,8 @@ systemDictionary = {
         "it": "Impostazioni principali",
         "es": "Ajustes principales",
         "pl": "Ustawienia główne",
-        "zh-cn": "主要设定"
+        "zh-cn": "主要设定",
+        "uk": "Основні налаштування",
     },
     "Livestream settings": {
         "en": "Livestream settings",
@@ -132,7 +142,8 @@ systemDictionary = {
         "it": "Impostazioni live streaming",
         "es": "Configuración de transmisión en vivo",
         "pl": "Ustawienia transmisji na żywo",
-        "zh-cn": "直播设置"
+        "zh-cn": "直播设置",
+        "uk": "Налаштування прямого ефіру",
     },
     "Only local connection": {
         "en": "Only local connection",
@@ -144,7 +155,8 @@ systemDictionary = {
         "it": "Solo connessione locale",
         "es": "Solo conexión local",
         "pl": "Tylko połączenie lokalne",
-        "zh-cn": "仅本地连接"
+        "zh-cn": "仅本地连接",
+        "uk": "Тільки локальне підключення",
     },
     "Quickest connection": {
         "en": "Quickest connection",
@@ -156,7 +168,8 @@ systemDictionary = {
         "it": "Connessione più veloce",
         "es": "Conexión más rápida",
         "pl": "Najszybsze połączenie",
-        "zh-cn": "最快的连接"
+        "zh-cn": "最快的连接",
+        "uk": "Найшвидше з'єднання",
     },
     "P2P connection type": {
         "en": "P2P connection type",
@@ -168,7 +181,8 @@ systemDictionary = {
         "it": "Tipo di connessione P2P",
         "es": "Tipo de conexión P2P",
         "pl": "Typ połączenia P2P",
-        "zh-cn": "P2P连接类型"
+        "zh-cn": "P2P连接类型",
+        "uk": "Тип з'єднання P2P",
     },
     "Accept incoming invitations": {
         "en": "Accept incoming invitations",
@@ -180,7 +194,8 @@ systemDictionary = {
         "it": "Accetta inviti in arrivo",
         "es": "Aceptar invitaciones entrantes",
         "pl": "Przyjmowanie zaproszeń przychodzących",
-        "zh-cn": "接受收到的邀请"
+        "zh-cn": "接受收到的邀请",
+        "uk": "Приймайте вхідні запрошення",
     },
     "Alarm sound duration (sec)": {
         "en": "Alarm sound duration (sec)",
@@ -192,7 +207,8 @@ systemDictionary = {
         "it": "Durata del suono dell'allarme (sec)",
         "es": "Duración del sonido de la alarma (s)",
         "pl": "Czas trwania dźwięku alarmu (sek.)",
-        "zh-cn": "警报声持续时间（秒"
+        "zh-cn": "警报声持续时间（秒",
+        "uk": "Тривалість звукового сигналу тривоги (сек)",
     },
     "inherited from ioBroker": {
         "en": "inherited from ioBroker",
@@ -204,7 +220,8 @@ systemDictionary = {
         "it": "ereditato da ioBroker",
         "es": "heredado de ioBroker",
         "pl": "odziedziczone po ioBroker",
-        "zh-cn": "继承于 ioBroker"
+        "zh-cn": "继承于 ioBroker",
+        "uk": "успадкований від ioBroker",
     },
     "Afghanistan":{
         "en":"Afghanistan",
@@ -216,9 +233,10 @@ systemDictionary = {
         "it":"Afghanistan",
         "es":"Afganistán",
         "pl":"Afganistan",
-        "zh-cn":"阿富汗"
-    },
-    "Albania":{
+        "zh-cn":"阿富汗",
+        "uk":"Афганістан"
+     },
+     "Albania":{
         "en":"Albania",
         "de":"Albanien",
         "ru":"Албания",
@@ -228,9 +246,10 @@ systemDictionary = {
         "it":"Albania",
         "es":"Albania",
         "pl":"Albania",
-        "zh-cn":"阿尔巴尼亚"
-    },
-    "Algeria":{
+        "zh-cn":"阿尔巴尼亚",
+        "uk":"Албанія"
+     },
+     "Algeria":{
         "en":"Algeria",
         "de":"Algerien",
         "ru":"Алжир",
@@ -240,9 +259,10 @@ systemDictionary = {
         "it":"Algeria",
         "es":"Argelia",
         "pl":"Algieria",
-        "zh-cn":"阿尔及利亚"
-    },
-    "American Samoa":{
+        "zh-cn":"阿尔及利亚",
+        "uk":"Алжир"
+     },
+     "American Samoa":{
         "en":"American Samoa",
         "de":"Amerikanisch-Samoa",
         "ru":"Американское Самоа",
@@ -252,9 +272,10 @@ systemDictionary = {
         "it":"Samoa Americane",
         "es":"Samoa Americana",
         "pl":"Samoa Amerykańskie",
-        "zh-cn":"美属萨摩亚"
-    },
-    "Andorra":{
+        "zh-cn":"美属萨摩亚",
+        "uk":"Американське Самоа"
+     },
+     "Andorra":{
         "en":"Andorra",
         "de":"Andorra",
         "ru":"Андорра",
@@ -264,9 +285,10 @@ systemDictionary = {
         "it":"Andorra",
         "es":"Andorra",
         "pl":"Andora",
-        "zh-cn":"安道尔"
-    },
-    "Angola":{
+        "zh-cn":"安道尔",
+        "uk":"Андорра"
+     },
+     "Angola":{
         "en":"Angola",
         "de":"Angola",
         "ru":"Ангола",
@@ -276,9 +298,10 @@ systemDictionary = {
         "it":"Angola",
         "es":"Angola",
         "pl":"Angola",
-        "zh-cn":"安哥拉"
-    },
-    "Anguilla":{
+        "zh-cn":"安哥拉",
+        "uk":"Ангола"
+     },
+     "Anguilla":{
         "en":"Anguilla",
         "de":"Anguilla",
         "ru":"Ангилья",
@@ -288,9 +311,10 @@ systemDictionary = {
         "it":"Anguilla",
         "es":"Anguila",
         "pl":"Anguilla",
-        "zh-cn":"安圭拉"
-    },
-    "Antarctica":{
+        "zh-cn":"安圭拉",
+        "uk":"Ангілья"
+     },
+     "Antarctica":{
         "en":"Antarctica",
         "de":"Antarktis",
         "ru":"Антарктида",
@@ -300,9 +324,10 @@ systemDictionary = {
         "it":"Antartide",
         "es":"Antártida",
         "pl":"Antarktyka",
-        "zh-cn":"南极洲"
-    },
-    "Antigua and Barbuda":{
+        "zh-cn":"南极洲",
+        "uk":"Антарктика"
+     },
+     "Antigua and Barbuda":{
         "en":"Antigua and Barbuda",
         "de":"Antigua und Barbuda",
         "ru":"Антигуа и Барбуда",
@@ -312,9 +337,10 @@ systemDictionary = {
         "it":"Antigua e Barbuda",
         "es":"Antigua y Barbuda",
         "pl":"Antigua i Barbuda",
-        "zh-cn":"安提瓜和巴布达"
-    },
-    "Argentina":{
+        "zh-cn":"安提瓜和巴布达",
+        "uk":"Антигуа і Барбуда"
+     },
+     "Argentina":{
         "en":"Argentina",
         "de":"Argentinien",
         "ru":"Аргентина",
@@ -324,9 +350,10 @@ systemDictionary = {
         "it":"Argentina",
         "es":"Argentina",
         "pl":"Argentyna",
-        "zh-cn":"阿根廷"
-    },
-    "Armenia":{
+        "zh-cn":"阿根廷",
+        "uk":"Аргентина"
+     },
+     "Armenia":{
         "en":"Armenia",
         "de":"Armenien",
         "ru":"Армения",
@@ -336,9 +363,10 @@ systemDictionary = {
         "it":"Armenia",
         "es":"Armenia",
         "pl":"Armenia",
-        "zh-cn":"亚美尼亚"
-    },
-    "Aruba":{
+        "zh-cn":"亚美尼亚",
+        "uk":"Вірменія"
+     },
+     "Aruba":{
         "en":"Aruba",
         "de":"Aruba",
         "ru":"Аруба",
@@ -348,9 +376,10 @@ systemDictionary = {
         "it":"Aruba",
         "es":"Aruba",
         "pl":"Aruba",
-        "zh-cn":"阿鲁巴"
-    },
-    "Australia":{
+        "zh-cn":"阿鲁巴",
+        "uk":"Аруба"
+     },
+     "Australia":{
         "en":"Australia",
         "de":"Australien",
         "ru":"Австралия",
@@ -360,9 +389,10 @@ systemDictionary = {
         "it":"Australia",
         "es":"Australia",
         "pl":"Australia",
-        "zh-cn":"澳大利亚"
-    },
-    "Austria":{
+        "zh-cn":"澳大利亚",
+        "uk":"Австралія"
+     },
+     "Austria":{
         "en":"Austria",
         "de":"Österreich",
         "ru":"Австрия",
@@ -372,9 +402,10 @@ systemDictionary = {
         "it":"Austria",
         "es":"Austria",
         "pl":"Austria",
-        "zh-cn":"奥地利"
-    },
-    "Azerbaijan":{
+        "zh-cn":"奥地利",
+        "uk":"Австрія"
+     },
+     "Azerbaijan":{
         "en":"Azerbaijan",
         "de":"Aserbaidschan",
         "ru":"Азербайджан",
@@ -384,9 +415,10 @@ systemDictionary = {
         "it":"Azerbaigian",
         "es":"Azerbaiyán",
         "pl":"Azerbejdżan",
-        "zh-cn":"阿塞拜疆"
-    },
-    "Bahamas":{
+        "zh-cn":"阿塞拜疆",
+        "uk":"Азербайджан"
+     },
+     "Bahamas":{
         "en":"Bahamas",
         "de":"Bahamas",
         "ru":"Багамы",
@@ -396,9 +428,10 @@ systemDictionary = {
         "it":"Bahamas",
         "es":"Bahamas",
         "pl":"Bahamy",
-        "zh-cn":"巴哈马"
-    },
-    "Bahrain":{
+        "zh-cn":"巴哈马",
+        "uk":"Багамські Острови"
+     },
+     "Bahrain":{
         "en":"Bahrain",
         "de":"Bahrain",
         "ru":"Бахрейн",
@@ -408,9 +441,10 @@ systemDictionary = {
         "it":"Bahrain",
         "es":"Bahrein",
         "pl":"Bahrajn",
-        "zh-cn":"巴林"
-    },
-    "Bangladesh":{
+        "zh-cn":"巴林",
+        "uk":"Бахрейн"
+     },
+     "Bangladesh":{
         "en":"Bangladesh",
         "de":"Bangladesch",
         "ru":"Бангладеш",
@@ -420,9 +454,10 @@ systemDictionary = {
         "it":"Bangladesh",
         "es":"Bangladesh",
         "pl":"Bangladesz",
-        "zh-cn":"孟加拉国"
-    },
-    "Barbados":{
+        "zh-cn":"孟加拉国",
+        "uk":"Бангладеш"
+     },
+     "Barbados":{
         "en":"Barbados",
         "de":"Barbados",
         "ru":"Барбадос",
@@ -432,9 +467,10 @@ systemDictionary = {
         "it":"Barbados",
         "es":"Barbados",
         "pl":"Barbados",
-        "zh-cn":"巴巴多斯"
-    },
-    "Belarus":{
+        "zh-cn":"巴巴多斯",
+        "uk":"Барбадос"
+     },
+     "Belarus":{
         "en":"Belarus",
         "de":"Belarus",
         "ru":"Беларусь",
@@ -444,9 +480,10 @@ systemDictionary = {
         "it":"Bielorussia",
         "es":"Bielorrusia",
         "pl":"Białoruś",
-        "zh-cn":"白俄罗斯"
-    },
-    "Belgium":{
+        "zh-cn":"白俄罗斯",
+        "uk":"Білорусь"
+     },
+     "Belgium":{
         "en":"Belgium",
         "de":"Belgien",
         "ru":"Бельгия",
@@ -456,9 +493,10 @@ systemDictionary = {
         "it":"Belgio",
         "es":"Bélgica",
         "pl":"Belgia",
-        "zh-cn":"比利时"
-    },
-    "Belize":{
+        "zh-cn":"比利时",
+        "uk":"Бельгія"
+     },
+     "Belize":{
         "en":"Belize",
         "de":"Belize",
         "ru":"Белиз",
@@ -468,9 +506,10 @@ systemDictionary = {
         "it":"Belize",
         "es":"Belice",
         "pl":"Belize",
-        "zh-cn":"伯利兹"
-    },
-    "Benin":{
+        "zh-cn":"伯利兹",
+        "uk":"Беліз"
+     },
+     "Benin":{
         "en":"Benin",
         "de":"Benin",
         "ru":"Бенин",
@@ -480,9 +519,10 @@ systemDictionary = {
         "it":"Benin",
         "es":"Benin",
         "pl":"Benin",
-        "zh-cn":"贝宁"
-    },
-    "Bermuda":{
+        "zh-cn":"贝宁",
+        "uk":"Бенін"
+     },
+     "Bermuda":{
         "en":"Bermuda",
         "de":"Bermuda",
         "ru":"Бермуды",
@@ -492,9 +532,10 @@ systemDictionary = {
         "it":"Bermuda",
         "es":"Bermudas",
         "pl":"Bermudy",
-        "zh-cn":"百慕大"
-    },
-    "Bhutan":{
+        "zh-cn":"百慕大",
+        "uk":"Бермудські Острови"
+     },
+     "Bhutan":{
         "en":"Bhutan",
         "de":"Bhutan",
         "ru":"Бутан",
@@ -504,9 +545,10 @@ systemDictionary = {
         "it":"Bhutan",
         "es":"Bután",
         "pl":"Bhutan",
-        "zh-cn":"不丹"
-    },
-    "Bolivia":{
+        "zh-cn":"不丹",
+        "uk":"Бутан"
+     },
+     "Bolivia":{
         "en":"Bolivia",
         "de":"Bolivien",
         "ru":"Боливия",
@@ -516,9 +558,10 @@ systemDictionary = {
         "it":"Bolivia",
         "es":"Bolivia",
         "pl":"Boliwia",
-        "zh-cn":"玻利维亚"
-    },
-    "Bosnia and Herzegovina":{
+        "zh-cn":"玻利维亚",
+        "uk":"Болівія"
+     },
+     "Bosnia and Herzegovina":{
         "en":"Bosnia and Herzegovina",
         "de":"Bosnien und Herzegowina",
         "ru":"Босния и Герцеговина",
@@ -528,9 +571,10 @@ systemDictionary = {
         "it":"Bosnia ed Erzegovina",
         "es":"Bosnia y Herzegovina",
         "pl":"Bośnia i Hercegowina",
-        "zh-cn":"波黑"
-    },
-    "Botswana":{
+        "zh-cn":"波黑",
+        "uk":"Боснія і Герцеговина"
+     },
+     "Botswana":{
         "en":"Botswana",
         "de":"Botswana",
         "ru":"Ботсвана",
@@ -540,9 +584,10 @@ systemDictionary = {
         "it":"Botswana",
         "es":"Botswana",
         "pl":"Botswana",
-        "zh-cn":"博 茨瓦纳"
-    },
-    "Bouvet Island":{
+        "zh-cn":"博茨瓦纳",
+        "uk":"Ботсвана"
+     },
+     "Bouvet Island":{
         "en":"Bouvet Island",
         "de":"Bouvetinsel",
         "ru":"Остров Буве",
@@ -552,9 +597,10 @@ systemDictionary = {
         "it":"Isola Bouvet",
         "es":"Isla Bouvet",
         "pl":"Wyspa Bouveta",
-        "zh-cn":"布韦岛"
-    },
-    "Brazil":{
+        "zh-cn":"布韦岛",
+        "uk":"Острів Буве"
+     },
+     "Brazil":{
         "en":"Brazil",
         "de":"Brasilien",
         "ru":"Бразилия",
@@ -564,9 +610,10 @@ systemDictionary = {
         "it":"Brasile",
         "es":"Brasil",
         "pl":"Brazylia",
-        "zh-cn":"巴西"
-    },
-    "British Indian Ocean Territory":{
+        "zh-cn":"巴西",
+        "uk":"Бразилія"
+     },
+     "British Indian Ocean Territory":{
         "en":"British Indian Ocean Territory",
         "de":"Britisches Territorium im Indischen Ozean",
         "ru":"Британская территория в Индийском океане",
@@ -576,9 +623,10 @@ systemDictionary = {
         "it":"Territori Britannici dell'Oceano Indiano",
         "es":"Territorio Británico del Océano Índico",
         "pl":"Brytyjskie Terytorium Oceanu Indyjskiego",
-        "zh-cn":"英属印度洋领地"
-    },
-    "Brunei Darussalam":{
+        "zh-cn":"英属印度洋领地",
+        "uk":"Британська Територія в Індійському Океані"
+     },
+     "Brunei Darussalam":{
         "en":"Brunei Darussalam",
         "de":"Brunei Darussalam",
         "ru":"Бруней",
@@ -588,9 +636,10 @@ systemDictionary = {
         "it":"Brunei",
         "es":"Brunei Darussalam",
         "pl":"Brunei",
-        "zh-cn":"文莱"
-    },
-    "Bulgaria":{
+        "zh-cn":"文莱",
+        "uk":"Бруней-Даруссалам"
+     },
+     "Bulgaria":{
         "en":"Bulgaria",
         "de":"Bulgarien",
         "ru":"Болгария",
@@ -600,9 +649,10 @@ systemDictionary = {
         "it":"Bulgaria",
         "es":"Bulgaria",
         "pl":"Bułgaria",
-        "zh-cn":"保加利亚"
-    },
-    "Burkina Faso":{
+        "zh-cn":"保加利亚",
+        "uk":"Болгарія"
+     },
+     "Burkina Faso":{
         "en":"Burkina Faso",
         "de":"Burkina Faso",
         "ru":"Буркина-Фасо",
@@ -612,9 +662,10 @@ systemDictionary = {
         "it":"Burkina Faso",
         "es":"Burkina Faso",
         "pl":"Burkina Faso",
-        "zh-cn":" 布基纳法索"
-    },
-    "Burundi":{
+        "zh-cn":"布基纳法索",
+        "uk":"Буркіна-Фасо"
+     },
+     "Burundi":{
         "en":"Burundi",
         "de":"Burundi",
         "ru":"Бурунди",
@@ -624,9 +675,10 @@ systemDictionary = {
         "it":"Burundi",
         "es":"Burundi",
         "pl":"Burundi",
-        "zh-cn":"布隆迪"
-    },
-    "Cambodia":{
+        "zh-cn":"布隆迪",
+        "uk":"Бурунді"
+     },
+     "Cambodia":{
         "en":"Cambodia",
         "de":"Kambodscha",
         "ru":"Камбоджа",
@@ -636,9 +688,10 @@ systemDictionary = {
         "it":"Cambogia",
         "es":"Camboya",
         "pl":"Kambodża",
-        "zh-cn":"柬埔寨"
-    },
-    "Cameroon":{
+        "zh-cn":"柬埔寨",
+        "uk":"Камбоджа"
+     },
+     "Cameroon":{
         "en":"Cameroon",
         "de":"Kamerun",
         "ru":"Камерун",
@@ -648,9 +701,10 @@ systemDictionary = {
         "it":"Camerun",
         "es":"Camerún",
         "pl":"Kamerun",
-        "zh-cn":"喀麦隆"
-    },
-    "Canada":{
+        "zh-cn":"喀麦隆",
+        "uk":"Камерун"
+     },
+     "Canada":{
         "en":"Canada",
         "de":"Kanada",
         "ru":"Канада",
@@ -660,9 +714,10 @@ systemDictionary = {
         "it":"Canada",
         "es":"Canadá",
         "pl":"Kanada",
-        "zh-cn":"加拿大"
-    },
-    "Cape Verde":{
+        "zh-cn":"加拿大",
+        "uk":"Канада"
+     },
+     "Cape Verde":{
         "en":"Cape Verde",
         "de":"Kap Verde",
         "ru":"Кабо-Верде",
@@ -672,9 +727,10 @@ systemDictionary = {
         "it":"Capo Verde",
         "es":"Cabo Verde",
         "pl":"Republika Zielonego Przylądka",
-        "zh-cn":"佛得角"
-    },
-    "Cayman Islands":{
+        "zh-cn":"佛得角",
+        "uk":"Кабо-Верде"
+     },
+     "Cayman Islands":{
         "en":"Cayman Islands",
         "de":"Kaimaninseln",
         "ru":"Острова Кайман",
@@ -684,9 +740,10 @@ systemDictionary = {
         "it":"Isole Cayman",
         "es":"Islas Caimán",
         "pl":"Kajmany",
-        "zh-cn":"开曼群岛"
-    },
-    "Central African Republic":{
+        "zh-cn":"开曼群岛",
+        "uk":"Кайманові Острови"
+     },
+     "Central African Republic":{
         "en":"Central African Republic",
         "de":"Zentralafrikanische Republik",
         "ru":"ЦАР",
@@ -696,9 +753,10 @@ systemDictionary = {
         "it":"Repubblica Centrafricana",
         "es":"República Centroafricana",
         "pl":"Republika Środkowoafrykańska",
-        "zh-cn":"中 非"
-    },
-    "Chad":{
+        "zh-cn":"中非",
+        "uk":"Центральноафриканська Республіка"
+     },
+     "Chad":{
         "en":"Chad",
         "de":"Tschad",
         "ru":"Чад",
@@ -708,9 +766,10 @@ systemDictionary = {
         "it":"Ciad",
         "es":"Chad",
         "pl":"Czad",
-        "zh-cn":"乍得"
-    },
-    "Chile":{
+        "zh-cn":"乍得",
+        "uk":"Чад"
+     },
+     "Chile":{
         "en":"Chile",
         "de":"Chile",
         "ru":"Чили",
@@ -720,9 +779,10 @@ systemDictionary = {
         "it":"Cile",
         "es":"Chile",
         "pl":"Chile",
-        "zh-cn":"智利"
-    },
-    "People's Republic of China":{
+        "zh-cn":"智利",
+        "uk":"Чилі"
+     },
+     "People's Republic of China":{
         "en":"People's Republic of China",
         "de":"China",
         "ru":"КНР (Китайская Народная Республика)",
@@ -732,9 +792,10 @@ systemDictionary = {
         "it":"Cina",
         "es":"China",
         "pl":"Chiny",
-        "zh-cn":"中国"
-    },
-    "Christmas Island":{
+        "zh-cn":"中国",
+        "uk":"Китай"
+     },
+     "Christmas Island":{
         "en":"Christmas Island",
         "de":"Weihnachtsinsel",
         "ru":"Остров Рождества",
@@ -744,9 +805,10 @@ systemDictionary = {
         "it":"Isola del Natale",
         "es":"Isla de Navidad",
         "pl":"Wyspa Bożego Narodzenia",
-        "zh-cn":"圣诞岛"
-    },
-    "Cocos (Keeling) Islands":{
+        "zh-cn":"圣诞岛",
+        "uk":"Острів Різдва"
+     },
+     "Cocos (Keeling) Islands":{
         "en":"Cocos (Keeling) Islands",
         "de":"Kokosinseln",
         "ru":"Кокосовые острова",
@@ -756,9 +818,10 @@ systemDictionary = {
         "it":"Isole Cocos e Keeling",
         "es":"Islas Cocos (Keeling)",
         "pl":"Wyspy Kokosowe",
-        "zh-cn":"科科斯（基林）群岛"
-    },
-    "Colombia":{
+        "zh-cn":"科科斯（基林）群岛",
+        "uk":"Кокосові Острови"
+     },
+     "Colombia":{
         "en":"Colombia",
         "de":"Kolumbien",
         "ru":"Колумбия",
@@ -768,9 +831,10 @@ systemDictionary = {
         "it":"Colombia",
         "es":"Colombia",
         "pl":"Kolumbia",
-        "zh-cn":"哥伦比亚"
-    },
-    "Comoros":{
+        "zh-cn":"哥伦比亚",
+        "uk":"Колумбія"
+     },
+     "Comoros":{
         "en":"Comoros",
         "de":"Komoren",
         "ru":"Коморы",
@@ -780,9 +844,10 @@ systemDictionary = {
         "it":"Comore",
         "es":"Comoras",
         "pl":"Komory",
-        "zh-cn":"科摩罗"
-    },
-    "Republic of the Congo":{
+        "zh-cn":"科摩罗",
+        "uk":"Комори"
+     },
+     "Republic of the Congo":{
         "en":"Republic of the Congo",
         "de":"Republik Kongo",
         "ru":"Республика Конго",
@@ -792,9 +857,10 @@ systemDictionary = {
         "it":"Repubblica del Congo",
         "es":"Congo",
         "pl":"Kongo",
-        "zh-cn":"刚果（布）"
-    },
-    "Democratic Republic of the Congo":{
+        "zh-cn":"刚果（布）",
+        "uk":"Конго"
+     },
+     "Democratic Republic of the Congo":{
         "en":"Democratic Republic of the Congo",
         "de":"Kongo",
         "ru":"Демократическая Республика Конго",
@@ -804,9 +870,10 @@ systemDictionary = {
         "it":"Repubblica Democratica del Congo",
         "es":"Congo (República Democrática del)",
         "pl":"Demokratyczna Republika Konga",
-        "zh-cn":"刚果（金）"
-    },
-    "Cook Islands":{
+        "zh-cn":"刚果（金）",
+        "uk":"Демократична Республіка Конго"
+     },
+     "Cook Islands":{
         "en":"Cook Islands",
         "de":"Cookinseln",
         "ru":"Острова Кука",
@@ -816,9 +883,10 @@ systemDictionary = {
         "it":"Isole Cook",
         "es":"Islas Cook",
         "pl":"Wyspy Cooka",
-        "zh-cn":"库克群岛"
-    },
-    "Costa Rica":{
+        "zh-cn":"库克群岛",
+        "uk":"Острови Кука"
+     },
+     "Costa Rica":{
         "en":"Costa Rica",
         "de":"Costa Rica",
         "ru":"Коста-Рика",
@@ -828,9 +896,10 @@ systemDictionary = {
         "it":"Costa Rica",
         "es":"Costa Rica",
         "pl":"Kostaryka",
-        "zh-cn":"哥斯达黎加"
-    },
-    "Cote d'Ivoire":{
+        "zh-cn":"哥斯达黎加",
+        "uk":"Коста-Рика"
+     },
+     "Cote d'Ivoire":{
         "en":"Cote d'Ivoire",
         "de":"Elfenbeinküste",
         "ru":"Кот-д’Ивуар",
@@ -840,9 +909,10 @@ systemDictionary = {
         "it":"Costa d'Avorio",
         "es":"Costa de Marfil",
         "pl":"Wybrzeże Kości Słoniowej",
-        "zh-cn":"科特迪瓦"
-    },
-    "Croatia":{
+        "zh-cn":"科特迪瓦",
+        "uk":"Кот-Д'Івуар"
+     },
+     "Croatia":{
         "en":"Croatia",
         "de":"Kroatien",
         "ru":"Хорватия",
@@ -852,9 +922,10 @@ systemDictionary = {
         "it":"Croazia",
         "es":"Croacia",
         "pl":"Chorwacja",
-        "zh-cn":"克罗地亚"
-    },
-    "Cuba":{
+        "zh-cn":"克罗地亚",
+        "uk":"Хорватія"
+     },
+     "Cuba":{
         "en":"Cuba",
         "de":"Kuba",
         "ru":"Куба",
@@ -864,9 +935,10 @@ systemDictionary = {
         "it":"Cuba",
         "es":"Cuba",
         "pl":"Kuba",
-        "zh-cn":"古巴"
-    },
-    "Cyprus":{
+        "zh-cn":"古巴",
+        "uk":"Куба"
+     },
+     "Cyprus":{
         "en":"Cyprus",
         "de":"Zypern",
         "ru":"Кипр",
@@ -876,9 +948,10 @@ systemDictionary = {
         "it":"Cipro",
         "es":"Chipre",
         "pl":"Cypr",
-        "zh-cn":"塞浦路斯"
-    },
-    "Czech Republic":{
+        "zh-cn":"塞浦路斯",
+        "uk":"Кіпр"
+     },
+     "Czech Republic":{
         "en":"Czech Republic",
         "de":"Tschechische Republik",
         "ru":"Чехия",
@@ -888,9 +961,10 @@ systemDictionary = {
         "it":"Repubblica Ceca",
         "es":"República Checa",
         "pl":"Czechy",
-        "zh-cn":"捷克"
-    },
-    "Denmark":{
+        "zh-cn":"捷克",
+        "uk":"Чехія"
+     },
+     "Denmark":{
         "en":"Denmark",
         "de":"Dänemark",
         "ru":"Дания",
@@ -900,9 +974,10 @@ systemDictionary = {
         "it":"Danimarca",
         "es":"Dinamarca",
         "pl":"Dania",
-        "zh-cn":"丹麦"
-    },
-    "Djibouti":{
+        "zh-cn":"丹麦",
+        "uk":"Данія"
+     },
+     "Djibouti":{
         "en":"Djibouti",
         "de":"Dschibuti",
         "ru":"Джибути",
@@ -912,9 +987,10 @@ systemDictionary = {
         "it":"Gibuti",
         "es":"Yibuti",
         "pl":"Dżibuti",
-        "zh-cn":"吉布提"
-    },
-    "Dominica":{
+        "zh-cn":"吉布提",
+        "uk":"Джибуті"
+     },
+     "Dominica":{
         "en":"Dominica",
         "de":"Dominica",
         "ru":"Доминика",
@@ -924,9 +1000,10 @@ systemDictionary = {
         "it":"Dominica",
         "es":"Dominica",
         "pl":"Dominika",
-        "zh-cn":"多米尼克"
-    },
-    "Dominican Republic":{
+        "zh-cn":"多米尼克",
+        "uk":"Домініка"
+     },
+     "Dominican Republic":{
         "en":"Dominican Republic",
         "de":"Dominikanische Republik",
         "ru":"Доминиканская Республика",
@@ -936,9 +1013,10 @@ systemDictionary = {
         "it":"Repubblica Dominicana",
         "es":"República Dominicana",
         "pl":"Dominikana",
-        "zh-cn":"多米尼加"
-    },
-    "Ecuador":{
+        "zh-cn":"多米尼加",
+        "uk":"Домініканська Республіка"
+     },
+     "Ecuador":{
         "en":"Ecuador",
         "de":"Ecuador",
         "ru":"Эквадор",
@@ -948,9 +1026,10 @@ systemDictionary = {
         "it":"Ecuador",
         "es":"Ecuador",
         "pl":"Ekwador",
-        "zh-cn":"厄瓜多尔"
-    },
-    "Egypt":{
+        "zh-cn":"厄瓜多尔",
+        "uk":"Еквадор"
+     },
+     "Egypt":{
         "en":"Egypt",
         "de":"Ägypten",
         "ru":"Египет",
@@ -960,9 +1039,10 @@ systemDictionary = {
         "it":"Egitto",
         "es":"Egipto",
         "pl":"Egipt",
-        "zh-cn":"埃及"
-    },
-    "El Salvador":{
+        "zh-cn":"埃及",
+        "uk":"Єгипет"
+     },
+     "El Salvador":{
         "en":"El Salvador",
         "de":"El Salvador",
         "ru":"Сальвадор",
@@ -972,9 +1052,10 @@ systemDictionary = {
         "it":"El Salvador",
         "es":"El Salvador",
         "pl":"Salwador",
-        "zh-cn":"萨尔瓦多"
-    },
-    "Equatorial Guinea":{
+        "zh-cn":"萨尔瓦多",
+        "uk":"Сальвадор"
+     },
+     "Equatorial Guinea":{
         "en":"Equatorial Guinea",
         "de":"Äquatorialguinea",
         "ru":"Экваториальная Гвинея",
@@ -984,9 +1065,10 @@ systemDictionary = {
         "it":"Guinea Equatoriale",
         "es":"Guinea Ecuatorial",
         "pl":"Gwinea Równikowa",
-        "zh-cn":"赤道几内亚"
-    },
-    "Eritrea":{
+        "zh-cn":"赤 道几内亚",
+        "uk":"Екваторіальна Гвінея"
+     },
+     "Eritrea":{
         "en":"Eritrea",
         "de":"Eritrea",
         "ru":"Эритрея",
@@ -996,9 +1078,10 @@ systemDictionary = {
         "it":"Eritrea",
         "es":"Eritrea",
         "pl":"Erytrea",
-        "zh-cn":"厄立特里亚"
-    },
-    "Estonia":{
+        "zh-cn":"厄立特里亚",
+        "uk":"Еритрея"
+     },
+     "Estonia":{
         "en":"Estonia",
         "de":"Estland",
         "ru":"Эстония",
@@ -1008,9 +1091,10 @@ systemDictionary = {
         "it":"Estonia",
         "es":"Estonia",
         "pl":"Estonia",
-        "zh-cn":"爱沙尼亚"
-    },
-    "Ethiopia":{
+        "zh-cn":"爱沙尼亚",
+        "uk":"Естонія"
+     },
+     "Ethiopia":{
         "en":"Ethiopia",
         "de":"Äthiopien",
         "ru":"Эфиопия",
@@ -1020,9 +1104,10 @@ systemDictionary = {
         "it":"Etiopia",
         "es":"Etiopía",
         "pl":"Etiopia",
-        "zh-cn":"埃塞俄比亚"
-    },
-    "Falkland Islands (Malvinas)":{
+        "zh-cn":"埃塞俄比亚",
+        "uk":"Ефіопія"
+     },
+     "Falkland Islands (Malvinas)":{
         "en":"Falkland Islands (Malvinas)",
         "de":"Falklandinseln",
         "ru":"Фолклендские острова",
@@ -1032,9 +1117,10 @@ systemDictionary = {
         "it":"Isole Falkland",
         "es":"Islas Malvinas",
         "pl":"Falklandy",
-        "zh-cn":"福克兰群岛"
-    },
-    "Faroe Islands":{
+        "zh-cn":"福克兰群岛",
+        "uk":"Фолклендські Острови"
+     },
+     "Faroe Islands":{
         "en":"Faroe Islands",
         "de":"Färöer",
         "ru":"Фареры",
@@ -1044,9 +1130,10 @@ systemDictionary = {
         "it":"Isole Fær Øer",
         "es":"Islas Feroe",
         "pl":"Wyspy Owcze",
-        "zh-cn":"法罗群岛"
-    },
-    "Fiji":{
+        "zh-cn":"法罗群岛",
+        "uk":"Фарерські Острови"
+     },
+     "Fiji":{
         "en":"Fiji",
         "de":"Fidschi",
         "ru":"Фиджи",
@@ -1056,9 +1143,10 @@ systemDictionary = {
         "it":"Figi",
         "es":"Fiji",
         "pl":"Fidżi",
-        "zh-cn":"斐济"
-    },
-    "Finland":{
+        "zh-cn":"斐济",
+        "uk":"Фіджі"
+     },
+     "Finland":{
         "en":"Finland",
         "de":"Finnland",
         "ru":"Финляндия",
@@ -1068,9 +1156,10 @@ systemDictionary = {
         "it":"Finlandia",
         "es":"Finlandia",
         "pl":"Finlandia",
-        "zh-cn":"芬兰"
-    },
-    "France":{
+        "zh-cn":"芬兰",
+        "uk":"Фінляндія"
+     },
+     "France":{
         "en":"France",
         "de":"Frankreich",
         "ru":"Франция",
@@ -1080,9 +1169,10 @@ systemDictionary = {
         "it":"Francia",
         "es":"Francia",
         "pl":"Francja",
-        "zh-cn":"法国"
-    },
-    "French Guiana":{
+        "zh-cn":"法国",
+        "uk":"Франція"
+     },
+     "French Guiana":{
         "en":"French Guiana",
         "de":"Französisch-Guayana",
         "ru":"Гвиана",
@@ -1092,9 +1182,10 @@ systemDictionary = {
         "it":"Guyana Francese",
         "es":"Guayana Francesa",
         "pl":"Gujana Francuska",
-        "zh-cn":"法属圭亚那"
-    },
-    "French Polynesia":{
+        "zh-cn":"法属圭亚那",
+        "uk":"Гвіана"
+     },
+     "French Polynesia":{
         "en":"French Polynesia",
         "de":"Französisch-Polynesien",
         "ru":"Французская Полинезия",
@@ -1104,9 +1195,10 @@ systemDictionary = {
         "it":"Polinesia Francese",
         "es":"Polinesia Francesa",
         "pl":"Polinezja Francuska",
-        "zh-cn":"法属波利尼西亚"
-    },
-    "French Southern Territories":{
+        "zh-cn":"法属波利尼西亚",
+        "uk":"Французька Полінезія"
+     },
+     "French Southern Territories":{
         "en":"French Southern Territories",
         "de":"Französische Süd- und Antarktisgebiete",
         "ru":"Французские Южные и Антарктические Территории",
@@ -1116,9 +1208,10 @@ systemDictionary = {
         "it":"Territori Francesi del Sud",
         "es":"Tierras Australes Francesas",
         "pl":"Francuskie Terytoria Południowe i Antarktyczne",
-        "zh-cn":"法属南部领地"
-    },
-    "Gabon":{
+        "zh-cn":"法属南部领地",
+        "uk":"Французькі Південні і Антарктичні Території"
+     },
+     "Gabon":{
         "en":"Gabon",
         "de":"Gabun",
         "ru":"Габон",
@@ -1128,9 +1221,10 @@ systemDictionary = {
         "it":"Gabon",
         "es":"Gabón",
         "pl":"Gabon",
-        "zh-cn":"加蓬"
-    },
-    "Republic of The Gambia":{
+        "zh-cn":"加蓬",
+        "uk":"Габон"
+     },
+     "Republic of The Gambia":{
         "en":"Republic of The Gambia",
         "de":"Gambia",
         "ru":"Гамбия",
@@ -1140,9 +1234,10 @@ systemDictionary = {
         "it":"Gambia",
         "es":"Gambia",
         "pl":"Gambia",
-        "zh-cn":"冈比亚"
-    },
-    "Georgia":{
+        "zh-cn":"冈比亚",
+        "uk":"Гамбія"
+     },
+     "Georgia":{
         "en":"Georgia",
         "de":"Georgien",
         "ru":"Грузия",
@@ -1152,9 +1247,10 @@ systemDictionary = {
         "it":"Georgia",
         "es":"Georgia",
         "pl":"Gruzja",
-        "zh-cn":"格鲁吉亚"
-    },
-    "Germany":{
+        "zh-cn":"格鲁吉亚",
+        "uk":"Грузія"
+     },
+     "Germany":{
         "en":"Germany",
         "de":"Deutschland",
         "ru":"Германия",
@@ -1164,9 +1260,10 @@ systemDictionary = {
         "it":"Germania",
         "es":"Alemania",
         "pl":"Niemcy",
-        "zh-cn":"德国"
-    },
-    "Ghana":{
+        "zh-cn":"德国",
+        "uk":"Німеччина"
+     },
+     "Ghana":{
         "en":"Ghana",
         "de":"Ghana",
         "ru":"Гана",
@@ -1176,9 +1273,10 @@ systemDictionary = {
         "it":"Ghana",
         "es":"Ghana",
         "pl":"Ghana",
-        "zh-cn":"加纳"
-    },
-    "Gibraltar":{
+        "zh-cn":"加纳",
+        "uk":"Гана"
+     },
+     "Gibraltar":{
         "en":"Gibraltar",
         "de":"Gibraltar",
         "ru":"Гибралтар",
@@ -1188,9 +1286,10 @@ systemDictionary = {
         "it":"Gibilterra",
         "es":"Gibraltar",
         "pl":"Gibraltar",
-        "zh-cn":"直布罗陀"
-    },
-    "Greece":{
+        "zh-cn":"直布罗陀",
+        "uk":"Гібралтар"
+     },
+     "Greece":{
         "en":"Greece",
         "de":"Griechenland",
         "ru":"Греция",
@@ -1200,9 +1299,10 @@ systemDictionary = {
         "it":"Grecia",
         "es":"Grecia",
         "pl":"Grecja",
-        "zh-cn":"希腊"
-    },
-    "Greenland":{
+        "zh-cn":"希腊",
+        "uk":"Греція"
+     },
+     "Greenland":{
         "en":"Greenland",
         "de":"Grönland",
         "ru":"Гренландия",
@@ -1212,9 +1312,10 @@ systemDictionary = {
         "it":"Groenlandia",
         "es":"Groenlandia",
         "pl":"Grenlandia",
-        "zh-cn":"格陵兰"
-    },
-    "Grenada":{
+        "zh-cn":"格陵兰",
+        "uk":"Гренландія"
+     },
+     "Grenada":{
         "en":"Grenada",
         "de":"Grenada",
         "ru":"Гренада",
@@ -1224,9 +1325,10 @@ systemDictionary = {
         "it":"Grenada",
         "es":"Granada",
         "pl":"Grenada",
-        "zh-cn":"格林纳达"
-    },
-    "Guadeloupe":{
+        "zh-cn":"格林纳达",
+        "uk":"Гренада"
+     },
+     "Guadeloupe":{
         "en":"Guadeloupe",
         "de":"Guadeloupe",
         "ru":"Гваделупа",
@@ -1236,9 +1338,10 @@ systemDictionary = {
         "it":"Guadalupa",
         "es":"Guadalupe",
         "pl":"Gwadelupa",
-        "zh-cn":"瓜德罗普"
-    },
-    "Guam":{
+        "zh-cn":"瓜德罗普",
+        "uk":"Гваделупа"
+     },
+     "Guam":{
         "en":"Guam",
         "de":"Guam",
         "ru":"Гуам",
@@ -1248,9 +1351,10 @@ systemDictionary = {
         "it":"Guam",
         "es":"Guam",
         "pl":"Guam",
-        "zh-cn":" 关岛"
-    },
-    "Guatemala":{
+        "zh-cn":"关岛",
+        "uk":"Гуам"
+     },
+     "Guatemala":{
         "en":"Guatemala",
         "de":"Guatemala",
         "ru":"Гватемала",
@@ -1260,9 +1364,10 @@ systemDictionary = {
         "it":"Guatemala",
         "es":"Guatemala",
         "pl":"Gwatemala",
-        "zh-cn":"危地马拉"
-    },
-    "Guinea":{
+        "zh-cn":"危地马拉",
+        "uk":"Гватемала"
+     },
+     "Guinea":{
         "en":"Guinea",
         "de":"Guinea",
         "ru":"Гвинея",
@@ -1272,9 +1377,10 @@ systemDictionary = {
         "it":"Guinea",
         "es":"Guinea",
         "pl":"Gwinea",
-        "zh-cn":"几内亚"
-    },
-    "Guinea-Bissau":{
+        "zh-cn":"几内亚",
+        "uk":"Гвінея"
+     },
+     "Guinea-Bissau":{
         "en":"Guinea-Bissau",
         "de":"Guinea-Bissau",
         "ru":"Гвинея-Бисау",
@@ -1284,9 +1390,10 @@ systemDictionary = {
         "it":"Guinea-Bissau",
         "es":"Guinea Bissau",
         "pl":"Gwinea Bissau",
-        "zh-cn":"几内亚比绍"
-    },
-    "Guyana":{
+        "zh-cn":"几内亚比绍",
+        "uk":"Гвінея-Бісау"
+     },
+     "Guyana":{
         "en":"Guyana",
         "de":"Guyana",
         "ru":"Гайана",
@@ -1296,9 +1403,10 @@ systemDictionary = {
         "it":"Guyana",
         "es":"Guyana",
         "pl":"Gujana",
-        "zh-cn":"圭亚那"
-    },
-    "Haiti":{
+        "zh-cn":"圭亚那",
+        "uk":"Гаяна"
+     },
+     "Haiti":{
         "en":"Haiti",
         "de":"Haiti",
         "ru":"Гаити",
@@ -1308,9 +1416,10 @@ systemDictionary = {
         "it":"Haiti",
         "es":"Haití",
         "pl":"Haiti",
-        "zh-cn":"海地"
-    },
-    "Heard Island and McDonald Islands":{
+        "zh-cn":"海地",
+        "uk":"Гаїті"
+     },
+     "Heard Island and McDonald Islands":{
         "en":"Heard Island and McDonald Islands",
         "de":"Heard und McDonaldinseln",
         "ru":"Херд и Макдональд",
@@ -1320,9 +1429,10 @@ systemDictionary = {
         "it":"Isole Heard e McDonald",
         "es":"Heard e Islas McDonald",
         "pl":"Wyspy Heard i McDonalda",
-        "zh-cn":"赫德岛和麦克唐纳群岛"
-    },
-    "Holy See (Vatican City State)":{
+        "zh-cn":"赫德岛和麦克唐纳群岛",
+        "uk":"Острів Герд і Острови Макдоналд"
+     },
+     "Holy See (Vatican City State)":{
         "en":"Holy See (Vatican City State)",
         "de":"Vatikanstadt",
         "ru":"Ватикан",
@@ -1332,9 +1442,10 @@ systemDictionary = {
         "it":"Città del Vaticano",
         "es":"Santa Sede",
         "pl":"Watykan",
-        "zh-cn":"梵蒂冈"
-    },
-    "Honduras":{
+        "zh-cn":"梵蒂冈",
+        "uk":"Ватикан"
+     },
+     "Honduras":{
         "en":"Honduras",
         "de":"Honduras",
         "ru":"Гондурас",
@@ -1344,9 +1455,10 @@ systemDictionary = {
         "it":"Honduras",
         "es":"Honduras",
         "pl":"Honduras",
-        "zh-cn":"洪都拉斯"
-    },
-    "Hong Kong":{
+        "zh-cn":"洪都拉斯",
+        "uk":"Гондурас"
+     },
+     "Hong Kong":{
         "en":"Hong Kong",
         "de":"Hongkong",
         "ru":"Гонконг",
@@ -1356,9 +1468,10 @@ systemDictionary = {
         "it":"Hong Kong",
         "es":"Hong Kong",
         "pl":"Hongkong",
-        "zh-cn":"香港"
-    },
-    "Hungary":{
+        "zh-cn":"香港",
+        "uk":"Гонконг"
+     },
+     "Hungary":{
         "en":"Hungary",
         "de":"Ungarn",
         "ru":"Венгрия",
@@ -1368,9 +1481,10 @@ systemDictionary = {
         "it":"Ungheria",
         "es":"Hungría",
         "pl":"Węgry",
-        "zh-cn":"匈牙利"
-    },
-    "Iceland":{
+        "zh-cn":"匈牙利",
+        "uk":"Угорщина"
+     },
+     "Iceland":{
         "en":"Iceland",
         "de":"Island",
         "ru":"Исландия",
@@ -1380,9 +1494,10 @@ systemDictionary = {
         "it":"Islanda",
         "es":"Islandia",
         "pl":"Islandia",
-        "zh-cn":"冰岛"
-    },
-    "India":{
+        "zh-cn":"冰岛",
+        "uk":"Ісландія"
+     },
+     "India":{
         "en":"India",
         "de":"Indien",
         "ru":"Индия",
@@ -1392,9 +1507,10 @@ systemDictionary = {
         "it":"India",
         "es":"India",
         "pl":"Indie",
-        "zh-cn":"印度"
-    },
-    "Indonesia":{
+        "zh-cn":"印度",
+        "uk":"Індія"
+     },
+     "Indonesia":{
         "en":"Indonesia",
         "de":"Indonesien",
         "ru":"Индонезия",
@@ -1404,9 +1520,10 @@ systemDictionary = {
         "it":"Indonesia",
         "es":"Indonesia",
         "pl":"Indonezja",
-        "zh-cn":"印尼"
-    },
-    "Islamic Republic of Iran":{
+        "zh-cn":"印尼",
+        "uk":"Індонезія"
+     },
+     "Islamic Republic of Iran":{
         "en":"Islamic Republic of Iran",
         "de":"Iran",
         "ru":"Иран",
@@ -1416,9 +1533,10 @@ systemDictionary = {
         "it":"Iran",
         "es":"Irán",
         "pl":"Iran",
-        "zh-cn":"伊朗"
-    },
-    "Iraq":{
+        "zh-cn":"伊朗",
+        "uk":"Іран"
+     },
+     "Iraq":{
         "en":"Iraq",
         "de":"Irak",
         "ru":"Ирак",
@@ -1428,9 +1546,10 @@ systemDictionary = {
         "it":"Iraq",
         "es":"Iraq",
         "pl":"Irak",
-        "zh-cn":"伊拉克"
-    },
-    "Ireland":{
+        "zh-cn":"伊拉克",
+        "uk":"Ірак"
+     },
+     "Ireland":{
         "en":"Ireland",
         "de":"Irland",
         "ru":"Ирландия",
@@ -1440,9 +1559,10 @@ systemDictionary = {
         "it":"Irlanda",
         "es":"Irlanda",
         "pl":"Irlandia",
-        "zh-cn":"爱尔兰"
-    },
-    "Israel":{
+        "zh-cn":"爱尔兰",
+        "uk":"Ірландія"
+     },
+     "Israel":{
         "en":"Israel",
         "de":"Israel",
         "ru":"Израиль",
@@ -1452,9 +1572,10 @@ systemDictionary = {
         "it":"Israele",
         "es":"Israel",
         "pl":"Izrael",
-        "zh-cn":"以色列"
-    },
-    "Italy":{
+        "zh-cn":"以色列",
+        "uk":"Ізраїль"
+     },
+     "Italy":{
         "en":"Italy",
         "de":"Italien",
         "ru":"Италия",
@@ -1464,9 +1585,10 @@ systemDictionary = {
         "it":"Italia",
         "es":"Italia",
         "pl":"Włochy",
-        "zh-cn":"意大利"
-    },
-    "Jamaica":{
+        "zh-cn":"意大利",
+        "uk":"Італія"
+     },
+     "Jamaica":{
         "en":"Jamaica",
         "de":"Jamaika",
         "ru":"Ямайка",
@@ -1476,9 +1598,10 @@ systemDictionary = {
         "it":"Giamaica",
         "es":"Jamaica",
         "pl":"Jamajka",
-        "zh-cn":"牙买加"
-    },
-    "Japan":{
+        "zh-cn":"牙买加",
+        "uk":"Ямайка"
+     },
+     "Japan":{
         "en":"Japan",
         "de":"Japan",
         "ru":"Япония",
@@ -1488,9 +1611,10 @@ systemDictionary = {
         "it":"Giappone",
         "es":"Japón",
         "pl":"Japonia",
-        "zh-cn":"日本"
-    },
-    "Jordan":{
+        "zh-cn":"日本",
+        "uk":"Японія"
+     },
+     "Jordan":{
         "en":"Jordan",
         "de":"Jordanien",
         "ru":"Иордания",
@@ -1500,9 +1624,10 @@ systemDictionary = {
         "it":"Giordania",
         "es":"Jordania",
         "pl":"Jordania",
-        "zh-cn":"约旦"
-    },
-    "Kazakhstan":{
+        "zh-cn":"约旦",
+        "uk":"Йорданія"
+     },
+     "Kazakhstan":{
         "en":"Kazakhstan",
         "de":"Kasachstan",
         "ru":"Казахстан",
@@ -1512,9 +1637,10 @@ systemDictionary = {
         "it":"Kazakistan",
         "es":"Kazajistán",
         "pl":"Kazachstan",
-        "zh-cn":"哈萨克斯坦"
-    },
-    "Kenya":{
+        "zh-cn":"哈萨克斯坦",
+        "uk":"Казахстан"
+     },
+     "Kenya":{
         "en":"Kenya",
         "de":"Kenia",
         "ru":"Кения",
@@ -1524,9 +1650,10 @@ systemDictionary = {
         "it":"Kenya",
         "es":"Kenia",
         "pl":"Kenia",
-        "zh-cn":"肯尼亚"
-    },
-    "Kiribati":{
+        "zh-cn":"肯尼亚",
+        "uk":"Кенія"
+     },
+     "Kiribati":{
         "en":"Kiribati",
         "de":"Kiribati",
         "ru":"Кирибати",
@@ -1536,9 +1663,10 @@ systemDictionary = {
         "it":"Kiribati",
         "es":"Kiribati",
         "pl":"Kiribati",
-        "zh-cn":"基里巴斯"
-    },
-    "North Korea":{
+        "zh-cn":"基里巴斯",
+        "uk":"Кірибаті"
+     },
+     "North Korea":{
         "en":"North Korea",
         "de":"Nordkorea",
         "ru":"КНДР (Корейская Народно-Демократическая Республика)",
@@ -1548,9 +1676,10 @@ systemDictionary = {
         "it":"Corea del Nord",
         "es":"República Popular Democrática de Corea",
         "pl":"Korea Północna",
-        "zh-cn":"朝鲜"
-    },
-    "South Korea":{
+        "zh-cn":"朝鲜",
+        "uk":"Корейська Народно-Демократична Республіка"
+     },
+     "South Korea":{
         "en":"South Korea",
         "de":"Südkorea",
         "ru":"Республика Корея",
@@ -1560,9 +1689,10 @@ systemDictionary = {
         "it":"Corea del Sud",
         "es":"República de Corea",
         "pl":"Korea Południowa",
-        "zh-cn":"韩国"
-    },
-    "Kuwait":{
+        "zh-cn":"韩国",
+        "uk":"Республіка Корея"
+     },
+     "Kuwait":{
         "en":"Kuwait",
         "de":"Kuwait",
         "ru":"Кувейт",
@@ -1572,9 +1702,10 @@ systemDictionary = {
         "it":"Kuwait",
         "es":"Kuwait",
         "pl":"Kuwejt",
-        "zh-cn":"科威特"
-    },
-    "Kyrgyzstan":{
+        "zh-cn":"科威特",
+        "uk":"Кувейт"
+     },
+     "Kyrgyzstan":{
         "en":"Kyrgyzstan",
         "de":"Kirgisistan",
         "ru":"Киргизия",
@@ -1584,9 +1715,10 @@ systemDictionary = {
         "it":"Kirghizistan",
         "es":"Kirguistán",
         "pl":"Kirgistan",
-        "zh-cn":"吉尔吉斯斯坦"
-    },
-    "Lao People's Democratic Republic":{
+        "zh-cn":"吉尔吉斯斯坦",
+        "uk":"Киргизстан"
+     },
+     "Lao People's Democratic Republic":{
         "en":"Lao People's Democratic Republic",
         "de":"Laos",
         "ru":"Лаос",
@@ -1596,9 +1728,10 @@ systemDictionary = {
         "it":"Laos",
         "es":"República Democrática Popular de Lao",
         "pl":"Laos",
-        "zh-cn":"老挝"
-    },
-    "Latvia":{
+        "zh-cn":"老挝",
+        "uk":"Лаос"
+     },
+     "Latvia":{
         "en":"Latvia",
         "de":"Lettland",
         "ru":"Латвия",
@@ -1608,9 +1741,10 @@ systemDictionary = {
         "it":"Lettonia",
         "es":"Letonia",
         "pl":"Łotwa",
-        "zh-cn":"拉脱维亚"
-    },
-    "Lebanon":{
+        "zh-cn":"拉脱维亚",
+        "uk":"Латвія"
+     },
+     "Lebanon":{
         "en":"Lebanon",
         "de":"Libanon",
         "ru":"Ливан",
@@ -1620,9 +1754,10 @@ systemDictionary = {
         "it":"Libano",
         "es":"Líbano",
         "pl":"Liban",
-        "zh-cn":"黎巴嫩"
-    },
-    "Lesotho":{
+        "zh-cn":"黎巴嫩",
+        "uk":"Ліван"
+     },
+     "Lesotho":{
         "en":"Lesotho",
         "de":"Lesotho",
         "ru":"Лесото",
@@ -1632,9 +1767,10 @@ systemDictionary = {
         "it":"Lesotho",
         "es":"Lesoto",
         "pl":"Lesotho",
-        "zh-cn":"莱索托"
-    },
-    "Liberia":{
+        "zh-cn":"莱索托",
+        "uk":"Лесото"
+     },
+     "Liberia":{
         "en":"Liberia",
         "de":"Liberia",
         "ru":"Либерия",
@@ -1644,9 +1780,10 @@ systemDictionary = {
         "it":"Liberia",
         "es":"Liberia",
         "pl":"Liberia",
-        "zh-cn":"利比里亚"
-    },
-    "Libya":{
+        "zh-cn":"利比里亚",
+        "uk":"Ліберія"
+     },
+     "Libya":{
         "en":"Libya",
         "de":"Libyen",
         "ru":"Ливия",
@@ -1656,9 +1793,10 @@ systemDictionary = {
         "it":"Libia",
         "es":"Libia",
         "pl":"Libia",
-        "zh-cn":"利比亚"
-    },
-    "Liechtenstein":{
+        "zh-cn":"利比亚",
+        "uk":"Лівія"
+     },
+     "Liechtenstein":{
         "en":"Liechtenstein",
         "de":"Liechtenstein",
         "ru":"Лихтенштейн",
@@ -1668,9 +1806,10 @@ systemDictionary = {
         "it":"Liechtenstein",
         "es":"Liechtenstein",
         "pl":"Liechtenstein",
-        "zh-cn":"列支敦士登"
-    },
-    "Lithuania":{
+        "zh-cn":"列支敦士登",
+        "uk":"Ліхтенштейн"
+     },
+     "Lithuania":{
         "en":"Lithuania",
         "de":"Litauen",
         "ru":"Литва",
@@ -1680,9 +1819,10 @@ systemDictionary = {
         "it":"Lituania",
         "es":"Lituania",
         "pl":"Litwa",
-        "zh-cn":"立陶宛"
-    },
-    "Luxembourg":{
+        "zh-cn":"立陶宛",
+        "uk":"Литва"
+     },
+     "Luxembourg":{
         "en":"Luxembourg",
         "de":"Luxemburg",
         "ru":"Люксембург",
@@ -1692,9 +1832,10 @@ systemDictionary = {
         "it":"Lussemburgo",
         "es":"Luxemburgo",
         "pl":"Luksemburg",
-        "zh-cn":"卢森堡"
-    },
-    "Macao":{
+        "zh-cn":"卢森堡",
+        "uk":"Люксембург"
+     },
+     "Macao":{
         "en":"Macao",
         "de":"Macao",
         "ru":"Макао",
@@ -1704,9 +1845,10 @@ systemDictionary = {
         "it":"Macao",
         "es":"Macao",
         "pl":"Makau",
-        "zh-cn":"澳门"
-    },
-    "Madagascar":{
+        "zh-cn":"澳门",
+        "uk":"Макао"
+     },
+     "Madagascar":{
         "en":"Madagascar",
         "de":"Madagaskar",
         "ru":"Мадагаскар",
@@ -1716,9 +1858,10 @@ systemDictionary = {
         "it":"Madagascar",
         "es":"Madagascar",
         "pl":"Madagaskar",
-        "zh-cn":"马达加斯加"
-    },
-    "Malawi":{
+        "zh-cn":"马达加斯加",
+        "uk":"Мадагаскар"
+     },
+     "Malawi":{
         "en":"Malawi",
         "de":"Malawi",
         "ru":"Малави",
@@ -1728,9 +1871,10 @@ systemDictionary = {
         "it":"Malawi",
         "es":"Malaui",
         "pl":"Malawi",
-        "zh-cn":"马拉维"
-    },
-    "Malaysia":{
+        "zh-cn":"马拉维",
+        "uk":"Малаві"
+     },
+     "Malaysia":{
         "en":"Malaysia",
         "de":"Malaysia",
         "ru":"Малайзия",
@@ -1740,9 +1884,10 @@ systemDictionary = {
         "it":"Malesia",
         "es":"Malasia",
         "pl":"Malezja",
-        "zh-cn":"马来西亚"
-    },
-    "Maldives":{
+        "zh-cn":"马来西亚",
+        "uk":"Малайзія"
+     },
+     "Maldives":{
         "en":"Maldives",
         "de":"Malediven",
         "ru":"Мальдивы",
@@ -1752,9 +1897,10 @@ systemDictionary = {
         "it":"Maldive",
         "es":"Maldivas",
         "pl":"Malediwy",
-        "zh-cn":"马尔代夫"
-    },
-    "Mali":{
+        "zh-cn":"马尔代夫",
+        "uk":"Мальдіви"
+     },
+     "Mali":{
         "en":"Mali",
         "de":"Mali",
         "ru":"Мали",
@@ -1764,9 +1910,10 @@ systemDictionary = {
         "it":"Mali",
         "es":"Malí",
         "pl":"Mali",
-        "zh-cn":"马里"
-    },
-    "Malta":{
+        "zh-cn":"马里",
+        "uk":"Малі"
+     },
+     "Malta":{
         "en":"Malta",
         "de":"Malta",
         "ru":"Мальта",
@@ -1776,9 +1923,10 @@ systemDictionary = {
         "it":"Malta",
         "es":"Malta",
         "pl":"Malta",
-        "zh-cn":"马耳他"
-    },
-    "Marshall Islands":{
+        "zh-cn":"马耳他",
+        "uk":"Мальта"
+     },
+     "Marshall Islands":{
         "en":"Marshall Islands",
         "de":"Marshallinseln",
         "ru":"Маршалловы Острова",
@@ -1788,9 +1936,10 @@ systemDictionary = {
         "it":"Isole Marshall",
         "es":"Islas Marshall",
         "pl":"Wyspy Marshalla",
-        "zh-cn":"马绍尔群岛"
-    },
-    "Martinique":{
+        "zh-cn":"马绍尔群岛",
+        "uk":"Маршаллові Острови"
+     },
+     "Martinique":{
         "en":"Martinique",
         "de":"Martinique",
         "ru":"Мартиника",
@@ -1800,9 +1949,10 @@ systemDictionary = {
         "it":"Martinica",
         "es":"Martinica",
         "pl":"Martynika",
-        "zh-cn":"马提尼克"
-    },
-    "Mauritania":{
+        "zh-cn":"马提尼克",
+        "uk":"Мартиніка"
+     },
+     "Mauritania":{
         "en":"Mauritania",
         "de":"Mauretanien",
         "ru":"Мавритания",
@@ -1812,9 +1962,10 @@ systemDictionary = {
         "it":"Mauritania",
         "es":"Mauritania",
         "pl":"Mauretania",
-        "zh-cn":"毛里塔尼亚"
-    },
-    "Mauritius":{
+        "zh-cn":"毛里塔尼亚",
+        "uk":"Мавританія"
+     },
+     "Mauritius":{
         "en":"Mauritius",
         "de":"Mauritius",
         "ru":"Маврикий",
@@ -1824,9 +1975,10 @@ systemDictionary = {
         "it":"Mauritius",
         "es":"Mauricio",
         "pl":"Mauritius",
-        "zh-cn":"毛里求斯"
-    },
-    "Mayotte":{
+        "zh-cn":"毛里求斯",
+        "uk":"Маврикій"
+     },
+     "Mayotte":{
         "en":"Mayotte",
         "de":"Mayotte",
         "ru":"Майотта",
@@ -1836,9 +1988,10 @@ systemDictionary = {
         "it":"Mayotte",
         "es":"Mayotte",
         "pl":"Majotta",
-        "zh-cn":"马约特"
-    },
-    "Mexico":{
+        "zh-cn":"马约特",
+        "uk":"Майотта"
+     },
+     "Mexico":{
         "en":"Mexico",
         "de":"Mexiko",
         "ru":"Мексика",
@@ -1848,9 +2001,10 @@ systemDictionary = {
         "it":"Messico",
         "es":"México",
         "pl":"Meksyk",
-        "zh-cn":"墨西哥"
-    },
-    "Micronesia, Federated States of":{
+        "zh-cn":"墨西哥",
+        "uk":"Мексика"
+     },
+     "Micronesia, Federated States of":{
         "en":"Micronesia, Federated States of",
         "de":"Mikronesien",
         "ru":"Микронезия",
@@ -1860,9 +2014,10 @@ systemDictionary = {
         "it":"Stati Federati di Micronesia",
         "es":"Micronesia",
         "pl":"Mikronezja",
-        "zh-cn":"密克罗尼西亚联邦"
-    },
-    "Moldova, Republic of":{
+        "zh-cn":"密克罗尼西亚联邦",
+        "uk":"Мікронезія"
+     },
+     "Moldova, Republic of":{
         "en":"Moldova, Republic of",
         "de":"Moldawien",
         "ru":"Молдавия",
@@ -1872,9 +2027,10 @@ systemDictionary = {
         "it":"Moldavia",
         "es":"Moldavia",
         "pl":"Mołdawia",
-        "zh-cn":"摩尔多瓦"
-    },
-    "Monaco":{
+        "zh-cn":"摩尔多 瓦",
+        "uk":"Молдова"
+     },
+     "Monaco":{
         "en":"Monaco",
         "de":"Monaco",
         "ru":"Монако",
@@ -1884,9 +2040,10 @@ systemDictionary = {
         "it":"Monaco",
         "es":"Mónaco",
         "pl":"Monako",
-        "zh-cn":"摩纳 哥"
-    },
-    "Mongolia":{
+        "zh-cn":"摩纳哥",
+        "uk":"Монако"
+     },
+     "Mongolia":{
         "en":"Mongolia",
         "de":"Mongolei",
         "ru":"Монголия",
@@ -1896,9 +2053,10 @@ systemDictionary = {
         "it":"Mongolia",
         "es":"Mongolia",
         "pl":"Mongolia",
-        "zh-cn":"蒙古"
-    },
-    "Montserrat":{
+        "zh-cn":"蒙 古",
+        "uk":"Монголія"
+     },
+     "Montserrat":{
         "en":"Montserrat",
         "de":"Montserrat",
         "ru":"Монтсеррат",
@@ -1908,9 +2066,10 @@ systemDictionary = {
         "it":"Montserrat",
         "es":"Montserrat",
         "pl":"Montserrat",
-        "zh-cn":"蒙特塞拉特"
-    },
-    "Morocco":{
+        "zh-cn":"蒙特塞拉特",
+        "uk":"Монтсеррат"
+     },
+     "Morocco":{
         "en":"Morocco",
         "de":"Marokko",
         "ru":"Марокко",
@@ -1920,9 +2079,10 @@ systemDictionary = {
         "it":"Marocco",
         "es":"Marruecos",
         "pl":"Maroko",
-        "zh-cn":"摩洛哥"
-    },
-    "Mozambique":{
+        "zh-cn":"摩洛哥",
+        "uk":"Марокко"
+     },
+     "Mozambique":{
         "en":"Mozambique",
         "de":"Mosambik",
         "ru":"Мозамбик",
@@ -1932,9 +2092,10 @@ systemDictionary = {
         "it":"Mozambico",
         "es":"Mozambique",
         "pl":"Mozambik",
-        "zh-cn":"莫桑比克"
-    },
-    "Myanmar":{
+        "zh-cn":"莫桑比克",
+        "uk":"Мозамбік"
+     },
+     "Myanmar":{
         "en":"Myanmar",
         "de":"Myanmar",
         "ru":"Мьянма",
@@ -1944,9 +2105,10 @@ systemDictionary = {
         "it":"Birmania  Myanmar",
         "es":"Myanmar",
         "pl":"Mjanma",
-        "zh-cn":"缅甸"
-    },
-    "Namibia":{
+        "zh-cn":"缅甸",
+        "uk":"М'янма"
+     },
+     "Namibia":{
         "en":"Namibia",
         "de":"Namibia",
         "ru":"Намибия",
@@ -1956,9 +2118,10 @@ systemDictionary = {
         "it":"Namibia",
         "es":"Namibia",
         "pl":"Namibia",
-        "zh-cn":"纳米比亚"
-    },
-    "Nauru":{
+        "zh-cn":"纳米比亚",
+        "uk":"Намібія"
+     },
+     "Nauru":{
         "en":"Nauru",
         "de":"Nauru",
         "ru":"Науру",
@@ -1968,9 +2131,10 @@ systemDictionary = {
         "it":"Nauru",
         "es":"Nauru",
         "pl":"Nauru",
-        "zh-cn":"瑙鲁"
-    },
-    "Nepal":{
+        "zh-cn":"瑙鲁",
+        "uk":"Науру"
+     },
+     "Nepal":{
         "en":"Nepal",
         "de":"Nepal",
         "ru":"Непал",
@@ -1980,9 +2144,10 @@ systemDictionary = {
         "it":"Nepal",
         "es":"Nepal",
         "pl":"Nepal",
-        "zh-cn":"尼泊尔"
-    },
-    "Netherlands":{
+        "zh-cn":"尼泊尔",
+        "uk":"Непал"
+     },
+     "Netherlands":{
         "en":"Netherlands",
         "de":"Niederlande",
         "ru":"Нидерланды",
@@ -1992,9 +2157,10 @@ systemDictionary = {
         "it":"Paesi Bassi",
         "es":"Países Bajos",
         "pl":"Holandia",
-        "zh-cn":"荷兰"
-    },
-    "New Caledonia":{
+        "zh-cn":"荷兰",
+        "uk":"Нідерланди"
+     },
+     "New Caledonia":{
         "en":"New Caledonia",
         "de":"Neukaledonien",
         "ru":"Новая Каледония",
@@ -2004,9 +2170,10 @@ systemDictionary = {
         "it":"Nuova Caledonia",
         "es":"Nueva Caledonia",
         "pl":"Nowa Kaledonia",
-        "zh-cn":"新喀里多尼亚"
-    },
-    "New Zealand":{
+        "zh-cn":"新喀里多尼亚",
+        "uk":"Нова Каледонія"
+     },
+     "New Zealand":{
         "en":"New Zealand",
         "de":"Neuseeland",
         "ru":"Новая Зеландия",
@@ -2016,9 +2183,10 @@ systemDictionary = {
         "it":"Nuova Zelanda",
         "es":"Nueva Zelanda",
         "pl":"Nowa Zelandia",
-        "zh-cn":"新西兰"
-    },
-    "Nicaragua":{
+        "zh-cn":"新西兰",
+        "uk":"Нова Зеландія"
+     },
+     "Nicaragua":{
         "en":"Nicaragua",
         "de":"Nicaragua",
         "ru":"Никарагуа",
@@ -2028,9 +2196,10 @@ systemDictionary = {
         "it":"Nicaragua",
         "es":"Nicaragua",
         "pl":"Nikaragua",
-        "zh-cn":"尼加拉瓜"
-    },
-    "Niger":{
+        "zh-cn":"尼加拉瓜",
+        "uk":"Нікарагуа"
+     },
+     "Niger":{
         "en":"Niger",
         "de":"Niger",
         "ru":"Нигер",
@@ -2040,9 +2209,10 @@ systemDictionary = {
         "it":"Niger",
         "es":"Níger",
         "pl":"Niger",
-        "zh-cn":"尼日尔"
-    },
-    "Nigeria":{
+        "zh-cn":"尼日尔",
+        "uk":"Нігер"
+     },
+     "Nigeria":{
         "en":"Nigeria",
         "de":"Nigeria",
         "ru":"Нигерия",
@@ -2052,9 +2222,10 @@ systemDictionary = {
         "it":"Nigeria",
         "es":"Nigeria",
         "pl":"Nigeria",
-        "zh-cn":"尼日利亚"
-    },
-    "Niue":{
+        "zh-cn":"尼日利亚",
+        "uk":"Нігерія"
+     },
+     "Niue":{
         "en":"Niue",
         "de":"Niue",
         "ru":"Ниуэ",
@@ -2064,9 +2235,10 @@ systemDictionary = {
         "it":"Niue",
         "es":"Niue",
         "pl":"Niue",
-        "zh-cn":"纽埃"
-    },
-    "Norfolk Island":{
+        "zh-cn":"纽埃",
+        "uk":"Ніуе"
+     },
+     "Norfolk Island":{
         "en":"Norfolk Island",
         "de":"Norfolkinsel",
         "ru":"Остров Норфолк",
@@ -2076,9 +2248,10 @@ systemDictionary = {
         "it":"Isola Norfolk",
         "es":"Isla Norfolk",
         "pl":"Norfolk",
-        "zh-cn":"诺福克岛"
-    },
-    "The Republic of North Macedonia":{
+        "zh-cn":"诺福克岛",
+        "uk":"Острів Норфолк"
+     },
+     "The Republic of North Macedonia":{
         "en":"The Republic of North Macedonia",
         "de":"Nordmazedonien",
         "ru":"Северная Македония",
@@ -2088,9 +2261,10 @@ systemDictionary = {
         "it":"Macedonia del Nord",
         "es":"Macedonia del Norte",
         "pl":"Macedonia Północna",
-        "zh-cn":"北马其顿"
-    },
-    "Northern Mariana Islands":{
+        "zh-cn":"北马其顿",
+        "uk":"Північна Македонія"
+     },
+     "Northern Mariana Islands":{
         "en":"Northern Mariana Islands",
         "de":"Nördliche Marianen",
         "ru":"Северные Марианские Острова",
@@ -2100,9 +2274,10 @@ systemDictionary = {
         "it":"Isole Marianne Settentrionali",
         "es":"Islas Marianas del Norte",
         "pl":"Mariany Północne",
-        "zh-cn":"北马里亚纳群岛"
-    },
-    "Norway":{
+        "zh-cn":"北马里亚纳群岛",
+        "uk":"Північні Маріанські Острови"
+     },
+     "Norway":{
         "en":"Norway",
         "de":"Norwegen",
         "ru":"Норвегия",
@@ -2112,9 +2287,10 @@ systemDictionary = {
         "it":"Norvegia",
         "es":"Noruega",
         "pl":"Norwegia",
-        "zh-cn":"挪威"
-    },
-    "Oman":{
+        "zh-cn":"挪威",
+        "uk":"Норвегія"
+     },
+     "Oman":{
         "en":"Oman",
         "de":"Oman",
         "ru":"Оман",
@@ -2124,9 +2300,10 @@ systemDictionary = {
         "it":"Oman",
         "es":"Omán",
         "pl":"Oman",
-        "zh-cn":"阿曼"
-    },
-    "Pakistan":{
+        "zh-cn":"阿曼",
+        "uk":"Оман"
+     },
+     "Pakistan":{
         "en":"Pakistan",
         "de":"Pakistan",
         "ru":"Пакистан",
@@ -2136,9 +2313,10 @@ systemDictionary = {
         "it":"Pakistan",
         "es":"Pakistán",
         "pl":"Pakistan",
-        "zh-cn":"巴基斯坦"
-    },
-    "Palau":{
+        "zh-cn":"巴基斯坦",
+        "uk":"Пакистан"
+     },
+     "Palau":{
         "en":"Palau",
         "de":"Palau",
         "ru":"Палау",
@@ -2148,9 +2326,10 @@ systemDictionary = {
         "it":"Palau",
         "es":"Palau",
         "pl":"Palau",
-        "zh-cn":"帕劳"
-    },
-    "State of Palestine":{
+        "zh-cn":"帕劳",
+        "uk":"Палау"
+     },
+     "State of Palestine":{
         "en":"State of Palestine",
         "de":"Staat Palästina",
         "ru":"Государство Палестина",
@@ -2160,9 +2339,10 @@ systemDictionary = {
         "it":"Stato di Palestina",
         "es":"Palestina",
         "pl":"Palestyna",
-        "zh-cn":"巴勒斯坦"
-    },
-    "Panama":{
+        "zh-cn":"巴勒斯坦",
+        "uk":"Палестина"
+     },
+     "Panama":{
         "en":"Panama",
         "de":"Panama",
         "ru":"Панама",
@@ -2172,9 +2352,10 @@ systemDictionary = {
         "it":"Panamá",
         "es":"Panamá",
         "pl":"Panama",
-        "zh-cn":"巴拿马"
-    },
-    "Papua New Guinea":{
+        "zh-cn":"巴拿马",
+        "uk":"Панама"
+     },
+     "Papua New Guinea":{
         "en":"Papua New Guinea",
         "de":"Papua-Neuguinea",
         "ru":"Папуа — Новая Гвинея",
@@ -2184,9 +2365,10 @@ systemDictionary = {
         "it":"Papua Nuova Guinea",
         "es":"Papua Nueva Guinea",
         "pl":"Papua-Nowa Gwinea",
-        "zh-cn":"巴布亚新几内亚"
-    },
-    "Paraguay":{
+        "zh-cn":"巴布亚新几内亚",
+        "uk":"Папуа-Нова Гвінея"
+     },
+     "Paraguay":{
         "en":"Paraguay",
         "de":"Paraguay",
         "ru":"Парагвай",
@@ -2196,9 +2378,10 @@ systemDictionary = {
         "it":"Paraguay",
         "es":"Paraguay",
         "pl":"Paragwaj",
-        "zh-cn":"巴拉圭"
-    },
-    "Peru":{
+        "zh-cn":"巴拉圭",
+        "uk":"Парагвай"
+     },
+     "Peru":{
         "en":"Peru",
         "de":"Peru",
         "ru":"Перу",
@@ -2208,9 +2391,10 @@ systemDictionary = {
         "it":"Perù",
         "es":"Perú",
         "pl":"Peru",
-        "zh-cn":"秘鲁"
-    },
-    "Philippines":{
+        "zh-cn":"秘鲁",
+        "uk":"Перу"
+     },
+     "Philippines":{
         "en":"Philippines",
         "de":"Philippinen",
         "ru":"Филиппины",
@@ -2220,9 +2404,10 @@ systemDictionary = {
         "it":"Filippine",
         "es":"Filipinas",
         "pl":"Filipiny",
-        "zh-cn":"菲律宾"
-    },
-    "Pitcairn":{
+        "zh-cn":"菲律宾",
+        "uk":"Філіппіни"
+     },
+     "Pitcairn":{
         "en":"Pitcairn",
         "de":"Pitcairninseln",
         "ru":"Острова Питкэрн",
@@ -2232,9 +2417,10 @@ systemDictionary = {
         "it":"Isole Pitcairn",
         "es":"Pitcairn",
         "pl":"Pitcairn",
-        "zh-cn":"皮特凯恩群岛"
-    },
-    "Poland":{
+        "zh-cn":"皮特凯恩群岛",
+        "uk":"Піткерн"
+     },
+     "Poland":{
         "en":"Poland",
         "de":"Polen",
         "ru":"Польша",
@@ -2244,9 +2430,10 @@ systemDictionary = {
         "it":"Polonia",
         "es":"Polonia",
         "pl":"Polska",
-        "zh-cn":"波兰"
-    },
-    "Portugal":{
+        "zh-cn":"波兰",
+        "uk":"Польща"
+     },
+     "Portugal":{
         "en":"Portugal",
         "de":"Portugal",
         "ru":"Португалия",
@@ -2256,9 +2443,10 @@ systemDictionary = {
         "it":"Portogallo",
         "es":"Portugal",
         "pl":"Portugalia",
-        "zh-cn":"葡萄牙"
-    },
-    "Puerto Rico":{
+        "zh-cn":"葡萄牙",
+        "uk":"Португалія"
+     },
+     "Puerto Rico":{
         "en":"Puerto Rico",
         "de":"Puerto Rico",
         "ru":"Пуэрто-Рико",
@@ -2268,9 +2456,10 @@ systemDictionary = {
         "it":"Porto Rico",
         "es":"Puerto Rico",
         "pl":"Portoryko",
-        "zh-cn":"波多黎各"
-    },
-    "Qatar":{
+        "zh-cn":"波多黎各",
+        "uk":"Пуерто-Рико"
+     },
+     "Qatar":{
         "en":"Qatar",
         "de":"Katar",
         "ru":"Катар",
@@ -2280,9 +2469,10 @@ systemDictionary = {
         "it":"Qatar",
         "es":"Catar",
         "pl":"Katar",
-        "zh-cn":"卡塔尔"
-    },
-    "Reunion":{
+        "zh-cn":"卡塔尔",
+        "uk":"Катар"
+     },
+     "Reunion":{
         "en":"Reunion",
         "de":"Réunion",
         "ru":"Реюньон",
@@ -2292,9 +2482,10 @@ systemDictionary = {
         "it":"Réunion",
         "es":"Reunión",
         "pl":"Reunion",
-        "zh-cn":"留尼汪"
-    },
-    "Romania":{
+        "zh-cn":"留尼汪",
+        "uk":"Реюньйон"
+     },
+     "Romania":{
         "en":"Romania",
         "de":"Rumänien",
         "ru":"Румыния",
@@ -2304,9 +2495,10 @@ systemDictionary = {
         "it":"Romania",
         "es":"Rumanía",
         "pl":"Rumunia",
-        "zh-cn":"罗马尼亚"
-    },
-    "Russian Federation":{
+        "zh-cn":"罗马尼亚",
+        "uk":"Румунія"
+     },
+     "Russian Federation":{
         "en":"Russian Federation",
         "de":"Russische Föderation",
         "ru":"Российская Федерация",
@@ -2316,9 +2508,10 @@ systemDictionary = {
         "it":"Russia",
         "es":"Rusia",
         "pl":"Rosja",
-        "zh-cn":"俄罗斯"
-    },
-    "Rwanda":{
+        "zh-cn":"俄罗斯",
+        "uk":"Росія"
+     },
+     "Rwanda":{
         "en":"Rwanda",
         "de":"Ruanda",
         "ru":"Руанда",
@@ -2328,9 +2521,10 @@ systemDictionary = {
         "it":"Ruanda",
         "es":"Ruanda",
         "pl":"Rwanda",
-        "zh-cn":"卢旺达"
-    },
-    "Saint Helena":{
+        "zh-cn":"卢旺达",
+        "uk":"Руанда"
+     },
+     "Saint Helena":{
         "en":"Saint Helena",
         "de":"St. Helena",
         "ru":"Острова Святой Елены, Вознесения и Тристан-да-Кунья",
@@ -2340,9 +2534,10 @@ systemDictionary = {
         "it":"Sant'Elena, Isola di Ascensione e Tristan da Cunha",
         "es":"Santa Helena, Ascensión y Tristán de Acuña",
         "pl":"Wyspa Świętej Heleny, Wyspa Wniebowstąpienia i Tristan da Cunha",
-        "zh-cn":"圣赫勒拿、阿森松和 特里斯坦-达库尼亚"
-    },
-    "Saint Kitts and Nevis":{
+        "zh-cn":"圣赫勒拿、阿森松和特里斯坦-达库尼亚",
+        "uk":"Острів Святої Єлени"
+     },
+     "Saint Kitts and Nevis":{
         "en":"Saint Kitts and Nevis",
         "de":"St. Kitts und Nevis",
         "ru":"Сент-Китс и Невис",
@@ -2352,9 +2547,10 @@ systemDictionary = {
         "it":"Saint Kitts e Nevis",
         "es":"Saint Kitts y Nevis",
         "pl":"Saint Kitts i Nevis",
-        "zh-cn":"圣基茨和尼维斯"
-    },
-    "Saint Lucia":{
+        "zh-cn":"圣基茨和尼维斯",
+        "uk":"Сент-Кітс і Невіс"
+     },
+     "Saint Lucia":{
         "en":"Saint Lucia",
         "de":"St. Lucia",
         "ru":"Сент-Люсия",
@@ -2364,9 +2560,10 @@ systemDictionary = {
         "it":"Santa Lucia",
         "es":"Santa Lucía",
         "pl":"Saint Lucia",
-        "zh-cn":"圣卢西亚"
-    },
-    "Saint Pierre and Miquelon":{
+        "zh-cn":"圣卢西亚",
+        "uk":"Сент-Люсія"
+     },
+     "Saint Pierre and Miquelon":{
         "en":"Saint Pierre and Miquelon",
         "de":"Saint-Pierre und Miquelon",
         "ru":"Сен-Пьер и Микелон",
@@ -2376,9 +2573,10 @@ systemDictionary = {
         "it":"Saint Pierre e Miquelon",
         "es":"San Pedro y Miquelón",
         "pl":"Saint-Pierre i Miquelon",
-        "zh-cn":"圣皮埃尔和密克隆"
-    },
-    "Saint Vincent and the Grenadines":{
+        "zh-cn":"圣皮埃尔和密克隆",
+        "uk":"Сен-П'єр і Мікелон"
+     },
+     "Saint Vincent and the Grenadines":{
         "en":"Saint Vincent and the Grenadines",
         "de":"St. Vincent und die Grenadinen",
         "ru":"Сент-Винсент и Гренадины",
@@ -2388,9 +2586,10 @@ systemDictionary = {
         "it":"Saint Vincent e Grenadine",
         "es":"San Vicente y las Granadinas",
         "pl":"Saint Vincent i Grenadyny",
-        "zh-cn":"圣文森特和格林纳丁斯"
-    },
-    "Samoa":{
+        "zh-cn":"圣文森特和格林纳丁斯",
+        "uk":"Сент-Вінсент і Гренадіни"
+     },
+     "Samoa":{
         "en":"Samoa",
         "de":"Samoa",
         "ru":"Самоа",
@@ -2400,9 +2599,10 @@ systemDictionary = {
         "it":"Samoa",
         "es":"Samoa",
         "pl":"Samoa",
-        "zh-cn":"萨摩亚"
-    },
-    "San Marino":{
+        "zh-cn":"萨摩亚",
+        "uk":"Самоа"
+     },
+     "San Marino":{
         "en":"San Marino",
         "de":"San Marino",
         "ru":"Сан-Марино",
@@ -2412,9 +2612,10 @@ systemDictionary = {
         "it":"San Marino",
         "es":"San Marino",
         "pl":"San Marino",
-        "zh-cn":"圣马力诺"
-    },
-    "Sao Tome and Principe":{
+        "zh-cn":"圣马力诺",
+        "uk":"Сан-Марино"
+     },
+     "Sao Tome and Principe":{
         "en":"Sao Tome and Principe",
         "de":"São Tomé und Príncipe",
         "ru":"Сан-Томе и Принсипи",
@@ -2424,9 +2625,10 @@ systemDictionary = {
         "it":"São Tomé e Príncipe",
         "es":"Santo Tomé y Príncipe",
         "pl":"Wyspy Świętego Tomasza i Książęca",
-        "zh-cn":"圣多美和普林西 比"
-    },
-    "Saudi Arabia":{
+        "zh-cn":"圣多美和普林西 比",
+        "uk":"Сан-Томе і Принсіпі"
+     },
+     "Saudi Arabia":{
         "en":"Saudi Arabia",
         "de":"Saudi-Arabien",
         "ru":"Саудовская Аравия",
@@ -2436,9 +2638,10 @@ systemDictionary = {
         "it":"Arabia Saudita",
         "es":"Arabia Saudita",
         "pl":"Arabia Saudyjska",
-        "zh-cn":"沙特阿拉 伯"
-    },
-    "Senegal":{
+        "zh-cn":"沙特阿拉伯",
+        "uk":"Саудівська Аравія"
+     },
+     "Senegal":{
         "en":"Senegal",
         "de":"Senegal",
         "ru":"Сенегал",
@@ -2448,9 +2651,10 @@ systemDictionary = {
         "it":"Senegal",
         "es":"Senegal",
         "pl":"Senegal",
-        "zh-cn":"塞内加尔"
-    },
-    "Seychelles":{
+        "zh-cn":"塞内加尔",
+        "uk":"Сенегал"
+     },
+     "Seychelles":{
         "en":"Seychelles",
         "de":"Seychellen",
         "ru":"Сейшельские Острова",
@@ -2460,9 +2664,10 @@ systemDictionary = {
         "it":"Seychelles",
         "es":"Seychelles",
         "pl":"Seszele",
-        "zh-cn":"塞舌尔"
-    },
-    "Sierra Leone":{
+        "zh-cn":"塞舌尔",
+        "uk":"Сейшельські Острови"
+     },
+     "Sierra Leone":{
         "en":"Sierra Leone",
         "de":"Sierra Leone",
         "ru":"Сьерра-Леоне",
@@ -2472,9 +2677,10 @@ systemDictionary = {
         "it":"Sierra Leone",
         "es":"Sierra Leona",
         "pl":"Sierra Leone",
-        "zh-cn":"塞拉利昂"
-    },
-    "Singapore":{
+        "zh-cn":"塞拉利昂",
+        "uk":"Сьєрра-Леоне"
+     },
+     "Singapore":{
         "en":"Singapore",
         "de":"Singapur",
         "ru":"Сингапур",
@@ -2484,9 +2690,10 @@ systemDictionary = {
         "it":"Singapore",
         "es":"Singapur",
         "pl":"Singapur",
-        "zh-cn":"新加坡"
-    },
-    "Slovakia":{
+        "zh-cn":"新加坡",
+        "uk":"Сингапур"
+     },
+     "Slovakia":{
         "en":"Slovakia",
         "de":"Slowakei",
         "ru":"Словакия",
@@ -2496,9 +2703,10 @@ systemDictionary = {
         "it":"Slovacchia",
         "es":"Eslovaquia",
         "pl":"Słowacja",
-        "zh-cn":"斯洛伐克"
-    },
-    "Slovenia":{
+        "zh-cn":"斯 洛伐克",
+        "uk":"Словаччина"
+     },
+     "Slovenia":{
         "en":"Slovenia",
         "de":"Slowenien",
         "ru":"Словения",
@@ -2508,9 +2716,10 @@ systemDictionary = {
         "it":"Slovenia",
         "es":"Eslovenia",
         "pl":"Słowenia",
-        "zh-cn":"斯洛文尼亚"
-    },
-    "Solomon Islands":{
+        "zh-cn":"斯洛文尼亚",
+        "uk":"Словенія"
+     },
+     "Solomon Islands":{
         "en":"Solomon Islands",
         "de":"Salomonen",
         "ru":"Соломоновы Острова",
@@ -2520,9 +2729,10 @@ systemDictionary = {
         "it":"Isole Salomone",
         "es":"Islas Salomón",
         "pl":"Wyspy Salomona",
-        "zh-cn":"所罗门群岛"
-    },
-    "Somalia":{
+        "zh-cn":"所罗门群岛",
+        "uk":"Соломонові Острови"
+     },
+     "Somalia":{
         "en":"Somalia",
         "de":"Somalia",
         "ru":"Сомали",
@@ -2532,9 +2742,10 @@ systemDictionary = {
         "it":"Somalia",
         "es":"Somalia",
         "pl":"Somalia",
-        "zh-cn":"索马里"
-    },
-    "South Africa":{
+        "zh-cn":"索马里",
+        "uk":"Сомалі"
+     },
+     "South Africa":{
         "en":"South Africa",
         "de":"Südafrika",
         "ru":"ЮАР",
@@ -2544,9 +2755,10 @@ systemDictionary = {
         "it":"Sudafrica",
         "es":"Sudáfrica",
         "pl":"Południowa Afryka",
-        "zh-cn":"南非"
-    },
-    "South Georgia and the South Sandwich Islands":{
+        "zh-cn":"南非",
+        "uk":"Південна Африка"
+     },
+     "South Georgia and the South Sandwich Islands":{
         "en":"South Georgia and the South Sandwich Islands",
         "de":"Südgeorgien und die Südlichen Sandwichinseln",
         "ru":"Южная Георгия и Южные Сандвичевы Острова",
@@ -2556,9 +2768,10 @@ systemDictionary = {
         "it":"Georgia del Sud e isole Sandwich meridionali",
         "es":"Georgia del Sur y las Islas Sandwich del Sur",
         "pl":"Georgia Południowa i Sandwich Południowy",
-        "zh-cn":"南乔治亚和南桑威奇群岛"
-    },
-    "Spain":{
+        "zh-cn":"南乔治亚和南桑威奇群岛",
+        "uk":"Південна Джорджія та Південні Сандвічеві Острови"
+     },
+     "Spain":{
         "en":"Spain",
         "de":"Spanien",
         "ru":"Испания",
@@ -2568,9 +2781,10 @@ systemDictionary = {
         "it":"Spagna",
         "es":"España",
         "pl":"Hiszpania",
-        "zh-cn":"西班牙"
-    },
-    "Sri Lanka":{
+        "zh-cn":"西班牙",
+        "uk":"Іспанія"
+     },
+     "Sri Lanka":{
         "en":"Sri Lanka",
         "de":"Sri Lanka",
         "ru":"Шри-Ланка",
@@ -2580,9 +2794,10 @@ systemDictionary = {
         "it":"Sri Lanka",
         "es":"Sri Lanka",
         "pl":"Sri Lanka",
-        "zh-cn":"斯里兰卡"
-    },
-    "Sudan":{
+        "zh-cn":"斯里兰卡",
+        "uk":"Шри-Ланка"
+     },
+     "Sudan":{
         "en":"Sudan",
         "de":"Sudan",
         "ru":"Судан",
@@ -2592,9 +2807,10 @@ systemDictionary = {
         "it":"Sudan",
         "es":"Sudán",
         "pl":"Sudan",
-        "zh-cn":"苏丹"
-    },
-    "Suriname":{
+        "zh-cn":"苏丹",
+        "uk":"Судан"
+     },
+     "Suriname":{
         "en":"Suriname",
         "de":"Suriname",
         "ru":"Суринам",
@@ -2604,9 +2820,10 @@ systemDictionary = {
         "it":"Suriname",
         "es":"Suriname",
         "pl":"Surinam",
-        "zh-cn":"苏里南"
-    },
-    "Svalbard and Jan Mayen":{
+        "zh-cn":"苏里南",
+        "uk":"Суринам"
+     },
+     "Svalbard and Jan Mayen":{
         "en":"Svalbard and Jan Mayen",
         "de":"Svalbard und Jan Mayen",
         "ru":"Шпицберген и Ян-Майен",
@@ -2616,9 +2833,10 @@ systemDictionary = {
         "it":"Svalbard e Jan Mayen",
         "es":"Svalbard y Jan Mayen",
         "pl":"Svalbard i Jan Mayen",
-        "zh-cn":"斯瓦尔巴和扬马延"
-    },
-    "Eswatini":{
+        "zh-cn":"斯瓦尔巴和扬马延",
+        "uk":"Острови Шпіцберген та Ян-Маєн"
+     },
+     "Eswatini":{
         "en":"Eswatini",
         "de":"Eswatini",
         "ru":"Эсватини",
@@ -2628,9 +2846,10 @@ systemDictionary = {
         "it":"Eswatini",
         "es":"Esuatini",
         "pl":"Eswatini",
-        "zh-cn":"斯威 士兰"
-    },
-    "Sweden":{
+        "zh-cn":"斯威士兰",
+        "uk":"Есватіні"
+     },
+     "Sweden":{
         "en":"Sweden",
         "de":"Schweden",
         "ru":"Швеция",
@@ -2640,9 +2859,10 @@ systemDictionary = {
         "it":"Svezia",
         "es":"Suecia",
         "pl":"Szwecja",
-        "zh-cn":"瑞典"
-    },
-    "Switzerland":{
+        "zh-cn":"瑞典",
+        "uk":"Швеція"
+     },
+     "Switzerland":{
         "en":"Switzerland",
         "de":"Schweiz",
         "ru":"Швейцария",
@@ -2652,9 +2872,10 @@ systemDictionary = {
         "it":"Svizzera",
         "es":"Suiza",
         "pl":"Szwajcaria",
-        "zh-cn":"瑞士"
-    },
-    "Syrian Arab Republic":{
+        "zh-cn":"瑞士",
+        "uk":"Швейцарія"
+     },
+     "Syrian Arab Republic":{
         "en":"Syrian Arab Republic",
         "de":"Syrien, Arabische Republik",
         "ru":"Сирия",
@@ -2664,9 +2885,10 @@ systemDictionary = {
         "it":"Siria",
         "es":"República Árabe Siria",
         "pl":"Syria",
-        "zh-cn":"叙利亚"
-    },
-    "Taiwan, Province of China":{
+        "zh-cn":"叙利亚",
+        "uk":"Сирія"
+     },
+     "Taiwan, Province of China":{
         "en":"Taiwan, Province of China",
         "de":"Taiwan",
         "ru":"Тайвань",
@@ -2676,9 +2898,10 @@ systemDictionary = {
         "it":"Repubblica di Cina",
         "es":"Taiwán",
         "pl":"Tajwan",
-        "zh-cn":"中国台湾省"
-    },
-    "Tajikistan":{
+        "zh-cn":"中国台湾省",
+        "uk":"Тайвань, Провінція Китаю"
+     },
+     "Tajikistan":{
         "en":"Tajikistan",
         "de":"Tadschikistan",
         "ru":"Таджикистан",
@@ -2688,9 +2911,10 @@ systemDictionary = {
         "it":"Tagikistan",
         "es":"Tayikistán",
         "pl":"Tadżykistan",
-        "zh-cn":"塔吉克斯坦"
-    },
-    "United Republic of Tanzania":{
+        "zh-cn":"塔吉克斯 坦",
+        "uk":"Таджикистан"
+     },
+     "United Republic of Tanzania":{
         "en":"United Republic of Tanzania",
         "de":"Tansania, Vereinigte Republik",
         "ru":"Танзания",
@@ -2700,9 +2924,10 @@ systemDictionary = {
         "it":"Tanzania",
         "es":"Tanzania",
         "pl":"Tanzania",
-        "zh-cn":"坦桑尼亚"
-    },
-    "Thailand":{
+        "zh-cn":"坦桑尼亚",
+        "uk":"Танзанія"
+     },
+     "Thailand":{
         "en":"Thailand",
         "de":"Thailand",
         "ru":"Таиланд",
@@ -2712,9 +2937,10 @@ systemDictionary = {
         "it":"Thailandia",
         "es":"Tailandia",
         "pl":"Tajlandia",
-        "zh-cn":"泰国"
-    },
-    "Timor-Leste":{
+        "zh-cn":"泰国",
+        "uk":"Таїланд"
+     },
+     "Timor-Leste":{
         "en":"Timor-Leste",
         "de":"Osttimor",
         "ru":"Восточный Тимор",
@@ -2724,9 +2950,10 @@ systemDictionary = {
         "it":"Timor Est",
         "es":"Timor-Leste",
         "pl":"Timor Wschodni",
-        "zh-cn":"东帝汶"
-    },
-    "Togo":{
+        "zh-cn":"东帝汶",
+        "uk":"Тимор-Лешті"
+     },
+     "Togo":{
         "en":"Togo",
         "de":"Togo",
         "ru":"Того",
@@ -2736,9 +2963,10 @@ systemDictionary = {
         "it":"Togo",
         "es":"Togo",
         "pl":"Togo",
-        "zh-cn":"多哥"
-    },
-    "Tokelau":{
+        "zh-cn":"多哥",
+        "uk":"Того"
+     },
+     "Tokelau":{
         "en":"Tokelau",
         "de":"Tokelau",
         "ru":"Токелау",
@@ -2748,9 +2976,10 @@ systemDictionary = {
         "it":"Tokelau",
         "es":"Tokelau",
         "pl":"Tokelau",
-        "zh-cn":"托克劳"
-    },
-    "Tonga":{
+        "zh-cn":"托克劳",
+        "uk":"Токелау"
+     },
+     "Tonga":{
         "en":"Tonga",
         "de":"Tonga",
         "ru":"Тонга",
@@ -2760,9 +2989,10 @@ systemDictionary = {
         "it":"Tonga",
         "es":"Tonga",
         "pl":"Tonga",
-        "zh-cn":"汤加"
-    },
-    "Trinidad and Tobago":{
+        "zh-cn":"汤加",
+        "uk":"Тонга"
+     },
+     "Trinidad and Tobago":{
         "en":"Trinidad and Tobago",
         "de":"Trinidad und Tobago",
         "ru":"Тринидад и Тобаго",
@@ -2772,9 +3002,10 @@ systemDictionary = {
         "it":"Trinidad e Tobago",
         "es":"Trinidad y Tobago",
         "pl":"Trynidad i Tobago",
-        "zh-cn":"特立尼达和多巴哥"
-    },
-    "Tunisia":{
+        "zh-cn":"特立尼达和多巴哥",
+        "uk":"Тринідад і Тобаго"
+     },
+     "Tunisia":{
         "en":"Tunisia",
         "de":"Tunesien",
         "ru":"Тунис",
@@ -2784,9 +3015,10 @@ systemDictionary = {
         "it":"Tunisia",
         "es":"Túnez",
         "pl":"Tunezja",
-        "zh-cn":"突尼斯"
-    },
-    "Türkiye":{
+        "zh-cn":"突尼斯",
+        "uk":"Туніс"
+     },
+     "Türkiye":{
         "en":"Türkiye",
         "de":"Türkei",
         "ru":"Турция",
@@ -2796,9 +3028,10 @@ systemDictionary = {
         "it":"Turchia",
         "es":"Turquía",
         "pl":"Turcja",
-        "zh-cn":"土耳其"
-    },
-    "Turkmenistan":{
+        "zh-cn":"土耳其",
+        "uk":"Туреччина"
+     },
+     "Turkmenistan":{
         "en":"Turkmenistan",
         "de":"Turkmenistan",
         "ru":"Туркмения",
@@ -2808,9 +3041,10 @@ systemDictionary = {
         "it":"Turkmenistan",
         "es":"Turkmenistán",
         "pl":"Turkmenistan",
-        "zh-cn":"土库 曼斯坦"
-    },
-    "Turks and Caicos Islands":{
+        "zh-cn":"土库曼斯坦",
+        "uk":"Туркменистан"
+     },
+     "Turks and Caicos Islands":{
         "en":"Turks and Caicos Islands",
         "de":"Turks- und Caicosinseln",
         "ru":"Теркс и Кайкос",
@@ -2820,9 +3054,10 @@ systemDictionary = {
         "it":"Isole Turks e Caicos",
         "es":"Islas Turcas y Caicos",
         "pl":"Turks i Caicos",
-        "zh-cn":"特克斯和凯科斯群岛"
-    },
-    "Tuvalu":{
+        "zh-cn":" 特克斯和凯科斯群岛",
+        "uk":"Острови Теркс і Кайкос"
+     },
+     "Tuvalu":{
         "en":"Tuvalu",
         "de":"Tuvalu",
         "ru":"Тувалу",
@@ -2832,9 +3067,10 @@ systemDictionary = {
         "it":"Tuvalu",
         "es":"Tuvalu",
         "pl":"Tuvalu",
-        "zh-cn":"图瓦卢"
-    },
-    "Uganda":{
+        "zh-cn":"图瓦卢",
+        "uk":"Тувалу"
+     },
+     "Uganda":{
         "en":"Uganda",
         "de":"Uganda",
         "ru":"Уганда",
@@ -2844,9 +3080,10 @@ systemDictionary = {
         "it":"Uganda",
         "es":"Uganda",
         "pl":"Uganda",
-        "zh-cn":"乌干达"
-    },
-    "Ukraine":{
+        "zh-cn":"乌干达",
+        "uk":"Уганда"
+     },
+     "Ukraine":{
         "en":"Ukraine",
         "de":"Ukraine",
         "ru":"Украина",
@@ -2856,9 +3093,10 @@ systemDictionary = {
         "it":"Ucraina",
         "es":"Ucrania",
         "pl":"Ukraina",
-        "zh-cn":"乌克兰"
-    },
-    "United Arab Emirates":{
+        "zh-cn":"乌克兰",
+        "uk":"Україна"
+     },
+     "United Arab Emirates":{
         "en":"United Arab Emirates",
         "de":"Vereinigte Arabische Emirate",
         "ru":"ОАЭ",
@@ -2868,9 +3106,10 @@ systemDictionary = {
         "it":"Emirati Arabi Uniti",
         "es":"Emiratos Árabes Unidos",
         "pl":"Zjednoczone Emiraty Arabskie",
-        "zh-cn":"阿联酋"
-    },
-    "United Kingdom":{
+        "zh-cn":"阿联酋",
+        "uk":"Об'єднані Арабські Емірати"
+     },
+     "United Kingdom":{
         "en":"United Kingdom",
         "de":"Vereinigtes Königreich",
         "ru":"Великобритания",
@@ -2880,9 +3119,10 @@ systemDictionary = {
         "it":"Regno Unito",
         "es":"Reino Unido",
         "pl":"Wielka Brytania",
-        "zh-cn":"英国"
-    },
-    "United States of America":{
+        "zh-cn":"英国",
+        "uk":"Великобританія"
+     },
+     "United States of America":{
         "en":"United States of America",
         "de":"Vereinigte Staaten von Amerika",
         "ru":"США",
@@ -2892,9 +3132,10 @@ systemDictionary = {
         "it":"Stati Uniti d'America",
         "es":"Estados Unidos",
         "pl":"Stany Zjednoczone",
-        "zh-cn":"美国"
-    },
-    "United States Minor Outlying Islands":{
+        "zh-cn":"美国",
+        "uk":"США"
+     },
+     "United States Minor Outlying Islands":{
         "en":"United States Minor Outlying Islands",
         "de":"United States Minor Outlying Islands",
         "ru":"Внешние малые острова (США)",
@@ -2904,9 +3145,10 @@ systemDictionary = {
         "it":"Isole minori esterne degli Stati Uniti",
         "es":"Islas Ultramarinas Menores de los Estados Unidos",
         "pl":"Dalekie Wyspy Mniejsze Stanów Zjednoczonych",
-        "zh-cn":"美国本土外小岛屿"
-    },
-    "Uruguay":{
+        "zh-cn":"美国本土外小岛屿",
+        "uk":"Зовнішні Віддалені Острови (США)"
+     },
+     "Uruguay":{
         "en":"Uruguay",
         "de":"Uruguay",
         "ru":"Уругвай",
@@ -2916,9 +3158,10 @@ systemDictionary = {
         "it":"Uruguay",
         "es":"Uruguay",
         "pl":"Urugwaj",
-        "zh-cn":"乌拉圭"
-    },
-    "Uzbekistan":{
+        "zh-cn":"乌拉圭",
+        "uk":"Уругвай"
+     },
+     "Uzbekistan":{
         "en":"Uzbekistan",
         "de":"Usbekistan",
         "ru":"Узбекистан",
@@ -2928,9 +3171,10 @@ systemDictionary = {
         "it":"Uzbekistan",
         "es":"Uzbekistán",
         "pl":"Uzbekistan",
-        "zh-cn":"乌兹别克斯坦"
-    },
-    "Vanuatu":{
+        "zh-cn":"乌兹别克斯坦",
+        "uk":"Узбекистан"
+     },
+     "Vanuatu":{
         "en":"Vanuatu",
         "de":"Vanuatu",
         "ru":"Вануату",
@@ -2940,9 +3184,10 @@ systemDictionary = {
         "it":"Vanuatu",
         "es":"Vanuatu",
         "pl":"Vanuatu",
-        "zh-cn":"瓦努阿图"
-    },
-    "Venezuela":{
+        "zh-cn":"瓦努阿图",
+        "uk":"Вануату"
+     },
+     "Venezuela":{
         "en":"Venezuela",
         "de":"Venezuela",
         "ru":"Венесуэла",
@@ -2952,9 +3197,10 @@ systemDictionary = {
         "it":"Venezuela",
         "es":"Venezuela",
         "pl":"Wenezuela",
-        "zh-cn":"委内瑞拉"
-    },
-    "Vietnam":{
+        "zh-cn":"委内瑞拉",
+        "uk":"Венесуела"
+     },
+     "Vietnam":{
         "en":"Vietnam",
         "de":"Vietnam",
         "ru":"Вьетнам",
@@ -2964,9 +3210,10 @@ systemDictionary = {
         "it":"Vietnam",
         "es":"Vietnam",
         "pl":"Wietnam",
-        "zh-cn":"越 南"
-    },
-    "Virgin Islands, British":{
+        "zh-cn":"越南",
+        "uk":"В'єтнам"
+     },
+     "Virgin Islands, British":{
         "en":"Virgin Islands, British",
         "de":"Britische Jungferninseln",
         "ru":"Виргинские Острова (Великобритания)",
@@ -2976,9 +3223,10 @@ systemDictionary = {
         "it":"Isole Vergini Britanniche",
         "es":"Islas Vírgenes británicas",
         "pl":"Brytyjskie Wyspy Dziewicze",
-        "zh-cn":"英属维尔京群岛"
-    },
-    "Virgin Islands, U.S.":{
+        "zh-cn":"英属维尔京群岛",
+        "uk":"Британські Віргінські Острови"
+     },
+     "Virgin Islands, U.S.":{
         "en":"Virgin Islands, U.S.",
         "de":"Amerikanische Jungferninseln",
         "ru":"Виргинские Острова (США)",
@@ -2988,9 +3236,10 @@ systemDictionary = {
         "it":"Isole Vergini Americane",
         "es":"Islas Vírgenes de los Estados Unidos",
         "pl":"Wyspy Dziewicze Stanów Zjednoczonych",
-        "zh-cn":"美属维尔京群岛"
-    },
-    "Wallis and Futuna":{
+        "zh-cn":"美属维尔京群岛",
+        "uk":"Віргінські Острови (США)"
+     },
+     "Wallis and Futuna":{
         "en":"Wallis and Futuna",
         "de":"Wallis und Futuna",
         "ru":"Уоллис и Футуна",
@@ -3000,9 +3249,10 @@ systemDictionary = {
         "it":"Wallis e Futuna",
         "es":"Wallis y Futuna",
         "pl":"Wallis i Futuna",
-        "zh-cn":"瓦利斯和富图纳"
-    },
-    "Western Sahara":{
+        "zh-cn":"瓦利斯和富图纳",
+        "uk":"Волліс і Футуна"
+     },
+     "Western Sahara":{
         "en":"Western Sahara",
         "de":"Westsahara",
         "ru":"САДР",
@@ -3012,9 +3262,10 @@ systemDictionary = {
         "it":"Sahara Occidentale",
         "es":"Sahara Occidental",
         "pl":"Sahara Zachodnia",
-        "zh-cn":"阿拉伯撒哈拉民主共和国"
-    },
-    "Yemen":{
+        "zh-cn":"阿拉伯撒哈拉民主共和国",
+        "uk":"Західна Сахара"
+     },
+     "Yemen":{
         "en":"Yemen",
         "de":"Jemen",
         "ru":"Йемен",
@@ -3024,9 +3275,10 @@ systemDictionary = {
         "it":"Yemen",
         "es":"Yemen",
         "pl":"Jemen",
-        "zh-cn":"也门"
-    },
-    "Zambia":{
+        "zh-cn":"也门",
+        "uk":"Ємен"
+     },
+     "Zambia":{
         "en":"Zambia",
         "de":"Sambia",
         "ru":"Замбия",
@@ -3036,9 +3288,10 @@ systemDictionary = {
         "it":"Zambia",
         "es":"Zambia",
         "pl":"Zambia",
-        "zh-cn":"赞比亚"
-    },
-    "Zimbabwe":{
+        "zh-cn":"赞比亚",
+        "uk":"Замбія"
+     },
+     "Zimbabwe":{
         "en":"Zimbabwe",
         "de":"Simbabwe",
         "ru":"Зимбабве",
@@ -3048,9 +3301,10 @@ systemDictionary = {
         "it":"Zimbabwe",
         "es":"Zimbabue",
         "pl":"Zimbabwe",
-        "zh-cn":"津巴布韦"
-    },
-    "Åland Islands":{
+        "zh-cn":"津巴布韦",
+        "uk":"Зімбабве"
+     },
+     "Åland Islands":{
         "en":"Åland Islands",
         "de":"Åland",
         "ru":"Аландские острова",
@@ -3060,9 +3314,10 @@ systemDictionary = {
         "it":"Isole Åland",
         "es":"Islas Åland",
         "pl":"Wyspy Alandzkie",
-        "zh-cn":"奥兰"
-    },
-    "Bonaire, Sint Eustatius and Saba":{
+        "zh-cn":"奥兰",
+        "uk":"Аландські Острови"
+     },
+     "Bonaire, Sint Eustatius and Saba":{
         "en":"Bonaire, Sint Eustatius and Saba",
         "de":"Bonaire",
         "ru":"Бонэйр, Синт-Эстатиус и Саба",
@@ -3072,9 +3327,10 @@ systemDictionary = {
         "it":"Isole BES",
         "es":"Bonaire, San Eustaquio y Saba",
         "pl":"Bonaire, Sint Eustatius i Saba",
-        "zh-cn":"荷兰加勒比区"
-    },
-    "Curaçao":{
+        "zh-cn":" 荷兰加勒比区",
+        "uk":"Карибські Нідерланди"
+     },
+     "Curaçao":{
         "en":"Curaçao",
         "de":"Curaçao",
         "ru":"Кюрасао",
@@ -3084,9 +3340,10 @@ systemDictionary = {
         "it":"Curaçao",
         "es":"Curaçao",
         "pl":"Curaçao",
-        "zh-cn":"库拉索"
-    },
-    "Guernsey":{
+        "zh-cn":"库拉索",
+        "uk":"Кюрасао"
+     },
+     "Guernsey":{
         "en":"Guernsey",
         "de":"Guernsey",
         "ru":"Гернси",
@@ -3096,9 +3353,10 @@ systemDictionary = {
         "it":"Guernsey",
         "es":"Guernsey",
         "pl":"Guernsey",
-        "zh-cn":"根西"
-    },
-    "Isle of Man":{
+        "zh-cn":"根西",
+        "uk":"Гернсі"
+     },
+     "Isle of Man":{
         "en":"Isle of Man",
         "de":"Insel Man",
         "ru":"Остров Мэн",
@@ -3108,9 +3366,10 @@ systemDictionary = {
         "it":"Isola di Man",
         "es":"Isla de Man",
         "pl":"Wyspa Man",
-        "zh-cn":"马恩岛"
-    },
-    "Jersey":{
+        "zh-cn":"马恩岛",
+        "uk":"Острів Мен"
+     },
+     "Jersey":{
         "en":"Jersey",
         "de":"Jersey",
         "ru":"Джерси",
@@ -3120,9 +3379,10 @@ systemDictionary = {
         "it":"Jersey",
         "es":"Jersey",
         "pl":"Jersey",
-        "zh-cn":"泽西"
-    },
-    "Montenegro":{
+        "zh-cn":"泽西",
+        "uk":"Джерсі"
+     },
+     "Montenegro":{
         "en":"Montenegro",
         "de":"Montenegro",
         "ru":"Черногория",
@@ -3132,9 +3392,10 @@ systemDictionary = {
         "it":"Montenegro",
         "es":"Montenegro",
         "pl":"Czarnogóra",
-        "zh-cn":"黑山"
-    },
-    "Saint Barthélemy":{
+        "zh-cn":"黑山",
+        "uk":"Чорногорія"
+     },
+     "Saint Barthélemy":{
         "en":"Saint Barthélemy",
         "de":"Saint-Barthélemy",
         "ru":"Сен-Бартелеми",
@@ -3144,9 +3405,10 @@ systemDictionary = {
         "it":"Saint-Barthélemy",
         "es":"Saint Barthélemy",
         "pl":"Saint-Barthélemy",
-        "zh-cn":"圣巴泰勒米"
-    },
-    "Saint Martin (French part)":{
+        "zh-cn":"圣巴泰勒米",
+        "uk":"Сен-Бартелемі"
+     },
+     "Saint Martin (French part)":{
         "en":"Saint Martin (French part)",
         "de":"Saint-Martin",
         "ru":"Сен-Мартен",
@@ -3156,9 +3418,10 @@ systemDictionary = {
         "it":"Saint-Martin",
         "es":"Saint Martin (francesa)",
         "pl":"Saint-Martin",
-        "zh-cn":"法属圣马丁"
-    },
-    "Serbia":{
+        "zh-cn":"法属圣马丁",
+        "uk":"Сен-Мартен"
+     },
+     "Serbia":{
         "en":"Serbia",
         "de":"Serbien",
         "ru":"Сербия",
@@ -3168,9 +3431,10 @@ systemDictionary = {
         "it":"Serbia",
         "es":"Serbia",
         "pl":"Serbia",
-        "zh-cn":"塞尔维亚"
-    },
-    "Sint Maarten (Dutch part)":{
+        "zh-cn":"塞尔维亚",
+        "uk":"Сербія"
+     },
+     "Sint Maarten (Dutch part)":{
         "en":"Sint Maarten (Dutch part)",
         "de":"Sint Maarten",
         "ru":"Синт-Мартен",
@@ -3180,9 +3444,10 @@ systemDictionary = {
         "it":"Sint Maarten",
         "es":"Sint Maarten (neerlandesa)",
         "pl":"Sint Maarten",
-        "zh-cn":"荷属圣马丁"
-    },
-    "South Sudan":{
+        "zh-cn":"荷属圣 马丁",
+        "uk":"Сінт-Мартен"
+     },
+     "South Sudan":{
         "en":"South Sudan",
         "de":"Südsudan",
         "ru":"Южный Судан",
@@ -3192,9 +3457,10 @@ systemDictionary = {
         "it":"Sudan del Sud",
         "es":"Sudán del Sur",
         "pl":"Sudan Południowy",
-        "zh-cn":"南苏丹"
-    },
-    "Kosovo":{
+        "zh-cn":"南苏丹",
+        "uk":"Південний Судан"
+     },
+     "Kosovo":{
         "en":"Kosovo",
         "de":"Kosovo",
         "ru":"Косово",
@@ -3204,6 +3470,8 @@ systemDictionary = {
         "it":"Kosovo",
         "es":"Kosovo",
         "pl":"Kosowo",
-        "zh-cn":"科索沃"
-    }
+        "zh-cn":"科索沃",
+        "uk":"Косово"
+     }
+  
 };
