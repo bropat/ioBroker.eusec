@@ -32,6 +32,7 @@ __export(utils_exports, {
   convertCamelCaseToSnakeCase: () => convertCamelCaseToSnakeCase,
   deleteStates: () => deleteStates,
   getImageAsHTML: () => getImageAsHTML,
+  getShortUrl: () => getShortUrl,
   getVideoClipLength: () => getVideoClipLength,
   handleUpdate: () => handleUpdate,
   isEmpty: () => isEmpty,
@@ -247,12 +248,24 @@ const convertCamelCaseToSnakeCase = function(value) {
     return index == 0 ? letter.toLowerCase() : "_" + letter.toLowerCase();
   });
 };
+function getShortUrl(url, prefixUrl) {
+  if (url.password) {
+    url = new URL(url.toString());
+    url.password = "[redacted]";
+  }
+  let shortUrl = url.toString();
+  if (prefixUrl && shortUrl.startsWith(prefixUrl)) {
+    shortUrl = shortUrl.slice(prefixUrl.length);
+  }
+  return shortUrl;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   changeRole,
   convertCamelCaseToSnakeCase,
   deleteStates,
   getImageAsHTML,
+  getShortUrl,
   getVideoClipLength,
   handleUpdate,
   isEmpty,

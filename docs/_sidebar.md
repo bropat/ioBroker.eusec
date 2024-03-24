@@ -9,6 +9,7 @@
   - [Installation](installation.md)
   - [Configuration](configuration.md)
   - [Authentication](authentication.md)
+  - [sendTo](sendTo.md)
 
 - Troubleshooting
 

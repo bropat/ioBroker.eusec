@@ -255,3 +255,16 @@ export const convertCamelCaseToSnakeCase = function (value: string): string {
         return index == 0 ? letter.toLowerCase() : "_" + letter.toLowerCase();
     });
 };
+
+export function getShortUrl(url: URL, prefixUrl?: string): string {
+    if (url.password) {
+        url = new URL(url.toString()); // prevent original url mutation
+        url.password = "[redacted]";
+    }
+    let shortUrl = url.toString();
+    if (prefixUrl && shortUrl.startsWith(prefixUrl)) {
+        shortUrl = shortUrl.slice(prefixUrl.length);
+    }
+
+    return shortUrl;
+}

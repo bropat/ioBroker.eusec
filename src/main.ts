@@ -15,7 +15,7 @@ import { Readable } from "stream";
 import util from "util";
 import childProcess from "child_process";
 import pathToGo2rtc from "go2rtc-static";
-import pathToFfmpeg from "ffmpeg-static";
+import pathToFfmpeg from "ffmpeg-for-homebridge";
 
 import { DeviceStateID, DataLocation, RoleMapping, StationStateID } from "./lib/types";
 import { convertCamelCaseToSnakeCase, getImageAsHTML, handleUpdate, removeFiles, removeLastChar, setStateChangedAsync } from "./lib/utils";
@@ -580,39 +580,192 @@ export class euSec extends utils.Adapter {
      */
     private async onMessage(obj: ioBroker.Message): Promise<void> {
         if (typeof obj === "object" && obj.message) {
-            /*if (obj.command === "send") {
-                // e.g. send email or pushover or whatever
-                this.log.info("send command");
+            try {
+                if (obj.command === "quickResponse") {
+                    this.log.debug(`quickResponse command - message: ${JSON.stringify(obj.message)}`);
+                    if (typeof obj.message === "object" &&
+                        typeof obj.message.station_sn === "string" && obj.message.station_sn !== "" &&
+                        typeof obj.message.device_sn === "string" && obj.message.device_sn !== "" &&
+                        typeof obj.message.voice_id === "number") {
+                        try {
+                            const station = await this.eufy.getStation(obj.message.station_sn);
+                            const device = await this.eufy.getDevice(obj.message.device_sn);
 
-                // Send response in callback if required
-                if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-            }*/
-            if (obj.command === "quick_response") {
-                if (typeof obj.message === "object") {
-                    const station = await this.eufy.getStation(obj.message.station_sn);
-                    const device = await this.eufy.getDevice(obj.message.device_sn);
+                            if (device.hasCommand(CommandName.DeviceQuickResponse)) {
+                                await station.quickResponse(device, obj.message.voice_id);
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: true,
+                                        result: "quickResponse command sended"
+                                    }, obj.callback);
+                            } else {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "quickResponse command not supported by specified device"
+                                    }, obj.callback);
+                            }
+                        } catch (error) {
+                            if (error instanceof StationNotFoundError) {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "quickResponse command not sended because specified station doesn't exists"
+                                    }, obj.callback);
+                            } else if (error instanceof DeviceNotFoundError) {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "quickResponse command not sended because specified device doesn't exists"
+                                    }, obj.callback);
+                            } else {
+                                throw error;
+                            }
+                        }
+                    } else {
+                        if (obj.callback)
+                            this.sendTo(obj.from, obj.command, {
+                                sended: false,
+                                result: "quickResponse command not sended because some required parameters are missing"
+                            }, obj.callback);
+                    }
+                } else if (obj.command === "getQuickResponseVoices") {
+                    this.log.debug(`getQuickResponseVoices command - message: ${JSON.stringify(obj.message)}`);
+                    if (typeof obj.message === "object" &&
+                        typeof obj.message.device_sn === "string" && obj.message.device_sn !== "") {
+                        const voices = await this.eufy.getApi().getVoices(obj.message.device_sn);
 
-                    await station.quickResponse(device, obj.message.voice_id);
+                        if (obj.callback)
+                            this.sendTo(obj.from, obj.command, {
+                                sended: true,
+                                result: voices
+                            }, obj.callback);
+                    } else {
+                        if (obj.callback)
+                            this.sendTo(obj.from, obj.command, {
+                                sended: false,
+                                result: "getQuickResponseVoices command not sended because some required parameters are missing"
+                            }, obj.callback);
+                    }
+                } else if (obj.command === "snooze") {
+                    this.log.debug(`snooze command - message: ${JSON.stringify(obj.message)}`);
+                    if (typeof obj.message === "object" &&
+                        typeof obj.message.station_sn === "string" && obj.message.station_sn !== "" &&
+                        typeof obj.message.device_sn === "string" && obj.message.device_sn !== "" &&
+                        typeof obj.message.snooze_time === "number" &&
+                        (obj.message.snooze_chime === undefined || typeof obj.message.snooze_chime === "boolean") &&
+                        (obj.message.snooze_homebase === undefined || typeof obj.message.snooze_homebase === "boolean") &&
+                        (obj.message.snooze_motion === undefined || typeof obj.message.snooze_motion === "boolean")) {
+                        try {
+                            const station = await this.eufy.getStation(obj.message.station_sn);
+                            const device = await this.eufy.getDevice(obj.message.device_sn);
+
+                            if (device.hasCommand(CommandName.DeviceSnooze)) {
+                                await station.snooze(device, {
+                                    snooze_time: obj.message.snooze_time,
+                                    snooze_chime: obj.message.snooze_chime,
+                                    snooze_homebase: obj.message.snooze_homebase,
+                                    snooze_motion: obj.message.snooze_motion,
+                                });
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: true,
+                                        result: "snooze command sended"
+                                    }, obj.callback);
+                            } else {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "snooze command not supported by specified device"
+                                    }, obj.callback);
+                            }
+                        } catch (error) {
+                            if (error instanceof StationNotFoundError) {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "snooze command not sended because specified station doesn't exists"
+                                    }, obj.callback);
+                            } else if (error instanceof DeviceNotFoundError) {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "snooze command not sended because specified device doesn't exists"
+                                    }, obj.callback);
+                            } else {
+                                throw error;
+                            }
+                        }
+                    } else {
+                        if (obj.callback)
+                            this.sendTo(obj.from, obj.command, {
+                                sended: false,
+                                result: "snooze command not sended because some required parameters are missing"
+                            }, obj.callback);
+                    }
+                } else if (obj.command === "chime") {
+                    this.log.debug(`snooze command - message: ${JSON.stringify(obj.message)}`);
+                    if (typeof obj.message === "object" &&
+                        typeof obj.message.station_sn === "string" && obj.message.station_sn !== "" &&
+                        (obj.message.ringtone === undefined || typeof obj.message.ringtone === "number")) {
+                        try {
+                            const station = await this.eufy.getStation(obj.message.station_sn);
+
+                            if (station.hasCommand(CommandName.StationChime)) {
+                                await station.chimeHomebase(obj.message.ringtone !== undefined && typeof obj.message.ringtone === "number" ? obj.message.ringtone : 0);
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: true,
+                                        result: "chime command sended"
+                                    }, obj.callback);
+                            } else {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "chime command not supported by specified station"
+                                    }, obj.callback);
+                            }
+
+                            if (obj.callback)
+                                this.sendTo(obj.from, obj.command, "chime command sended", obj.callback);
+                        } catch (error) {
+                            if (error instanceof StationNotFoundError) {
+                                if (obj.callback)
+                                    this.sendTo(obj.from, obj.command, {
+                                        sended: false,
+                                        result: "snooze command not sended because specified station doesn't exists"
+                                    }, obj.callback);
+                            } else {
+                                throw error;
+                            }
+                        }
+                    }
+                } else if (obj.command === "pollRefresh") {
+                    this.log.debug(`pollRefresh command`);
+                    await this.eufy.refreshCloudData();
 
                     if (obj.callback)
-                        this.sendTo(obj.from, obj.command, "QuickResponse command received", obj.callback);
-                }
-            } else if (obj.command === "snooze") {
-                this.log.debug(`snooze command - message: ${JSON.stringify(obj.message)}`);
-                if (typeof obj.message === "object") {
-                    const station = await this.eufy.getStation(obj.message.station_sn);
-                    const device = await this.eufy.getDevice(obj.message.device_sn);
-
-                    await station.snooze(device, {
-                        snooze_time: obj.message.snooze_time,
-                        snooze_chime: obj.message.snooze_chime,
-                        snooze_homebase: obj.message.snooze_homebase,
-                        snooze_motion: obj.message.snooze_motion,
-                    });
-
+                        this.sendTo(obj.from, obj.command, {
+                            sended: true,
+                            result: "pollRefresh command sended"
+                        }, obj.callback);
+                } else {
+                    const errorMessage = `Received unknown message: ${JSON.stringify(obj.message)}`;
+                    this.log.warn(errorMessage);
                     if (obj.callback)
-                        this.sendTo(obj.from, obj.command, "Snooze command received", obj.callback);
+                        this.sendTo(obj.from, obj.command, {
+                            sended: false,
+                            result: errorMessage
+                        }, obj.callback);
                 }
+            } catch (error) {
+                const errorMessage = `Error during processing of received message: ${error instanceof Error ? `${error.name} - ${error.message}` : error }`;
+                this.log.error(errorMessage);
+                if (obj.callback)
+                    this.sendTo(obj.from, obj.command, {
+                        sended: false,
+                        result: errorMessage
+                    }, obj.callback);
             }
         }
     }

@@ -39,7 +39,7 @@ module.exports = __toCommonJS(video_exports);
 var import_net = __toESM(require("net"));
 var import_path = __toESM(require("path"));
 var import_fluent_ffmpeg = __toESM(require("@bropat/fluent-ffmpeg"));
-var import_ffmpeg_static = __toESM(require("ffmpeg-static"));
+var import_ffmpeg_for_homebridge = __toESM(require("ffmpeg-for-homebridge"));
 var import_eufy_security_client = require("eufy-security-client");
 var import_os = require("os");
 var import_fs_extra = __toESM(require("fs-extra"));
@@ -93,8 +93,8 @@ const StreamOutput = function(namespace, stream2) {
 const ffmpegPreviewImage = (config, input, output, log, skip_seconds = 2) => {
   return new Promise((resolve, reject) => {
     try {
-      if (import_ffmpeg_static.default) {
-        import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_static.default);
+      if (import_ffmpeg_for_homebridge.default) {
+        import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_for_homebridge.default);
         (0, import_fluent_ffmpeg.default)().withProcessOptions({
           detached: true
         }).addOptions([
@@ -123,8 +123,8 @@ ${stderr}`);
 const ffmpegStreamToHls = (config, namespace, metadata, videoStream, audioStream, output, log) => {
   return new Promise((resolve, reject) => {
     try {
-      if (import_ffmpeg_static.default) {
-        import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_static.default);
+      if (import_ffmpeg_for_homebridge.default) {
+        import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_for_homebridge.default);
         videoStream.on("error", (error) => {
           log.error("ffmpegStreamToHls(): Videostream Error", error);
         });
@@ -197,8 +197,8 @@ ${stderr}`);
 const ffmpegStreamToGo2rtc = (config, namespace, camera, metadata, videoStream, audioStream, log) => {
   return new Promise((resolve, reject) => {
     try {
-      if (import_ffmpeg_static.default) {
-        import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_static.default);
+      if (import_ffmpeg_for_homebridge.default) {
+        import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_for_homebridge.default);
         videoStream.on("error", (error) => {
           log.error("ffmpegStreamToGo2rtc(): Videostream Error", error);
         });
@@ -270,6 +270,23 @@ ${stderr}`);
 };
 const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, namespace, metadata) => {
   const { default: got } = await import("got");
+  const api = got.extend({
+    hooks: {
+      beforeError: [
+        (error) => {
+          const { response, options } = error;
+          const { method, url, prefixUrl } = options;
+          const shortUrl = (0, import_utils.getShortUrl)(typeof url === "string" ? new URL(url) : url === void 0 ? new URL("") : url, typeof prefixUrl === "string" ? prefixUrl : prefixUrl.toString());
+          const body = (response == null ? void 0 : response.body) ? response.body : error.message;
+          error.message = `${error.message} | method: ${method} url: ${shortUrl}`;
+          if (response == null ? void 0 : response.body) {
+            error.message = `${error.message} body: ${body}`;
+          }
+          return error;
+        }
+      ]
+    }
+  });
   videoStream.on("error", (error) => {
     log.error("streamToGo2rtc(): Videostream Error", error);
   });
@@ -279,29 +296,36 @@ const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, nam
   return Promise.allSettled([
     (0, import_promises.pipeline)(
       videoStream,
-      got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error) => {
-        log.error("streamToGo2rtc(): Got Videostream Error", error);
+      api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error) => {
+        var _a, _b;
+        if (!((_b = (_a = error.response) == null ? void 0 : _a.body) == null ? void 0 : _b.startsWith("EOF"))) {
+          log.error(`streamToGo2rtc(): Got Videostream Error: ${error.message}`);
+        }
       }),
       new import_node_stream.default.PassThrough()
     ),
-    //TODO: Tested with go2rtc 1.8.4 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
+    //TODO: Tested with go2rtc 1.8.5 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
     /*streamPipeline(
         audioStream,
-        got.stream.post(`http://localhost:1984/api/stream?dst=${camera}#audio=opus`),
-        //got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`),
+        api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error: any) => {
+            if (!(error.response?.body as string)?.startsWith("EOF")) {
+                log.error(`streamToGo2rtc(): Got Audiostream Error: ${error.message}`);
+            }
+        }),
         new stream.PassThrough()
     )*/
     new Promise((resolve, reject) => {
       try {
-        if (import_ffmpeg_static.default) {
-          import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_static.default);
+        if (import_ffmpeg_for_homebridge.default) {
+          import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_for_homebridge.default);
           const uAudioStream = StreamInput(namespace, audioStream);
           let audioFormat = "";
           const options = [
             "-rtsp_transport tcp",
-            //"-sc_threshold 0",
-            "-fflags genpts+nobuffer+flush_packets"
+            "-fflags genpts+nobuffer+flush_packets",
             //"-rtpflags latm",
+            //"-compression_level 5",
+            "-application lowdelay"
           ];
           switch (metadata.audioCodec) {
             case import_eufy_security_client.AudioCodec.AAC:
@@ -326,7 +350,11 @@ ${stdout}`);
 ${stderr}`);
             uAudioStream.close();
             reject(err);
-          }).on("end", () => {
+          }).on("end", (stdout, stderr) => {
+            log.debug(`streamToGo2rtc(): ffmpeg output:
+${stdout}`);
+            log.debug(`streamToGo2rtc(): ffmpeg stderr:
+${stderr}`);
             log.debug("streamToGo2rtc(): Processing finished!");
             uAudioStream.close();
             resolve();
@@ -340,70 +368,6 @@ ${stderr}`);
         reject(error);
       }
     })
-    /*new Promise<void>((resolve, reject) => {
-                try {
-                    if (pathToFfmpeg) {
-                        ffmpeg.setFfmpegPath(pathToFfmpeg);
-    
-                        const uAudioStream = StreamInput(namespace, audioStream);
-    
-                        let audioFormat = "";
-                        const options: string[] = [
-                            //"-rtsp_transport tcp",
-                            "-sc_threshold 0",
-                            "-fflags genpts+nobuffer+flush_packets",
-                            //"-rtpflags latm",
-                        ];
-    
-                        switch(metadata.audioCodec) {
-                            case AudioCodec.AAC:
-                                audioFormat = "aac";
-                                break;
-                        }
-    
-                        const command = ffmpeg()
-                            .withProcessOptions({
-                                detached: true
-                            });
-    
-                        if (audioFormat !== "") {
-                            command.input(uAudioStream.url)
-                                .format("adts")
-                                //.inputFormat(audioFormat)
-                                .audioCodec("aac");
-                            //.audioCodec("aac");
-                            //.audioCodec("opus");
-                        } else {
-                            log.warn(`streamToGo2rtc(): ffmpeg - Not support audio codec or unknown audio codec (${AudioCodec[metadata.audioCodec]})`);
-                        }
-                        //command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`)
-                        command.output(`http://localhost:1984/api/stream?dst=${camera}`)
-                            //.outputFormat("rtsp")
-                            .addOptions(options)
-                            .on("start", (commandline) => {
-                                log.debug(`streamToGo2rtc(): ffmpeg - commandline: ${commandline}`);
-                            })
-                            .on("error", function(err, stdout, stderr) {
-                                log.error(`streamToGo2rtc(): ffmpeg - An error occurred: ${err.message}`);
-                                log.error(`streamToGo2rtc(): ffmpeg output:\n${stdout}`);
-                                log.error(`streamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
-                                uAudioStream.close();
-                                reject(err);
-                            })
-                            .on("end", () => {
-                                log.debug("streamToGo2rtc(): Processing finished!");
-                                uAudioStream.close();
-                                resolve();
-                            });
-                        command.run();
-                    } else {
-                        reject(new Error("ffmpeg binary not found"));
-                    }
-                } catch (error) {
-                    log.error(`streamToGo2rtc(): Audio Error: ${error}`);
-                    reject(error);
-                }
-            })*/
   ]);
 };
 // Annotate the CommonJS export names for ESM import in node:

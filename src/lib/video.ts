@@ -1,7 +1,7 @@
 import net from "net";
 import path from "path";
 import ffmpeg from "@bropat/fluent-ffmpeg";
-import pathToFfmpeg from "ffmpeg-static";
+import pathToFfmpeg from "ffmpeg-for-homebridge";
 import { Readable } from "stream";
 import { StreamMetadata, AudioCodec, VideoCodec } from "eufy-security-client";
 import { tmpdir } from "os";
@@ -11,7 +11,7 @@ import stream from "node:stream";
 import {pipeline as streamPipeline} from "node:stream/promises";
 
 import { ioBrokerLogger } from "./log";
-import { lowestUnusedNumber } from "./utils";
+import { getShortUrl, lowestUnusedNumber } from "./utils";
 
 class UniversalStream {
 
@@ -306,6 +306,23 @@ export const ffmpegStreamToGo2rtc = (config: ioBroker.AdapterConfig, namespace: 
 
 export const streamToGo2rtc = async (camera: string, videoStream: Readable, audioStream: Readable, log: ioBrokerLogger, config: ioBroker.AdapterConfig, namespace: string, metadata: StreamMetadata): Promise<Array<PromiseSettledResult<void>>> => {
     const { default: got } = await import("got");
+    const api = got.extend({
+        hooks: {
+            beforeError: [
+                error => {
+                    const { response, options } = error;
+                    const { method, url, prefixUrl } = options;
+                    const shortUrl = getShortUrl(typeof url === "string" ? new URL(url) : url === undefined ? new URL("") : url, typeof prefixUrl === "string" ? prefixUrl : prefixUrl.toString());
+                    const body = response?.body ? response.body : error.message;
+                    error.message = `${error.message} | method: ${method} url: ${shortUrl}`;
+                    if (response?.body) {
+                        error.message = `${error.message} body: ${body}`;
+                    }
+                    return error;
+                }
+            ],
+        }
+    });
     videoStream.on("error", (error) => {
         log.error("streamToGo2rtc(): Videostream Error", error);
     });
@@ -316,16 +333,21 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
     return Promise.allSettled([
         streamPipeline(
             videoStream,
-            got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error) => {
-                log.error("streamToGo2rtc(): Got Videostream Error", error);
+            api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error: any) => {
+                if (!(error.response?.body as string)?.startsWith("EOF")) {
+                    log.error(`streamToGo2rtc(): Got Videostream Error: ${error.message}`);
+                }
             }),
             new stream.PassThrough()
         ),
-        //TODO: Tested with go2rtc 1.8.4 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
+        //TODO: Tested with go2rtc 1.8.5 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
         /*streamPipeline(
             audioStream,
-            got.stream.post(`http://localhost:1984/api/stream?dst=${camera}#audio=opus`),
-            //got.stream.post(`http://localhost:1984/api/stream?dst=${camera}`),
+            api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error: any) => {
+                if (!(error.response?.body as string)?.startsWith("EOF")) {
+                    log.error(`streamToGo2rtc(): Got Audiostream Error: ${error.message}`);
+                }
+            }),
             new stream.PassThrough()
         )*/
         new Promise<void>((resolve, reject) => {
@@ -338,9 +360,10 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                     let audioFormat = "";
                     const options: string[] = [
                         "-rtsp_transport tcp",
-                        //"-sc_threshold 0",
                         "-fflags genpts+nobuffer+flush_packets",
                         //"-rtpflags latm",
+                        //"-compression_level 5",
+                        "-application lowdelay",
                     ];
 
                     switch(metadata.audioCodec) {
@@ -357,8 +380,6 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                     if (audioFormat !== "") {
                         command.input(uAudioStream.url)
                             .inputFormat(audioFormat)
-                            //.audioCodec("copy");
-                            //.audioCodec("aac");
                             .audioCodec("opus");
                     } else {
                         log.warn(`streamToGo2rtc(): ffmpeg - Not support audio codec or unknown audio codec (${AudioCodec[metadata.audioCodec]})`);
@@ -376,7 +397,9 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                             uAudioStream.close();
                             reject(err);
                         })
-                        .on("end", () => {
+                        .on("end", (stdout, stderr) => {
+                            log.debug(`streamToGo2rtc(): ffmpeg output:\n${stdout}`);
+                            log.debug(`streamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
                             log.debug("streamToGo2rtc(): Processing finished!");
                             uAudioStream.close();
                             resolve();
@@ -390,69 +413,5 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                 reject(error);
             }
         })
-        /*new Promise<void>((resolve, reject) => {
-            try {
-                if (pathToFfmpeg) {
-                    ffmpeg.setFfmpegPath(pathToFfmpeg);
-
-                    const uAudioStream = StreamInput(namespace, audioStream);
-
-                    let audioFormat = "";
-                    const options: string[] = [
-                        //"-rtsp_transport tcp",
-                        "-sc_threshold 0",
-                        "-fflags genpts+nobuffer+flush_packets",
-                        //"-rtpflags latm",
-                    ];
-
-                    switch(metadata.audioCodec) {
-                        case AudioCodec.AAC:
-                            audioFormat = "aac";
-                            break;
-                    }
-
-                    const command = ffmpeg()
-                        .withProcessOptions({
-                            detached: true
-                        });
-
-                    if (audioFormat !== "") {
-                        command.input(uAudioStream.url)
-                            .format("adts")
-                            //.inputFormat(audioFormat)
-                            .audioCodec("aac");
-                        //.audioCodec("aac");
-                        //.audioCodec("opus");
-                    } else {
-                        log.warn(`streamToGo2rtc(): ffmpeg - Not support audio codec or unknown audio codec (${AudioCodec[metadata.audioCodec]})`);
-                    }
-                    //command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`)
-                    command.output(`http://localhost:1984/api/stream?dst=${camera}`)
-                        //.outputFormat("rtsp")
-                        .addOptions(options)
-                        .on("start", (commandline) => {
-                            log.debug(`streamToGo2rtc(): ffmpeg - commandline: ${commandline}`);
-                        })
-                        .on("error", function(err, stdout, stderr) {
-                            log.error(`streamToGo2rtc(): ffmpeg - An error occurred: ${err.message}`);
-                            log.error(`streamToGo2rtc(): ffmpeg output:\n${stdout}`);
-                            log.error(`streamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
-                            uAudioStream.close();
-                            reject(err);
-                        })
-                        .on("end", () => {
-                            log.debug("streamToGo2rtc(): Processing finished!");
-                            uAudioStream.close();
-                            resolve();
-                        });
-                    command.run();
-                } else {
-                    reject(new Error("ffmpeg binary not found"));
-                }
-            } catch (error) {
-                log.error(`streamToGo2rtc(): Audio Error: ${error}`);
-                reject(error);
-            }
-        })*/
     ]);
 }
