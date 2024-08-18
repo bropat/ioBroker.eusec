@@ -47,9 +47,11 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
-### 1.3.0 (2024-03-xx)
+### 1.3.0 (2024-08-xx)
 
-* (bropat) Requires js-controller version >= 5.0.0
+* (bropat) Requires ioBroker.admin version >= 7.0.12
+* (bropat) Requires ioBroker.js-controller version >= 6.0.0
+* (bropat) Requires node version >= 20
 * (bropat) Added new setting to choose country indipendently of ioBroker setting
 * (bropat) New go2rtc streaming implementation
 * (bropat) Added messagebox support to exhibit new commands (snooze #294, chime, quickResponse, getQuickResponseVoices, pollRefresh)

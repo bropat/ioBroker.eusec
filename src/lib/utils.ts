@@ -34,7 +34,7 @@ export const getImageAsHTML = function(data: Buffer, mime = "image/jpg"): string
     return path.join(dir_path, fileName);
 }*/
 
-export const setStateAsync = async function(adapter: ioBroker.Adapter, state_id: string, common_name: string, value: string, role = "text", type: "string" | "number" | "boolean" | "object" | "array" | "mixed" | "file" | undefined = "string"): Promise<void> {
+export const setStateAsync = async function(adapter: ioBroker.Adapter, state_id: string, common_name: string, value: string, role = "text", type: "string" | "number" | "boolean" | "object" | "array" | "mixed" | undefined = "string"): Promise<void> {
     await adapter.setObjectNotExistsAsync(state_id, {
         type: "state",
         common: {

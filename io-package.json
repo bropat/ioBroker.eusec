@@ -142,12 +142,12 @@
         "messagebox": true,
         "dependencies": [
             {
-                "js-controller": ">=5.0.0"
+                "js-controller": ">=6.0.0"
             }
         ],
         "globalDependencies": [
             {
-                "admin": ">=5.1.0"
+                "admin": ">=7.0.12"
             }
         ],
         "dataFolder": "eusec.%INSTANCE%",

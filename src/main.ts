@@ -233,7 +233,7 @@ export class euSec extends utils.Adapter {
             let countryCode = undefined;
             let languageCode = undefined;
             if (systemConfig) {
-                countryCode = getCountryCode(systemConfig.common.country, "en");
+                countryCode = getCountryCode(systemConfig.common.country!, "en");
                 if (isValidLanguageCode(systemConfig.common.language))
                     languageCode = systemConfig.common.language;
             }

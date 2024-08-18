@@ -2,7 +2,7 @@
 {
     // To update the compilation target, install a different version of @tsconfig/node... and reference it here
     // https://github.com/tsconfig/bases#node-16-tsconfigjson
-    "extends": "@tsconfig/node18/tsconfig.json",
+    "extends": "@tsconfig/node20/tsconfig.json",
     "compileOnSave": true,
     "compilerOptions": {
         // do not compile anything, this file is just to configure type checking
