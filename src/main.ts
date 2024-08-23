@@ -777,7 +777,7 @@ export class euSec extends utils.Adapter {
             role: "state",
             read: property.readable,
             write: property.writeable,
-            def: property.default
+            def: property.type === "object" && typeof property.default === "object" ? JSON.stringify(property.default) : property.default
         };
         switch (property.type) {
             case "number": {
