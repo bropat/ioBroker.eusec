@@ -126,7 +126,6 @@
             "type": "free"
         },
         "platform": "Javascript/Node.js",
-        "main": "build/main.js",
         "icon": "eusec.png",
         "enabled": true,
         "extIcon": "https://raw.githubusercontent.com/bropat/ioBroker.eusec/master/admin/eusec.png",
@@ -137,7 +136,6 @@
         "compact": false,
         "connectionType": "cloud",
         "dataSource": "poll",
-        "materialize": true,
         "tier": 2,
         "messagebox": true,
         "dependencies": [
@@ -151,7 +149,6 @@
             }
         ],
         "dataFolder": "eusec.%INSTANCE%",
-        "jsonConfig": true,
         "adminUI": {
             "config": "json"
         }
