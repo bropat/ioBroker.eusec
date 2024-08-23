@@ -304,70 +304,80 @@ const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, nam
       }),
       new import_node_stream.default.PassThrough()
     ),
-    //TODO: Tested with go2rtc 1.8.5 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
-    /*streamPipeline(
-        audioStream,
-        api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error: any) => {
-            if (!(error.response?.body as string)?.startsWith("EOF")) {
-                log.error(`streamToGo2rtc(): Got Audiostream Error: ${error.message}`);
-            }
-        }),
-        new stream.PassThrough()
-    )*/
-    new Promise((resolve, reject) => {
-      try {
-        if (import_ffmpeg_for_homebridge.default) {
-          import_fluent_ffmpeg.default.setFfmpegPath(import_ffmpeg_for_homebridge.default);
-          const uAudioStream = StreamInput(namespace, audioStream);
-          let audioFormat = "";
-          const options = [
-            "-rtsp_transport tcp",
-            "-fflags genpts+nobuffer+flush_packets",
-            //"-rtpflags latm",
-            //"-compression_level 5",
-            "-application lowdelay"
-          ];
-          switch (metadata.audioCodec) {
-            case import_eufy_security_client.AudioCodec.AAC:
-              audioFormat = "aac";
-              break;
-          }
-          const command = (0, import_fluent_ffmpeg.default)().withProcessOptions({
-            detached: true
-          });
-          if (audioFormat !== "") {
-            command.input(uAudioStream.url).inputFormat(audioFormat).audioCodec("opus");
-          } else {
-            log.warn(`streamToGo2rtc(): ffmpeg - Not support audio codec or unknown audio codec (${import_eufy_security_client.AudioCodec[metadata.audioCodec]})`);
-          }
-          command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`).outputFormat("rtsp").addOptions(options).on("start", (commandline) => {
-            log.debug(`streamToGo2rtc(): ffmpeg - commandline: ${commandline}`);
-          }).on("error", function(err, stdout, stderr) {
-            log.error(`streamToGo2rtc(): ffmpeg - An error occurred: ${err.message}`);
-            log.error(`streamToGo2rtc(): ffmpeg output:
-${stdout}`);
-            log.error(`streamToGo2rtc(): ffmpeg stderr:
-${stderr}`);
-            uAudioStream.close();
-            reject(err);
-          }).on("end", (stdout, stderr) => {
-            log.debug(`streamToGo2rtc(): ffmpeg output:
-${stdout}`);
-            log.debug(`streamToGo2rtc(): ffmpeg stderr:
-${stderr}`);
-            log.debug("streamToGo2rtc(): Processing finished!");
-            uAudioStream.close();
-            resolve();
-          });
-          command.run();
-        } else {
-          reject(new Error("ffmpeg binary not found"));
+    (0, import_promises.pipeline)(
+      audioStream,
+      api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error) => {
+        var _a, _b;
+        if (!((_b = (_a = error.response) == null ? void 0 : _a.body) == null ? void 0 : _b.startsWith("EOF"))) {
+          log.error(`streamToGo2rtc(): Got Audiostream Error: ${error.message}`);
         }
-      } catch (error) {
-        log.error(`streamToGo2rtc(): Audio Error: ${error}`);
-        reject(error);
-      }
-    })
+      }),
+      new import_node_stream.default.PassThrough()
+    )
+    // Alternative implementation in case of go2rtc audio bitstream isn't working (<= 1.8.5)
+    /*new Promise<void>((resolve, reject) => {
+                try {
+                    if (pathToFfmpeg) {
+                        ffmpeg.setFfmpegPath(pathToFfmpeg);
+    
+                        const uAudioStream = StreamInput(namespace, audioStream);
+    
+                        let audioFormat = "";
+                        const options: string[] = [
+                            "-rtsp_transport tcp",
+                            "-fflags genpts+nobuffer+flush_packets",
+                            //"-rtpflags latm",
+                            //"-compression_level 5",
+                            "-application lowdelay",
+                        ];
+    
+                        switch(metadata.audioCodec) {
+                            case AudioCodec.AAC:
+                                audioFormat = "aac";
+                                break;
+                        }
+    
+                        const command = ffmpeg()
+                            .withProcessOptions({
+                                detached: true
+                            });
+    
+                        if (audioFormat !== "") {
+                            command.input(uAudioStream.url)
+                                .inputFormat(audioFormat)
+                                .audioCodec("opus");
+                        } else {
+                            log.warn(`streamToGo2rtc(): ffmpeg - Not support audio codec or unknown audio codec (${AudioCodec[metadata.audioCodec]})`);
+                        }
+                        command.output(`rtsp://localhost:${config.go2rtc_rtsp_port}/${camera}`)
+                            .outputFormat("rtsp")
+                            .addOptions(options)
+                            .on("start", (commandline) => {
+                                log.debug(`streamToGo2rtc(): ffmpeg - commandline: ${commandline}`);
+                            })
+                            .on("error", function(err, stdout, stderr) {
+                                log.error(`streamToGo2rtc(): ffmpeg - An error occurred: ${err.message}`);
+                                log.error(`streamToGo2rtc(): ffmpeg output:\n${stdout}`);
+                                log.error(`streamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
+                                uAudioStream.close();
+                                reject(err);
+                            })
+                            .on("end", (stdout, stderr) => {
+                                log.debug(`streamToGo2rtc(): ffmpeg output:\n${stdout}`);
+                                log.debug(`streamToGo2rtc(): ffmpeg stderr:\n${stderr}`);
+                                log.debug("streamToGo2rtc(): Processing finished!");
+                                uAudioStream.close();
+                                resolve();
+                            });
+                        command.run();
+                    } else {
+                        reject(new Error("ffmpeg binary not found"));
+                    }
+                } catch (error) {
+                    log.error(`streamToGo2rtc(): Audio Error: ${error}`);
+                    reject(error);
+                }
+            })*/
   ]);
 };
 // Annotate the CommonJS export names for ESM import in node:

@@ -340,8 +340,7 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
             }),
             new stream.PassThrough()
         ),
-        //TODO: Tested with go2rtc 1.8.5 but not working - no audio; When the error in go2rtc is fixed, reactivate this part and remove the ffmpeg part
-        /*streamPipeline(
+        streamPipeline(
             audioStream,
             api.stream.post(`http://localhost:1984/api/stream?dst=${camera}`).on("error", (error: any) => {
                 if (!(error.response?.body as string)?.startsWith("EOF")) {
@@ -349,8 +348,9 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                 }
             }),
             new stream.PassThrough()
-        )*/
-        new Promise<void>((resolve, reject) => {
+        )
+        // Alternative implementation in case of go2rtc audio bitstream isn't working (<= 1.8.5)
+        /*new Promise<void>((resolve, reject) => {
             try {
                 if (pathToFfmpeg) {
                     ffmpeg.setFfmpegPath(pathToFfmpeg);
@@ -412,6 +412,6 @@ export const streamToGo2rtc = async (camera: string, videoStream: Readable, audi
                 log.error(`streamToGo2rtc(): Audio Error: ${error}`);
                 reject(error);
             }
-        })
+        })*/
     ]);
 }
