@@ -47,14 +47,14 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
-### 1.3.0 (2024-08-xx)
+### 1.3.0 (2024-08-27)
 
 * (bropat) Requires ioBroker.admin version >= 7.0.12
 * (bropat) Requires ioBroker.js-controller version >= 6.0.0
 * (bropat) Requires node version >= 20
 * (bropat) Added new setting to choose country indipendently of ioBroker setting
 * (bropat) New go2rtc streaming implementation
-* (bropat) Added messagebox support to exhibit new commands (snooze #294, chime, quickResponse, getQuickResponseVoices, pollRefresh)
+* (bropat) Added messagebox support (sendTo) to exhibit new commands (snooze #294, chime, quickResponse, getQuickResponseVoices, pollRefresh)
 * (bropat) Fixed deletion of obsolete devices, channels and states
 * (bropat) Added support for Video Smart Lock S330 (T8530)
 * (bropat) Added support for Smart Lock C210 (T8502)
@@ -70,11 +70,15 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 * (bropat/martijnpoppen) Added support for Solar Wall Light Cam S120 (T84A0; #406)
 * (bropat/martijnpoppen) Added support for SoloCam S340 (T8170; #399)
 * (bropat) Added support for Indoor Cam S350 (T8416; #403)
-* (bropat) Added support for Floodlight Cam E340 (T8425)
+* (bropat) Added support for Floodlight Cam E340 (T8425, #428)
 * (bropat) Added support for SoloCam C210 (T8B00)
 * (bropat) Storage of files switched to [Meta-Storage](https://iobroker.readthedocs.io/de/latest/bestpractice/storefiles.html#meta-storage)
 * (bropat) Implemented workaround for livestreaming issue introduced by CVE-2023-46809 in Node.js (18.19.1=<; 20.11.1=<; 21.6.2=<)
 * (bropat) Changed ffmpeg static package from `ffmpeg-static` to `ffmpeg-for-homebridge`
+* (bropat) Fixed issue #432
+* (bropat) Fixed issue #422
+* (bropat) Fixed issue #420
+* (bropat) Fixed issue #387
 * (bropat) Fixed issue #380
 * (bropat) Fixed issue #379
 * (bropat) Fixed issue #376
