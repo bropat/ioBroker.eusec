@@ -47,6 +47,11 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.3.1 (2024-09-08)
+
+* (bropat) Fixed issue #436
+* (bropat) Fixed issue #439
+
 ### 1.3.0 (2024-08-27)
 
 * (bropat) Requires ioBroker.admin version >= 7.0.12

@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.3.0",
+        "version": "1.3.1",
         "news": {
+            "1.3.1": {
+                "en": "Fixed issues #436, #439\n",
+                "uk": "Fixed issues #436, #439\n",
+                "de": "Behobene Probleme #436, #439\n",
+                "ru": "Исправлены проблемы #436, #439\n",
+                "pt": "Problemas corrigidos #436, #439\n",
+                "nl": "Problemen opgelost #436, #439\n",
+                "fr": "Correction des problèmes #436, #439\n",
+                "it": "Risolti i problemi #436, #439\n",
+                "es": "Solucionados los problemas #436, #439\n",
+                "pl": "Naprawiono błędy #436, #439\n",
+                "zh-cn": "修正問題 #436、#439\n"
+            },
             "1.3.0": {
                 "en": "Requires ioBroker.js-controller version >= 6.0.0\nRequires ioBroker.admin version >= 7.0.12\nRequires node version >= 20\nAdded support for Floodlight Cam E340 (T8425; #428)\nAdded support for Solar Wall Light Cam S120 (T84A0; #406)\nAdded support for Indoor Cam S350 (T8416; #403)\nAdded support for eufyCam E330 (Professional; T8600; #391)\nAdded support for SoloCam S340 (T8170; #392, #399)\nImplemented sendTo functionality (#294)\nUpdated version of the package eufy-security-client (3.1.0)\nUpdated version of the package go2rtc-static (1.9.4)\nFixed issues #371, #376, #379, #380, #387, #420, #422, #432\n",
                 "uk": "Requires ioBroker.js-controller version >= 6.0.0\nRequires ioBroker.admin version >= 7.0.12\nRequires node version >= 20\nAdded support for Floodlight Cam E340 (T8425; #428)\nAdded support for Solar Wall Light Cam S120 (T84A0; #406)\nAdded support for Indoor Cam S350 (T8416; #403)\nAdded support for eufyCam E330 (Professional; T8600; #391)\nAdded support for SoloCam S340 (T8170; #392, #399)\nImplemented sendTo functionality (#294)\nUpdated version of the package eufy-security-client (3.1.0)\nUpdated version of the package go2rtc-static (1.9.4)\nFixed issues #371, #376, #379, #380, #387, #420, #422, #432\n",
