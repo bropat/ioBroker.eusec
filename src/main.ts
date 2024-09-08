@@ -412,6 +412,7 @@ export class euSec extends utils.Adapter {
             }
 
             callback();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
             callback();
         }
@@ -1553,7 +1554,8 @@ export class euSec extends utils.Adapter {
     }
 
     private async onStationCommandResult(station: Station, result: CommandResult): Promise<void> {
-        if (result.return_code !== 0 && result.command_type !== CommandType.P2P_QUERY_STATUS_IN_LOCK) {
+        if ((result.return_code !== 0 && result.command_type !== CommandType.P2P_QUERY_STATUS_IN_LOCK && result.command_type !== CommandType.CMD_STORAGE_INFO_HB3) ||
+            (result.return_code !== ErrorCode.ERROR_DEV_BUSY && result.command_type === CommandType.CMD_STORAGE_INFO_HB3)) {
             this.logger.error(`Station: ${station.getSerial()} command ${CommandType[result.command_type]} failed with error: ${ErrorCode[result.return_code]} (${result.return_code})`);
         }
     }

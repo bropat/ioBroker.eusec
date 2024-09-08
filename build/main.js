@@ -1405,7 +1405,7 @@ class euSec extends utils.Adapter {
     await this.setStateAsync("info.mqtt_connection", { val: false, ack: true });
   }
   async onStationCommandResult(station, result) {
-    if (result.return_code !== 0 && result.command_type !== import_eufy_security_client.CommandType.P2P_QUERY_STATUS_IN_LOCK) {
+    if (result.return_code !== 0 && result.command_type !== import_eufy_security_client.CommandType.P2P_QUERY_STATUS_IN_LOCK && result.command_type !== import_eufy_security_client.CommandType.CMD_STORAGE_INFO_HB3 || result.return_code !== import_eufy_security_client.ErrorCode.ERROR_DEV_BUSY && result.command_type === import_eufy_security_client.CommandType.CMD_STORAGE_INFO_HB3) {
       this.logger.error(`Station: ${station.getSerial()} command ${import_eufy_security_client.CommandType[result.command_type]} failed with error: ${import_eufy_security_client.ErrorCode[result.return_code]} (${result.return_code})`);
     }
   }
