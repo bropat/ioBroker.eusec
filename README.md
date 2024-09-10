@@ -47,6 +47,10 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.3.2 (2024-09-10)
+
+* (bropat) Fixed issue #440
+
 ### 1.3.1 (2024-09-08)
 
 * (bropat) Fixed issue #436

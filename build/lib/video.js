@@ -268,7 +268,7 @@ ${stderr}`);
     }
   });
 };
-const streamToGo2rtc = async (camera, videoStream, audioStream, log, config, namespace, metadata) => {
+const streamToGo2rtc = async (camera, videoStream, audioStream, log, _config, _namespace, _metadata) => {
   const { default: got } = await import("got");
   const api = got.extend({
     hooks: {

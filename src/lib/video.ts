@@ -304,7 +304,7 @@ export const ffmpegStreamToGo2rtc = (config: ioBroker.AdapterConfig, namespace: 
     });
 }
 
-export const streamToGo2rtc = async (camera: string, videoStream: Readable, audioStream: Readable, log: ioBrokerLogger, config: ioBroker.AdapterConfig, namespace: string, metadata: StreamMetadata): Promise<Array<PromiseSettledResult<void>>> => {
+export const streamToGo2rtc = async (camera: string, videoStream: Readable, audioStream: Readable, log: ioBrokerLogger, _config: ioBroker.AdapterConfig, _namespace: string, _metadata: StreamMetadata): Promise<Array<PromiseSettledResult<void>>> => {
     const { default: got } = await import("got");
     const api = got.extend({
         hooks: {

@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.3.1",
+        "version": "1.3.2",
         "news": {
+            "1.3.2": {
+                "en": "Fixed issue #440\n",
+                "uk": "Fixed issue #440\n",
+                "de": "Problem #440 behoben\n",
+                "ru": "Исправлена проблема #440\n",
+                "pt": "Corrigido o problema #440\n",
+                "nl": "Probleem #440 opgelost\n",
+                "fr": "Correction du problème #440\n",
+                "it": "Risolto il problema #440\n",
+                "es": "Solucionado el problema #440\n",
+                "pl": "Naprawiono błąd #440\n",
+                "zh-cn": "修正問題 #440\n"
+            },
             "1.3.1": {
                 "en": "Fixed issues #436, #439\n",
                 "uk": "Fixed issues #436, #439\n",
