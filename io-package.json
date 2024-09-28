@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "eusec",
-        "version": "1.3.2",
+        "version": "1.3.3",
         "news": {
+            "1.3.3": {
+                "en": "Updated version of the package eufy-security-client (3.1.1)\n",
+                "uk": "Updated version of the package eufy-security-client (3.1.1)\n",
+                "de": "Version des Pakets eufy-security-client (3.1.1) aktualisiert\n",
+                "ru": "Обновленная версия пакета eufy-security-client (3.1.1)\n",
+                "pt": "Versão atualizada do pacote eufy-security-client (3.1.1)\n",
+                "nl": "Bijgewerkte versie van het pakket eufy-security-client (3.1.1)\n",
+                "fr": "Version mise à jour du paquet eufy-security-client (3.1.1)\n",
+                "it": "Aggiornata la versione del pacchetto eufy-security-client (3.1.1)\n",
+                "es": "Versión actualizada del paquete eufy-security-client (3.1.1)\n",
+                "pl": "Zaktualizowana wersja pakietu eufy-security-client (3.1.1)\n",
+                "zh-cn": "包 eufy-security-client (3.1.1) 的更新版本\n"
+            },
             "1.3.2": {
                 "en": "Fixed issue #440\n",
                 "uk": "Fixed issue #440\n",
@@ -54,19 +67,6 @@
                 "es": "Versión actualizada del paquete eufy-security-client (2.9.1)\n",
                 "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.9.1)\n",
                 "zh-cn": "包 eufy-security-client (2.9.1) 的更新版本\n"
-            },
-            "1.2.0": {
-                "en": "Requires node version >= 18\nAdded support for SmartTrack Link (T87B0) and SmartTrack Card (T87B2)\nAdded support for SoloCam S220 (T8134)\nUpdated version of the package go2rtc-static (1.8.1)\nUpdated version of the package eufy-security-client (2.9.0)\n",
-                "uk": "Requires node version >= 18\nAdded support for SmartTrack Link (T87B0) and SmartTrack Card (T87B2)\nAdded support for SoloCam S220 (T8134)\nUpdated version of the package go2rtc-static (1.8.1)\nUpdated version of the package eufy-security-client (2.9.0)\n",
-                "de": "Erfordert Node-Version >= 18\nUnterstützung für SmartTrack Link (T87B0) und SmartTrack Card (T87B2)\nUnterstützung für SoloCam S220 (T8134)\nAktualisierte Version des Pakets go2rtc-static (1.8.1)\nAktualisierte Version des Pakets eufy-security-client (2.9.0)\n",
-                "ru": "Требуется версия node >= 18\nДобавлена поддержка SmartTrack Link (T87B0) и SmartTrack Card (T87B2)\nДобавлена поддержка SoloCam S220 (T8134)\nОбновлена версия пакета go2rtc-static (1.8.1)\nОбновлена версия пакета eufy-security-client (2.9.0)\n",
-                "pt": "Requer node versão >= 18\nSuporte adicionado para SmartTrack Link (T87B0) e SmartTrack Card (T87B2)\nSuporte adicionado para SoloCam S220 (T8134)\nVersão atualizada do pacote go2rtc-static (1.8.1)\nVersão atualizada do pacote eufy-security-client (2.9.0)\n",
-                "nl": "Vereist node versie >= 18\nOndersteuning toegevoegd voor SmartTrack Link (T87B0) en SmartTrack Card (T87B2)\nOndersteuning toegevoegd voor SoloCam S220 (T8134)\nBijgewerkte versie van het pakket go2rtc-static (1.8.1)\nBijgewerkte versie van het pakket eufy-security-client (2.9.0)\n",
-                "fr": "Nécessite une version de node >= 18\nAjout de la prise en charge de SmartTrack Link (T87B0) et SmartTrack Card (T87B2)\nAjout de la prise en charge de SoloCam S220 (T8134)\nVersion mise à jour du paquet go2rtc-static (1.8.1)\nVersion mise à jour du paquet eufy-security-client (2.9.0)\n",
-                "it": "Richiede la versione di node >= 18\nAggiunto supporto per SmartTrack Link (T87B0) e SmartTrack Card (T87B2)\nAggiunto supporto per SoloCam S220 (T8134)\nVersione aggiornata del pacchetto go2rtc-static (1.8.1)\nVersione aggiornata del pacchetto eufy-security-client (2.9.0)\n",
-                "es": "Requiere node versión >= 18\nAgregado soporte para SmartTrack Link (T87B0) y SmartTrack Card (T87B2)\nAgregado soporte para SoloCam S220 (T8134)\nVersión actualizada del paquete go2rtc-static (1.8.1)\nVersión actualizada del paquete eufy-security-client (2.9.0)\n",
-                "pl": "Wymaga node w wersji >= 18\nDodano obsługę SmartTrack Link (T87B0) i SmartTrack Card (T87B2)\nDodano obsługę SoloCam S220 (T8134)\nZaktualizowano wersję pakietu go2rtc-static (1.8.1)\nZaktualizowano wersję pakietu eufy-security-client (2.9.0)\n",
-                "zh-cn": "要求 node 版本 >= 18\n添加了对智能跟踪链接（T87B0）和智能跟踪卡（T87B2）的支持\n添加了对 SoloCam S220 (T8134) 的支持\n软件包 go2rtc-static 的更新版本 (1.8.1)\n软件包 eufy-security-client 的更新版本 (2.9.0)\n"
             }
         },
         "titleLang": {

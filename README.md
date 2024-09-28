@@ -47,6 +47,11 @@ Best is to set the adapter to Debug log mode (see [here](https://bropat.github.i
 
 ## Changelog
 
+### 1.3.3 (2024-09-28)
+
+* (bropat) Updated version of the package eufy-security-client (3.1.1)
+* (bropat) Further details can be found in the changelog of eufy-security-client (3.1.1)
+
 ### 1.3.2 (2024-09-10)
 
 * (bropat) Fixed issue #440
